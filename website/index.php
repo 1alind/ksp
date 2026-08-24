@@ -22,11 +22,11 @@ $featuredProducts = array_filter($products, function($p) {
             </div>
             
             <h1 class="hero-headline">
-                <?php echo t('hero_title', $lang); ?>
+                <?php echo htmlspecialchars($settings['hero_headline_' . $lang] ?? t('hero_title', $lang)); ?>
             </h1>
             
             <p class="hero-description">
-                <?php echo t('hero_subtitle', $lang); ?>
+                <?php echo htmlspecialchars($settings['hero_subtitle_' . $lang] ?? t('hero_subtitle', $lang)); ?>
             </p>
             
             <div class="hero-cta-buttons">

@@ -20,15 +20,36 @@ $_SESSION['theme'] = $theme;
 require_once __DIR__ . '/translations.php';
 require_once __DIR__ . '/database/db.php';
 
+$settings = get_store_settings();
+$storeName = $settings['store_name'] ?? 'AURA Luxury Store';
+if ($lang === 'ar' && !empty($settings['store_name_ar'])) {
+    $storeName = $settings['store_name_ar'];
+} elseif ($lang === 'ku' && !empty($settings['store_name_ku'])) {
+    $storeName = $settings['store_name_ku'];
+}
+
+$logoType = $settings['logo_type'] ?? 'emblem';
+$logoEmblem = $settings['logo_emblem'] ?? 'A';
+$logoMain = $settings['logo_main'] ?? 'AURA';
+$logoSub = $settings['logo_sub'] ?? 'STUDIO';
+$logoImageUrl = $settings['logo_image_url'] ?? '';
+$faviconUrl = $settings['favicon_url'] ?? '';
+
+$announcementEnabled = $settings['announcement_enabled'] ?? true;
+$announcementText = $settings['announcement_text_' . $lang] ?? $settings['announcement_text_en'] ?? (t('features_shipping_title', $lang) . ' • ' . t('flash_sale_badge', $lang));
+
 $activePage = $activePage ?? 'home';
-$pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . t('site_title', $lang) : t('site_title', $lang);
+$pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName . ' — ' . ($settings['store_tagline_' . $lang] ?? 'Haute Couture & Swiss Horology');
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>" dir="<?php echo $dir; ?>" data-theme="<?php echo $theme; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?></title>
+    <title><?php echo htmlspecialchars($pageTitle); ?></title>
+    <?php if (!empty($faviconUrl)): ?>
+        <link rel="icon" href="<?php echo htmlspecialchars($faviconUrl); ?>">
+    <?php endif; ?>
     
     <!-- Google Fonts for English, Arabic, and Kurdish Badini -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,11 +61,12 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . t('site_title', $lang) :
 <body class="page-<?php echo $activePage; ?>">
     
     <!-- Top Announcement Bar -->
+    <?php if ($announcementEnabled): ?>
     <div class="announcement-bar">
         <div class="container announcement-container">
             <div class="announcement-text">
                 <span class="sparkle-icon">✨</span>
-                <span><?php echo t('features_shipping_title', $lang); ?> &bull; <strong><?php echo t('flash_sale_badge', $lang); ?></strong></span>
+                <span><?php echo htmlspecialchars($announcementText); ?></span>
             </div>
             
             <div class="top-bar-actions">
@@ -76,6 +98,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . t('site_title', $lang) :
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- Main Navigation Header -->
     <header class="site-header" id="siteHeader">
@@ -89,11 +112,15 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . t('site_title', $lang) :
 
             <!-- Brand Logo -->
             <a href="index.php" class="brand-logo">
-                <div class="logo-emblem">A</div>
-                <div class="logo-text-group">
-                    <span class="logo-main">AURA</span>
-                    <span class="logo-sub">STUDIO</span>
-                </div>
+                <?php if ($logoType === 'image' && !empty($logoImageUrl)): ?>
+                    <img src="<?php echo htmlspecialchars($logoImageUrl); ?>" alt="<?php echo htmlspecialchars($storeName); ?>" class="brand-img-logo" style="max-height:42px; object-fit:contain;">
+                <?php else: ?>
+                    <div class="logo-emblem"><?php echo htmlspecialchars($logoEmblem); ?></div>
+                    <div class="logo-text-group">
+                        <span class="logo-main"><?php echo htmlspecialchars($logoMain); ?></span>
+                        <span class="logo-sub"><?php echo htmlspecialchars($logoSub); ?></span>
+                    </div>
+                <?php endif; ?>
             </a>
 
             <!-- Desktop Navigation Links -->

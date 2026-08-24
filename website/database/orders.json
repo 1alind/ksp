@@ -7,9 +7,16 @@
       "phone": "+964 750 123 4567",
       "city": "Duhok",
       "address": "KRO Commercial Avenue, Building 4",
-      "payment_method": "Cash on Delivery",
-      "payment_status": "Pending",
-      "order_status": "Processing",
+      "payment_method": "First Iraqi Bank (FIB Bank)",
+      "payment_status": "Paid (FIB Verified)",
+      "payment_gateway_tx": "FIB-TX-9948201",
+      "order_status": "Out for Delivery",
+      "courier": "AURA VIP Express Logistics",
+      "driver_name": "Rebwar Duhoki",
+      "driver_phone": "+964 750 998 1234",
+      "tracking_code": "AURA-EXP-84920",
+      "dispatch_notes": "Satin package sealed. Courier is en route in Duhok KRO district.",
+      "estimated_delivery": "Today, 4:30 PM - 6:00 PM",
       "items": [
         {
           "product_id": 2,
@@ -34,6 +41,7 @@
       "shipping": 0.00,
       "discount": 0.00,
       "total": 565.00,
+      "total_iqd": 745800,
       "created_at": "2026-08-20T11:45:00Z"
     },
     {
@@ -43,9 +51,16 @@
       "phone": "+964 750 443 2110",
       "city": "Erbil",
       "address": "Dream City, Villa 88",
-      "payment_method": "FastPay / ZainCash",
-      "payment_status": "Paid",
+      "payment_method": "ZainCash (زين كاش)",
+      "payment_status": "Paid (ZainCash OTP)",
+      "payment_gateway_tx": "ZC-TX-7738192",
       "order_status": "Delivered",
+      "courier": "Lezzoo Express VIP",
+      "driver_name": "Ari Kwestani",
+      "driver_phone": "+964 750 332 9901",
+      "tracking_code": "LZ-ERB-73195",
+      "dispatch_notes": "Delivered in person to recipient at Dream City Villa 88. Signature confirmed.",
+      "estimated_delivery": "Delivered on Aug 19, 2026",
       "items": [
         {
           "product_id": 1,
@@ -61,7 +76,43 @@
       "shipping": 0.00,
       "discount": 18.50,
       "total": 166.50,
+      "total_iqd": 219780,
       "created_at": "2026-08-18T09:15:00Z"
+    },
+    {
+      "order_id": "ORD-61028",
+      "customer_name": "Mustafa Al-Mansour",
+      "email": "mustafa.baghdad@example.com",
+      "phone": "+964 770 123 9988",
+      "city": "Baghdad",
+      "address": "Al-Mansour District, Street 14, Villa 12",
+      "payment_method": "Cash on Delivery (COD)",
+      "payment_status": "Pending (Pay on Arrival)",
+      "payment_gateway_tx": "COD-BGD-61028",
+      "order_status": "Shipped",
+      "courier": "Fast Iraq Express Cargo",
+      "driver_name": "Hassan Al-Tamimi",
+      "driver_phone": "+964 770 554 3210",
+      "tracking_code": "FI-BGD-61028",
+      "dispatch_notes": "Departed regional hub. In transit to Baghdad Al-Mansour distribution center.",
+      "estimated_delivery": "Tomorrow by 2:00 PM",
+      "items": [
+        {
+          "product_id": 4,
+          "title": "Italian Silk Jacquard Tuxedo",
+          "price": 320.00,
+          "quantity": 1,
+          "color": "Obsidian Black",
+          "size": "50 Regular",
+          "image": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "subtotal": 320.00,
+      "shipping": 0.00,
+      "discount": 0.00,
+      "total": 320.00,
+      "total_iqd": 422400,
+      "created_at": "2026-08-22T14:20:00Z"
     }
   ]
 }

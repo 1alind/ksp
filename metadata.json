@@ -1,6 +1,6 @@
 {
-  "name": "PHP Showcase Website",
-  "description": "A beautiful, fully-functional multi-page portfolio website built with PHP, HTML, CSS, and JavaScript, served through a custom PHP template engine.",
+  "name": "AURA Luxury E-Commerce & Admin Portal",
+  "description": "A luxury e-commerce website for designer fashion, Swiss watches, and rare perfumes in English, Arabic, and Kurdish Badini, featuring First Iraqi Bank (FIB) and ZainCash API integrations, an advanced admin control panel, and live delivery tracking across Iraq and Kurdistan Region.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

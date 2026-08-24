@@ -125,7 +125,139 @@ function update_order_status($order_id, $status) {
     return false;
 }
 
-// 3. User Authentication Helpers
+function update_order_full($order_id, $fields) {
+    $data = read_json_db('orders.json');
+    $orders = $data['orders'] ?? [];
+    foreach ($orders as &$o) {
+        if ($o['order_id'] === $order_id) {
+            $o = array_merge($o, $fields);
+            $data['orders'] = $orders;
+            write_json_db('orders.json', $data);
+            return $o;
+        }
+    }
+    return null;
+}
+
+function delete_order($order_id) {
+    $data = read_json_db('orders.json');
+    $orders = $data['orders'] ?? [];
+    $filtered = array_filter($orders, function($o) use ($order_id) {
+        return $o['order_id'] !== $order_id;
+    });
+    $data['orders'] = array_values($filtered);
+    return write_json_db('orders.json', $data);
+}
+
+// 3. Store Settings & Payment Gateway Tokens
+function get_store_settings() {
+    $data = read_json_db('settings.json');
+    if (empty($data)) {
+        $default = [
+            'store_name' => 'AURA Luxury Store',
+            'exchange_rate_usd_to_iqd' => 1320,
+            'default_currency' => 'USD',
+            'delivery_kurdistan_fee' => 0,
+            'delivery_iraq_fee' => 0,
+            'free_delivery_threshold' => 0,
+            'contact_phone' => '+964 750 123 4567',
+            'contact_email' => 'concierge@aurastore.com',
+            'contact_whatsapp' => '9647501234567',
+            'gateways' => [
+                'fib' => [
+                    'enabled' => true,
+                    'mode' => 'test',
+                    'client_id' => 'fib_live_client_89420ab92c',
+                    'client_secret' => 'fib_sec_9941a87b32f9104c99a0',
+                    'base_url_test' => 'https://api.test.fib.iq/v1',
+                    'base_url_prod' => 'https://api.fib.iq/v1',
+                    'account_holder' => 'AURA LUXURY TRADING LTD (FIB Iraq)',
+                    'account_iban' => 'IQ44FIBQ0000001009283741',
+                    'callback_url' => 'https://aurastore.iq/api/fib/callback',
+                    'webhook_secret' => 'whsec_fib_849204810238'
+                ],
+                'zaincash' => [
+                    'enabled' => true,
+                    'mode' => 'test',
+                    'merchant_id' => '5ff6561082c3f8109c11f2a3',
+                    'secret_key' => '$2y$10$hBbAZo2GfWge2j0xEv3q8.8Vo5AeaJk6m3mG0a.a2K9p8N.O0s1qG',
+                    'msisdn' => '9647835077893',
+                    'base_url_test' => 'https://test.zaincash.iq/transaction',
+                    'base_url_prod' => 'https://api.zaincash.iq/transaction',
+                    'redirect_url' => 'https://aurastore.iq/api/zaincash/redirect'
+                ],
+                'fastpay' => [
+                    'enabled' => true,
+                    'mode' => 'test',
+                    'merchant_mobile' => '07501234567',
+                    'store_id' => 'FP_STORE_94821',
+                    'store_password' => 'FastPaySecretPass2026'
+                ],
+                'cod' => [
+                    'enabled' => true,
+                    'max_limit' => 5000
+                ],
+                'card' => [
+                    'enabled' => true,
+                    'mode' => 'test'
+                ]
+            ]
+        ];
+        write_json_db('settings.json', $default);
+        return $default;
+    }
+    return $data;
+}
+
+function save_store_settings($settings) {
+    return write_json_db('settings.json', $settings);
+}
+
+// 4. Inquiries & VIP Concierge Messages
+function get_all_inquiries() {
+    $data = read_json_db('inquiries.json');
+    return $data['inquiries'] ?? [];
+}
+
+function create_inquiry($inquiry_data) {
+    $data = read_json_db('inquiries.json');
+    $inquiries = $data['inquiries'] ?? [];
+    if (empty($inquiry_data['id'])) {
+        $inquiry_data['id'] = 'INQ-' . rand(100, 999);
+    }
+    $inquiry_data['created_at'] = date('Y-m-d\TH:i:s\Z');
+    $inquiry_data['status'] = $inquiry_data['status'] ?? 'New';
+    array_unshift($inquiries, $inquiry_data);
+    $data['inquiries'] = $inquiries;
+    write_json_db('inquiries.json', $data);
+    return $inquiry_data;
+}
+
+function update_inquiry_status($id, $status) {
+    $data = read_json_db('inquiries.json');
+    $inquiries = $data['inquiries'] ?? [];
+    foreach ($inquiries as &$inq) {
+        if ($inq['id'] === $id) {
+            $inq['status'] = $status;
+            $data['inquiries'] = $inquiries;
+            write_json_db('inquiries.json', $data);
+            return true;
+        }
+    }
+    return false;
+}
+
+function delete_inquiry($id) {
+    $data = read_json_db('inquiries.json');
+    $inquiries = $data['inquiries'] ?? [];
+    $filtered = array_filter($inquiries, function($i) use ($id) {
+        return $i['id'] !== $id;
+    });
+    $data['inquiries'] = array_values($filtered);
+    return write_json_db('inquiries.json', $data);
+}
+
+// 5. User Authentication Helpers
 function get_all_users() {
     $data = read_json_db('users.json');
     return $data['users'] ?? [];

@@ -45,17 +45,21 @@
         <div class="container footer-main-container">
             <div class="footer-brand-col">
                 <a href="index.php" class="brand-logo footer-logo">
-                    <div class="logo-emblem">A</div>
-                    <div class="logo-text-group">
-                        <span class="logo-main">AURA</span>
-                        <span class="logo-sub">STUDIO</span>
-                    </div>
+                    <?php if ($logoType === 'image' && !empty($logoImageUrl)): ?>
+                        <img src="<?php echo htmlspecialchars($logoImageUrl); ?>" alt="<?php echo htmlspecialchars($storeName); ?>" class="brand-img-logo" style="max-height:38px; object-fit:contain;">
+                    <?php else: ?>
+                        <div class="logo-emblem"><?php echo htmlspecialchars($logoEmblem); ?></div>
+                        <div class="logo-text-group">
+                            <span class="logo-main"><?php echo htmlspecialchars($logoMain); ?></span>
+                            <span class="logo-sub"><?php echo htmlspecialchars($logoSub); ?></span>
+                        </div>
+                    <?php endif; ?>
                 </a>
-                <p class="footer-intro"><?php echo t('footer_about', $lang); ?></p>
+                <p class="footer-intro"><?php echo htmlspecialchars($settings['store_description_' . $lang] ?? t('footer_about', $lang)); ?></p>
                 <div class="footer-contact-pills">
-                    <div class="contact-pill">📍 Duhok / Erbil / International</div>
-                    <div class="contact-pill">📞 +964 750 123 4567</div>
-                    <div class="contact-pill">✉️ concierge@aurastudio.co</div>
+                    <div class="contact-pill">📍 <?php echo htmlspecialchars($settings['boutique_location_' . $lang] ?? 'Duhok / Erbil / International'); ?></div>
+                    <div class="contact-pill">📞 <?php echo htmlspecialchars($settings['contact_phone'] ?? '+964 750 123 4567'); ?></div>
+                    <div class="contact-pill">✉️ <?php echo htmlspecialchars($settings['contact_email'] ?? 'concierge@aurastudio.co'); ?></div>
                 </div>
             </div>
 
