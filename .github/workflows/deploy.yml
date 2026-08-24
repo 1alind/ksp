@@ -1,0 +1,26 @@
+name: Deploy KSP to Shop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: Sync Files to Shop
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v3
+
+    - name: Upload via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ftpupload.net
+        username: if0_41557722
+        password: sjBEcko70k
+        local-dir: ./website/
+        server-dir: /htdocs/shop/
+        exclude: |
+          **/database/**
+          database/**
