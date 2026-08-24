@@ -21,7 +21,5 @@ jobs:
         password: sjBEcko70k
         local-dir: ./website/
         server-dir: /htdocs/shop/
-        exclude: |
-          **/database/**
-          database/**
+        
           
