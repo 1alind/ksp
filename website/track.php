@@ -242,7 +242,7 @@ if (!empty($searchOrderId)) {
                         <?php if (!empty($foundOrder['payment_gateway_tx'])): ?>
                             <p><strong>Transaction ID:</strong> <code><?php echo htmlspecialchars($foundOrder['payment_gateway_tx']); ?></code></p>
                         <?php endif; ?>
-                        <p><strong>Total Amount:</strong> <span class="text-primary font-bold text-lg">$<?php echo number_format($ordTot, 2); ?></span> <small class="text-muted">(<?php echo number_format($ordIqd); ?> IQD)</small></p>
+                        <p><strong>Total Amount:</strong> <span class="text-primary font-bold text-lg"><?php echo number_format($ordTot); ?> IQD</span></p>
                     </div>
                 </div>
 
@@ -260,7 +260,7 @@ if (!empty($searchOrderId)) {
                                     <span>Quantity: <?php echo $item['quantity']; ?> <?php echo !empty($item['size']) ? '• Size: ' . $item['size'] : ''; ?></span>
                                 </div>
                                 <div class="track-item-price">
-                                    $<?php echo number_format($item['price'] * $item['quantity'], 2); ?>
+                                    <?php echo number_format($item['price'] * $item['quantity']); ?> IQD
                                 </div>
                             </div>
                         <?php endforeach; ?>

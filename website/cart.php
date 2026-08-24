@@ -50,12 +50,12 @@ require_once __DIR__ . '/header.php';
                     
                     <div class="summary-row">
                         <span><?php echo t('cart_subtotal', $lang); ?></span>
-                        <span id="summarySubtotal" class="font-bold">$0.00</span>
+                        <span id="summarySubtotal" class="font-bold">0 IQD</span>
                     </div>
 
                     <div class="summary-row" id="discountRow" style="display: none;">
                         <span><?php echo t('cart_discount', $lang); ?> <small id="discountBadge" class="text-success"></small></span>
-                        <span id="summaryDiscount" class="text-success font-bold">-$0.00</span>
+                        <span id="summaryDiscount" class="text-success font-bold">-0 IQD</span>
                     </div>
 
                     <div class="summary-row">
@@ -71,7 +71,7 @@ require_once __DIR__ . '/header.php';
 
                     <div class="summary-row total-row">
                         <span><?php echo t('cart_total', $lang); ?></span>
-                        <span id="summaryTotal" class="total-price-val">$0.00</span>
+                        <span id="summaryTotal" class="total-price-val">0 IQD</span>
                     </div>
 
                     <!-- Coupon Code Input -->
@@ -150,7 +150,7 @@ function renderCartPage() {
                         </div>
                     </div>
                 </td>
-                <td class="price-cell">$${item.price.toFixed(2)}</td>
+                <td class="price-cell">${Math.round(item.price).toLocaleString()} IQD</td>
                 <td class="qty-cell">
                     <div class="quantity-picker qty-mini">
                         <button type="button" class="qty-btn" onclick="window.AuraStore.updateQuantity(${item.id}, ${item.quantity - 1}, '${item.size || ''}', '${item.color || ''}'); renderCartPage();">−</button>
@@ -158,7 +158,7 @@ function renderCartPage() {
                         <button type="button" class="qty-btn" onclick="window.AuraStore.updateQuantity(${item.id}, ${item.quantity + 1}, '${item.size || ''}', '${item.color || ''}'); renderCartPage();">+</button>
                     </div>
                 </td>
-                <td class="subtotal-cell font-bold">$${itemSubtotal.toFixed(2)}</td>
+                <td class="subtotal-cell font-bold">${Math.round(itemSubtotal).toLocaleString()} IQD</td>
                 <td class="remove-cell">
                     <button class="btn-remove-item" onclick="window.AuraStore.removeFromCart(${item.id}, '${item.size || ''}', '${item.color || ''}'); renderCartPage();" title="Remove">✕</button>
                 </td>
@@ -170,21 +170,21 @@ function renderCartPage() {
 
     // Check discount from sessionStorage
     const activeDiscountRate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const discountAmount = subtotal * activeDiscountRate;
-    const finalTotal = Math.max(0, subtotal - discountAmount);
+    const discountAmount = Math.round(subtotal * activeDiscountRate);
+    const finalTotal = Math.max(0, Math.round(subtotal - discountAmount));
 
-    document.getElementById('summarySubtotal').innerText = '$' + subtotal.toFixed(2);
+    document.getElementById('summarySubtotal').innerText = Math.round(subtotal).toLocaleString() + ' IQD';
     
     const discountRow = document.getElementById('discountRow');
     if (activeDiscountRate > 0) {
         discountRow.style.display = 'flex';
         document.getElementById('discountBadge').innerText = `(${activeDiscountRate * 100}%)`;
-        document.getElementById('summaryDiscount').innerText = '-$' + discountAmount.toFixed(2);
+        document.getElementById('summaryDiscount').innerText = '-' + discountAmount.toLocaleString() + ' IQD';
     } else {
         discountRow.style.display = 'none';
     }
 
-    document.getElementById('summaryTotal').innerText = '$' + finalTotal.toFixed(2);
+    document.getElementById('summaryTotal').innerText = finalTotal.toLocaleString() + ' IQD';
 }
 
 function applyCoupon() {

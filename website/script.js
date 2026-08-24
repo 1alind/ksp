@@ -96,12 +96,18 @@
 
         // 2. Toast Notifications
         showToast: function (message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
+            let container = document.getElementById('toastContainer') || document.getElementById('auraToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'auraToastContainer';
+                container.className = 'aura-toast-container';
+                document.body.appendChild(container);
+            }
 
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
-            toast.innerHTML = `<span>✨</span> <div>${message}</div>`;
+            const icon = type === 'success' ? '✓' : (type === 'error' ? '⚠️' : '✨');
+            toast.innerHTML = `<span style="font-size:16px;">${icon}</span> <div style="font-weight:600;">${message}</div>`;
 
             container.appendChild(toast);
 
@@ -109,7 +115,100 @@
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateY(10px)';
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 3200);
+        },
+
+        // 3. Admin Operations (AJAX without page reload)
+        updateOrderStatus: async function (orderId, newStatus, selectEl) {
+            const row = selectEl ? selectEl.closest('tr') : null;
+            const prevStatus = selectEl ? (selectEl.getAttribute('data-previous-status') || 'Pending') : 'Pending';
+
+            if (selectEl) {
+                selectEl.classList.add('saving');
+                selectEl.disabled = true;
+            }
+
+            try {
+                const res = await fetch('/api/admin/order-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, order_status: newStatus })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (selectEl) {
+                        selectEl.setAttribute('data-previous-status', newStatus);
+                        selectEl.classList.remove('saving');
+                        selectEl.classList.add('success-pulse');
+                        setTimeout(() => selectEl.classList.remove('success-pulse'), 1500);
+                    }
+                    if (row) {
+                        row.setAttribute('data-status', newStatus);
+                    }
+                    this.showToast(`✓ Order #${orderId} status set to "${newStatus}"`, 'success');
+                } else {
+                    throw new Error(data.error || 'Failed to update');
+                }
+            } catch (err) {
+                console.error('Error updating order status:', err);
+                if (selectEl) {
+                    selectEl.value = prevStatus;
+                    selectEl.classList.remove('saving');
+                }
+                this.showToast(`⚠️ Could not update #${orderId}: ${err.message || 'Server error'}`, 'error');
+            } finally {
+                if (selectEl) {
+                    selectEl.disabled = false;
+                }
+            }
+        },
+
+        adjustStock: async function (productId, delta, btnEl) {
+            const countEl = document.getElementById('stockCount_' + productId);
+            const currentStock = countEl ? (parseInt(countEl.innerText.trim(), 10) || 0) : 0;
+            const newStock = Math.max(0, currentStock + delta);
+
+            if (countEl) {
+                countEl.innerText = newStock;
+                countEl.style.color = newStock < 5 ? '#ef4444' : '';
+                countEl.classList.add('bump');
+                setTimeout(() => countEl.classList.remove('bump'), 250);
+            }
+
+            if (btnEl) {
+                btnEl.disabled = true;
+            }
+
+            try {
+                const res = await fetch('/api/admin/stock-adjust', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, stock_delta: delta })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (countEl && data.stock !== undefined) {
+                        countEl.innerText = data.stock;
+                        countEl.style.color = data.stock < 5 ? '#ef4444' : '';
+                    }
+                    this.showToast(`📦 Product #${productId} stock updated to ${data.stock !== undefined ? data.stock : newStock}`, 'success');
+                } else {
+                    throw new Error(data.error || 'Failed to adjust');
+                }
+            } catch (err) {
+                console.error('Error adjusting stock:', err);
+                if (countEl) {
+                    countEl.innerText = currentStock;
+                    countEl.style.color = currentStock < 5 ? '#ef4444' : '';
+                }
+                this.showToast(`⚠️ Failed to adjust stock for #${productId}`, 'error');
+            } finally {
+                if (btnEl) {
+                    btnEl.disabled = false;
+                }
+            }
         },
 
         // 3. Payment Gateway Live Diagnostics & Telemetry
@@ -262,8 +361,8 @@
                             <span class="rating-num">${product.rating}</span>
                         </div>
                         <div class="single-price-box" style="padding:10px 14px; margin-bottom:16px;">
-                            <span class="current-price-lg" style="font-size:26px;">$${product.price.toFixed(2)}</span>
-                            ${product.old_price ? `<span class="old-price-lg">$${product.old_price.toFixed(2)}</span>` : ''}
+                            <span class="current-price-lg" style="font-size:26px;">${Math.round(product.price).toLocaleString()} IQD</span>
+                            ${product.old_price ? `<span class="old-price-lg">${Math.round(product.old_price).toLocaleString()} IQD</span>` : ''}
                         </div>
                         <p class="product-short-desc" style="font-size:14px; margin-bottom:16px;">${desc}</p>
                         <div class="purchase-action-row" style="margin:14px 0;">

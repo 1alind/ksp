@@ -139,6 +139,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_new_product'])) {
     }
 }
 
+// Handle Update / Edit Product
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
+    $prodId = intval($_POST['edit_prod_id'] ?? 0);
+    if ($prodId > 0) {
+        $titleEn = trim($_POST['edit_prod_title_en'] ?? '');
+        $titleAr = trim($_POST['edit_prod_title_ar'] ?? $titleEn);
+        $titleKu = trim($_POST['edit_prod_title_ku'] ?? $titleEn);
+        $cat = trim($_POST['edit_prod_category'] ?? 'clothes');
+        $price = floatval($_POST['edit_prod_price'] ?? 0);
+        $oldPrice = !empty($_POST['edit_prod_old_price']) ? floatval($_POST['edit_prod_old_price']) : null;
+        $stock = intval($_POST['edit_prod_stock'] ?? 10);
+        $image = trim($_POST['edit_prod_image'] ?? '');
+        $galleryRaw = trim($_POST['edit_prod_gallery'] ?? '');
+        $galleryImages = !empty($galleryRaw) ? array_values(array_filter(array_map('trim', explode(',', $galleryRaw)))) : [$image];
+        if (!empty($image) && !in_array($image, $galleryImages)) {
+            array_unshift($galleryImages, $image);
+        }
+        $badge = trim($_POST['edit_prod_badge'] ?? '');
+        $badgeAr = trim($_POST['edit_prod_badge_ar'] ?? $badge);
+        $badgeKu = trim($_POST['edit_prod_badge_ku'] ?? $badge);
+        $descEn = trim($_POST['edit_prod_desc_en'] ?? '');
+        $descAr = trim($_POST['edit_prod_desc_ar'] ?? $descEn);
+        $descKu = trim($_POST['edit_prod_desc_ku'] ?? $descEn);
+        $featured = isset($_POST['edit_prod_featured']);
+        $sizesRaw = trim($_POST['edit_prod_sizes'] ?? '');
+        $sizes = !empty($sizesRaw) ? array_values(array_filter(array_map('trim', explode(',', $sizesRaw)))) : ($cat === 'clothes' ? ['S', 'M', 'L', 'XL'] : ($cat === 'watches' ? ['42mm Case'] : ['100ml / 3.4 oz']));
+        $colorsRaw = trim($_POST['edit_prod_colors'] ?? '');
+        $colors = !empty($colorsRaw) ? array_values(array_filter(array_map('trim', explode(',', $colorsRaw)))) : ['Luxury Edition'];
+
+        $existingProduct = get_product_by_id($prodId) ?: [];
+
+        $updatedProduct = array_merge($existingProduct, [
+            'id' => $prodId,
+            'title' => [
+                'en' => $titleEn ?: ($existingProduct['title']['en'] ?? 'Luxury Item'),
+                'ar' => $titleAr ?: ($existingProduct['title']['ar'] ?? $titleEn),
+                'ku' => $titleKu ?: ($existingProduct['title']['ku'] ?? $titleEn)
+            ],
+            'category' => $cat,
+            'price' => $price,
+            'old_price' => $oldPrice,
+            'badge' => $badge,
+            'badge_ar' => $badgeAr,
+            'badge_ku' => $badgeKu,
+            'stock' => $stock,
+            'image' => $image ?: ($existingProduct['image'] ?? ''),
+            'images' => $galleryImages,
+            'sizes' => $sizes,
+            'colors' => $colors,
+            'description' => [
+                'en' => $descEn ?: ($existingProduct['description']['en'] ?? ''),
+                'ar' => $descAr ?: ($existingProduct['description']['ar'] ?? ''),
+                'ku' => $descKu ?: ($existingProduct['description']['ku'] ?? '')
+            ],
+            'featured' => $featured
+        ]);
+
+        save_product($updatedProduct);
+        $actionMsg = 'Product #' . $prodId . ' (' . htmlspecialchars($titleEn) . ') updated successfully!';
+    }
+}
+
 // Handle Delete Product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product_id'])) {
     $delId = intval($_POST['delete_product_id']);
@@ -230,8 +292,8 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                 <span class="m-icon">💰</span>
                 <div class="m-info">
                     <span class="m-label"><?php echo t('admin_stats_revenue', $lang); ?></span>
-                    <strong class="m-value text-primary">$<?php echo number_format($totalRevenueUsd, 2); ?></strong>
-                    <span class="iqd-price-pill">≈ <?php echo number_format($totalRevenueIqd); ?> IQD</span>
+                    <strong class="m-value text-primary"><?php echo number_format($totalRevenueUsd); ?> IQD</strong>
+                    <span class="iqd-price-pill">All Orders Settled in IQD</span>
                 </div>
             </div>
 
@@ -445,7 +507,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                 <th>Date</th>
                                 <th>Client & Destination</th>
                                 <th>Items</th>
-                                <th>Total ($ & IQD)</th>
+                                <th>Total (IQD)</th>
                                 <th>Payment & Status</th>
                                 <th>Courier & Tracking</th>
                                 <th>Quick Status</th>
@@ -455,7 +517,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                         <tbody>
                             <?php foreach ($ordersList as $ord): 
                                 $ordTot = $ord['total'] ?? 0;
-                                $ordIqd = $ord['total_iqd'] ?? ($ordTot * $rate);
+                                $ordIqd = $ord['total_iqd'] ?? $ordTot;
                                 $itemsCount = count($ord['items'] ?? []);
                                 $waPhone = preg_replace('/[^0-9]/', '', $ord['phone'] ?? '');
                                 if (strpos($waPhone, '07') === 0) {
@@ -474,8 +536,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                     </td>
                                     <td><?php echo $itemsCount; ?> pcs</td>
                                     <td>
-                                        <strong class="text-primary font-bold">$<?php echo number_format($ordTot, 2); ?></strong><br>
-                                        <small class="text-muted"><?php echo number_format($ordIqd); ?> IQD</small>
+                                        <strong class="text-primary font-bold"><?php echo number_format($ordTot); ?> IQD</strong>
                                     </td>
                                     <td>
                                         <span class="badge-tag"><?php echo htmlspecialchars($ord['payment_method']); ?></span><br>
@@ -493,10 +554,8 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                         </div>
                                     </td>
                                     <td>
-                                        <form action="admin.php" method="POST" class="inline-status-form">
-                                            <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($ord['order_id']); ?>">
-                                            <input type="hidden" name="update_order_status" value="1">
-                                            <select name="order_status" class="status-select" onchange="this.form.submit()">
+                                        <div class="order-status-wrapper" id="orderStatusWrap_<?php echo htmlspecialchars($ord['order_id']); ?>">
+                                            <select name="order_status" class="status-select" data-previous-status="<?php echo htmlspecialchars($ord['order_status'] ?? 'Pending'); ?>" onchange="window.AuraStore.updateOrderStatus('<?php echo htmlspecialchars($ord['order_id']); ?>', this.value, this)">
                                                 <option value="Pending" <?php echo ($ord['order_status'] ?? '') === 'Pending' ? 'selected' : ''; ?>>Pending</option>
                                                 <option value="Processing" <?php echo ($ord['order_status'] ?? '') === 'Processing' ? 'selected' : ''; ?>>Processing</option>
                                                 <option value="Shipped" <?php echo ($ord['order_status'] ?? '') === 'Shipped' ? 'selected' : ''; ?>>Shipped (Dispatched)</option>
@@ -504,7 +563,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                                 <option value="Delivered" <?php echo ($ord['order_status'] ?? '') === 'Delivered' ? 'selected' : ''; ?>>Delivered</option>
                                                 <option value="Cancelled" <?php echo ($ord['order_status'] ?? '') === 'Cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                                             </select>
-                                        </form>
+                                        </div>
                                     </td>
                                     <td>
                                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -815,7 +874,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                 <th>ID</th>
                                 <th>Product</th>
                                 <th>Category</th>
-                                <th>Price (USD & IQD)</th>
+                                <th>Price (IQD)</th>
                                 <th>Stock Stepper</th>
                                 <th>Rating</th>
                                 <th>Actions</th>
@@ -824,48 +883,55 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                         <tbody>
                             <?php foreach ($productsList as $p): 
                                 $pTitle = is_array($p['title']) ? ($p['title'][$lang] ?? $p['title']['en']) : $p['title'];
-                                $pPriceUsd = $p['price'] ?? 0;
-                                $pPriceIqd = $pPriceUsd * $rate;
+                                $pPriceIqd = $p['price'] ?? 0;
+                                $pOldPriceIqd = $p['old_price'] ?? null;
                             ?>
                                 <tr>
                                     <td>#<?php echo $p['id']; ?></td>
                                     <td>
                                         <div class="admin-prod-preview">
-                                            <img src="<?php echo htmlspecialchars($p['image']); ?>" alt="" class="admin-prod-thumb">
+                                            <img src="<?php echo htmlspecialchars($p['image']); ?>" alt="" class="admin-prod-thumb" id="adminThumb_<?php echo $p['id']; ?>">
                                             <div>
-                                                <strong><a href="product.php?id=<?php echo $p['id']; ?>"><?php echo htmlspecialchars($pTitle); ?></a></strong><br>
-                                                <small class="badge-tag"><?php echo htmlspecialchars($p['badge'] ?? ''); ?></small>
+                                                <strong><a href="product.php?id=<?php echo $p['id']; ?>" target="_blank" style="color:var(--text-primary);"><?php echo htmlspecialchars($pTitle); ?></a></strong><br>
+                                                <?php if (!empty($p['badge'])): ?>
+                                                    <small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;"><?php echo htmlspecialchars($p['badge']); ?></small>
+                                                <?php endif; ?>
+                                                <?php if (!empty($p['featured'])): ?>
+                                                    <small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
                                     <td><span class="badge-tag text-uppercase"><?php echo htmlspecialchars($p['category']); ?></span></td>
                                     <td>
-                                        <strong class="font-bold">$<?php echo number_format($pPriceUsd, 2); ?></strong><br>
-                                        <small class="text-muted"><?php echo number_format($pPriceIqd); ?> IQD</small>
+                                        <div style="display:flex; flex-direction:column;">
+                                            <strong class="font-bold" style="color:var(--accent-gold); font-size:14px;"><?php echo number_format($pPriceIqd); ?> IQD</strong>
+                                            <?php if (!empty($pOldPriceIqd) && $pOldPriceIqd > $pPriceIqd): ?>
+                                                <small style="text-decoration:line-through; color:var(--text-muted); font-size:11.5px;"><?php echo number_format($pOldPriceIqd); ?> IQD</small>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                     <td>
-                                        <div class="stock-stepper">
-                                            <form action="admin.php" method="POST" style="display:inline;">
-                                                <input type="hidden" name="quick_stock_adjust" value="1">
-                                                <input type="hidden" name="product_id" value="<?php echo $p['id']; ?>">
-                                                <input type="hidden" name="stock_delta" value="-1">
-                                                <button type="submit" class="btn-stock-step">-</button>
-                                            </form>
-                                            <span style="font-weight:700; min-width:32px; text-align:center;"><?php echo $p['stock']; ?></span>
-                                            <form action="admin.php" method="POST" style="display:inline;">
-                                                <input type="hidden" name="quick_stock_adjust" value="1">
-                                                <input type="hidden" name="product_id" value="<?php echo $p['id']; ?>">
-                                                <input type="hidden" name="stock_delta" value="1">
-                                                <button type="submit" class="btn-stock-step">+</button>
-                                            </form>
+                                        <div class="stock-stepper" id="stockStepper_<?php echo $p['id']; ?>">
+                                            <button type="button" class="btn-stock-step" title="Decrease stock" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, -1, this)">-</button>
+                                            <span class="stock-count-num" id="stockCount_<?php echo $p['id']; ?>" style="<?php echo ($p['stock'] < 5) ? 'color:#ef4444;' : ''; ?>"><?php echo $p['stock']; ?></span>
+                                            <button type="button" class="btn-stock-step" title="Increase stock" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, 1, this)">+</button>
                                         </div>
                                     </td>
                                     <td>★ <?php echo number_format($p['rating'], 1); ?> (<?php echo $p['reviews_count'] ?? 1; ?>)</td>
                                     <td>
-                                        <form action="admin.php" method="POST" onsubmit="return confirm('Delete product permanently?')">
-                                            <input type="hidden" name="delete_product_id" value="<?php echo $p['id']; ?>">
-                                            <button type="submit" class="btn btn-ghost text-danger btn-xs">Delete</button>
-                                        </form>
+                                        <div style="display:flex; gap:6px; align-items:center;">
+                                            <button type="button" class="btn btn-outline btn-xs" style="color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;" onclick='openEditProductModal(<?php echo htmlspecialchars(json_encode($p, JSON_UNESCAPED_UNICODE), ENT_QUOTES, "UTF-8"); ?>)'>
+                                                ✏️ Edit
+                                            </button>
+                                            <a href="product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="View product in boutique">
+                                                👁️
+                                            </a>
+                                            <form action="admin.php" method="POST" onsubmit="return confirm('Delete product permanently?')" style="display:inline; margin:0;">
+                                                <input type="hidden" name="delete_product_id" value="<?php echo $p['id']; ?>">
+                                                <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete product">🗑️</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -879,7 +945,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
         <div class="admin-tab-pane" id="adm-add-product">
             <div class="admin-form-card">
                 <h3 class="admin-card-title">+ Add New Luxury Piece to Catalog</h3>
-                <p class="text-muted mb-20">Trilingual titles and details for English, Arabic, and Kurdish Badini audiences.</p>
+                <p class="text-muted mb-20">Trilingual titles, IQD pricing, custom discount badge tags, and multi-angle imagery for English, Arabic, and Kurdish Badini audiences.</p>
                 <form action="admin.php" method="POST" class="add-product-form">
                     <input type="hidden" name="add_new_product" value="1">
 
@@ -909,26 +975,28 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Price ($ USD) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" name="prod_price" required class="form-control" placeholder="250.00">
+                            <label>Price (IQD) <span class="text-danger">*</span></label>
+                            <input type="number" step="500" name="prod_price" required class="form-control" placeholder="e.g. 240000">
+                            <small class="text-muted">Enter price in Iraqi Dinar (IQD)</small>
                         </div>
                         <div class="form-group">
-                            <label>Old Price ($ USD) (Optional)</label>
-                            <input type="number" step="0.01" name="prod_old_price" class="form-control" placeholder="320.00">
+                            <label>Old Price (IQD) (Optional Discount)</label>
+                            <input type="number" step="500" name="prod_old_price" class="form-control" placeholder="e.g. 310000">
+                            <small class="text-muted">Original price before discount</small>
                         </div>
                     </div>
 
                     <div class="form-row-3">
                         <div class="form-group">
-                            <label>Stock Quantity</label>
+                            <label>Stock Inventory Count</label>
                             <input type="number" name="prod_stock" value="15" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Badge Tag</label>
-                            <input type="text" name="prod_badge" value="Limited Edition" class="form-control">
+                            <label>Badge / Promotional Tag (e.g. New Arrival, 50% OFF)</label>
+                            <input type="text" name="prod_badge" value="New Arrival" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Image URL</label>
+                            <label>Primary Image URL</label>
                             <input type="url" name="prod_image" value="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80" class="form-control">
                         </div>
                     </div>
@@ -936,15 +1004,15 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                     <div class="form-row-3">
                         <div class="form-group">
                             <label>Description (English)</label>
-                            <textarea name="prod_desc_en" rows="3" class="form-control" placeholder="Craftsmanship details..."></textarea>
+                            <textarea name="prod_desc_en" rows="3" class="form-control" placeholder="Craftsmanship details, materials, origin..."></textarea>
                         </div>
                         <div class="form-group">
                             <label>Description (Arabic)</label>
-                            <textarea name="prod_desc_ar" rows="3" class="form-control" placeholder="تفاصيل الصناعة الفاخرة..."></textarea>
+                            <textarea name="prod_desc_ar" rows="3" class="form-control" placeholder="تفاصيل الصناعة الفاخرة، المواد، المنشأ..."></textarea>
                         </div>
                         <div class="form-group">
                             <label>Description (Kurdish)</label>
-                            <textarea name="prod_desc_ku" rows="3" class="form-control" placeholder="هویرکاریێن دروستکرنێ..."></textarea>
+                            <textarea name="prod_desc_ku" rows="3" class="form-control" placeholder="هویرکاریێن دروستکرنێ، کەرەستە و ژێدەر..."></textarea>
                         </div>
                     </div>
 
@@ -997,7 +1065,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                             👑 <?php echo htmlspecialchars($tier); ?>
                                         </span>
                                     </td>
-                                    <td class="font-bold text-primary">$<?php echo number_format($u['total_spent'] ?? 0, 2); ?></td>
+                                    <td class="font-bold text-primary"><?php echo number_format($u['total_spent'] ?? 0); ?> IQD</td>
                                     <td><?php echo $u['orders_count'] ?? 1; ?> orders</td>
                                     <td><small><?php echo date('M Y', strtotime($u['joined_at'] ?? '2026-01-01')); ?></small></td>
                                 </tr>
@@ -1456,6 +1524,218 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
     </div>
 </div>
 
+<!-- Luxury Product Edit Modal -->
+<div class="modal-overlay" id="editProductModalOverlay">
+    <div class="modal-dialog" style="max-width:860px; max-height:92vh; overflow-y:auto;">
+        <div class="modal-header" style="border-bottom:1px solid var(--border-color); padding:18px 24px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:8px; background:var(--accent-gold-bg); color:var(--accent-gold); display:flex; align-items:center; justify-content:center; font-size:20px;">
+                    ✏️
+                </div>
+                <div>
+                    <h3 class="modal-title" style="margin:0; font-size:18px;">Edit Luxury Piece <span id="editProductModalIdBadge" class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold);">#1</span></h3>
+                    <p class="text-muted" style="margin:2px 0 0; font-size:12px;" id="editProductModalSub">Update pricing, old price, badges, images, multilingual details, and inventory</p>
+                </div>
+            </div>
+            <button class="modal-close-btn" type="button" onclick="closeEditProductModal()">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;">
+            <form action="admin.php" method="POST" id="editProductForm">
+                <input type="hidden" name="update_product" value="1">
+                <input type="hidden" name="edit_prod_id" id="editProdId" value="">
+
+                <!-- Section 1: Pricing, Old Price & Category -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px;">💰 Pricing & Inventory (IQD)</span>
+                        <div id="editDiscountBadge" style="display:none; font-size:11.5px; padding:3px 10px; border-radius:12px; background:#10b981; color:#ffffff; font-weight:700;">
+                            30% OFF
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Category <span class="text-danger">*</span></label>
+                            <select name="edit_prod_category" id="editProdCategory" required class="form-control">
+                                <option value="clothes">Clothes (جلوبەرگ)</option>
+                                <option value="watches">Watches (دەمژمێر)</option>
+                                <option value="perfumes">Perfumes (عەتر و بێهن)</option>
+                                <option value="accessories">Accessories (ئەکسسوارات)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Current Price (IQD) <span class="text-danger">*</span></label>
+                            <input type="number" step="500" name="edit_prod_price" id="editProdPrice" required class="form-control" placeholder="240000" oninput="calculateDiscountPreview()">
+                            <small class="text-muted">Selling price in Iraqi Dinar</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Old Price (IQD) (Original / Discounted)</label>
+                            <input type="number" step="500" name="edit_prod_old_price" id="editProdOldPrice" class="form-control" placeholder="310000" oninput="calculateDiscountPreview()">
+                            <small class="text-muted">Shows strikethrough price if higher than current price</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row-3" style="margin-top:12px;">
+                        <div class="form-group">
+                            <label>Stock Count</label>
+                            <input type="number" name="edit_prod_stock" id="editProdStock" class="form-control" value="10">
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-top:24px;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:13.5px;">
+                                <input type="checkbox" name="edit_prod_featured" id="editProdFeatured" value="1" style="width:18px; height:18px; accent-color:var(--accent-gold);">
+                                <span>⭐ Featured on Homepage Showcase</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Quick Price Helpers (IQD)</label>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.9); calculateDiscountPreview();">10% Off</button>
+                                <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.8); calculateDiscountPreview();">20% Off</button>
+                                <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.5); calculateDiscountPreview();">50% Off</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Badges & Promotion Tags -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px;">🏷️ Promotional Badge / Ribbon</span>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Quick Presets (Click to Auto-fill Trilingual Badges):</label>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('⚡ 50% OFF', '⚡ خصم 50%', '⚡ داشکاندنا %50')">⚡ 50% OFF</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('🔥 Best Seller', '🔥 الأكثر مبيعاً', '🔥 پڕفرۆشترین')">🔥 Best Seller</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('💎 Limited Edition', '💎 إصدار محدود', '💎 وەشانەکا سنوردار')">💎 Limited Edition</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('✨ New Arrival', '✨ وصل حديثاً', '✨ نوی گەهشتی')">✨ New Arrival</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('👑 Royal VIP', '👑 فاخر ملكي', '👑 شاهانە و نازک')">👑 Royal VIP</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('🏷️ Special Deal', '🏷️ عرض خاص', '🏷️ پێشنیارا تایبەت')">🏷️ Special Deal</button>
+                            <button type="button" class="badge-tag text-danger" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('', '', '')">✕ Clear Badge</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Badge (English)</label>
+                            <input type="text" name="edit_prod_badge" id="editProdBadge" class="form-control" placeholder="e.g. Best Seller">
+                        </div>
+                        <div class="form-group">
+                            <label>Badge (Arabic - العربية)</label>
+                            <input type="text" name="edit_prod_badge_ar" id="editProdBadgeAr" class="form-control" placeholder="مثال: الأكثر مبيعاً">
+                        </div>
+                        <div class="form-group">
+                            <label>Badge (Kurdish - کوردی بادینی)</label>
+                            <input type="text" name="edit_prod_badge_ku" id="editProdBadgeKu" class="form-control" placeholder="وەکی: پڕفرۆشترین">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Image & Media Gallery -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🖼️ Product Imagery & Gallery</span>
+                    
+                    <div style="display:grid; grid-template-columns:100px 1fr; gap:16px; align-items:start; margin-bottom:14px;">
+                        <div style="text-align:center;">
+                            <img id="editImageLivePreview" src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80" alt="Preview" style="width:100px; height:100px; object-fit:cover; border-radius:8px; border:2px solid var(--accent-gold);">
+                            <small class="text-muted" style="display:block; font-size:10.5px; margin-top:4px;">Main Preview</small>
+                        </div>
+
+                        <div>
+                            <div class="form-group mb-12">
+                                <label>Primary Cover Image URL <span class="text-danger">*</span></label>
+                                <input type="url" name="edit_prod_image" id="editProdImage" required class="form-control" placeholder="https://images.unsplash.com/..." oninput="updateEditImagePreview()">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Additional Gallery Images (Comma-Separated URLs)</label>
+                                <textarea name="edit_prod_gallery" id="editProdGallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
+                                <small class="text-muted">Enter multiple image URLs separated by commas for multi-angle thumbnail slider</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Luxury Presets -->
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Sample Luxury Photography Presets:</label>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80')">👔 Velvet Blazer</button>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80')">⌚ Swiss Watch</button>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80')">✨ Arabian Oud Perfume</button>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80')">👜 Italian Leather Bag</button>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80')">🎩 Double-Breasted Suit</button>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80')">⏱️ Chronograph Watch</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Trilingual Titles -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🌐 Trilingual Product Titles</span>
+                    
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Title (English) <span class="text-danger">*</span></label>
+                            <input type="text" name="edit_prod_title_en" id="editProdTitleEn" required class="form-control" placeholder="e.g. Royal Midnight Velvet Blazer">
+                        </div>
+                        <div class="form-group">
+                            <label>Title (Arabic - العربية)</label>
+                            <input type="text" name="edit_prod_title_ar" id="editProdTitleAr" class="form-control" placeholder="مثال: بليزر مخملي ملكي">
+                        </div>
+                        <div class="form-group">
+                            <label>Title (Kurdish - کوردی بادینی)</label>
+                            <input type="text" name="edit_prod_title_ku" id="editProdTitleKu" class="form-control" placeholder="وەکی: ساکێ مەخمەلی یێ شاهانە">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Sizes, Colors & Specifications -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📐 Sizes & Color Editions</span>
+                    
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Available Sizes (Comma-separated)</label>
+                            <input type="text" name="edit_prod_sizes" id="editProdSizes" class="form-control" placeholder="e.g. S, M, L, XL or 41mm Case or 100ml / 3.4 oz">
+                        </div>
+                        <div class="form-group">
+                            <label>Colors / Finishes (Comma-separated)</label>
+                            <input type="text" name="edit_prod_colors" id="editProdColors" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black, Gold Edition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Trilingual Descriptions -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+                    <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 Trilingual Descriptions & Craftsmanship</span>
+                    
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>Description (English)</label>
+                            <textarea name="edit_prod_desc_en" id="editProdDescEn" rows="3" class="form-control" placeholder="Craftsmanship details, materials, origins..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Arabic)</label>
+                            <textarea name="edit_prod_desc_ar" id="editProdDescAr" rows="3" class="form-control" placeholder="تفاصيل الصناعة اليدوية الفاخرة والمواد..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Kurdish)</label>
+                            <textarea name="edit_prod_desc_ku" id="editProdDescKu" rows="3" class="form-control" placeholder="هویرکاریێن دروستکرنێ و کەرەستەیێن رەسەن..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px; padding-top:10px; border-top:1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-luxury btn-lg">💾 Save Product Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 function switchAdminTab(tabId, btn) {
     document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
@@ -1468,6 +1748,95 @@ function switchAdminTab(tabId, btn) {
 function togglePasswordVisibility(inputId) {
     const el = document.getElementById(inputId);
     if (el) el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function openEditProductModal(product) {
+    if (!product) return;
+    document.getElementById('editProdId').value = product.id;
+    document.getElementById('editProductModalIdBadge').innerText = '#' + product.id;
+    
+    const pTitleEn = typeof product.title === 'object' ? (product.title.en || '') : product.title;
+    const pTitleAr = typeof product.title === 'object' ? (product.title.ar || pTitleEn) : pTitleEn;
+    const pTitleKu = typeof product.title === 'object' ? (product.title.ku || pTitleEn) : pTitleEn;
+
+    document.getElementById('editProductModalSub').innerText = 'Editing: ' + pTitleEn + ' (' + (product.category || 'luxury') + ')';
+    document.getElementById('editProdTitleEn').value = pTitleEn;
+    document.getElementById('editProdTitleAr').value = pTitleAr;
+    document.getElementById('editProdTitleKu').value = pTitleKu;
+
+    document.getElementById('editProdCategory').value = product.category || 'clothes';
+    document.getElementById('editProdPrice').value = product.price || 0;
+    document.getElementById('editProdOldPrice').value = product.old_price || '';
+    document.getElementById('editProdStock').value = product.stock !== undefined ? product.stock : 10;
+    document.getElementById('editProdFeatured').checked = !!product.featured;
+
+    document.getElementById('editProdBadge').value = product.badge || '';
+    document.getElementById('editProdBadgeAr').value = product.badge_ar || product.badge || '';
+    document.getElementById('editProdBadgeKu').value = product.badge_ku || product.badge || '';
+
+    const mainImg = product.image || '';
+    document.getElementById('editProdImage').value = mainImg;
+    const gallery = Array.isArray(product.images) ? product.images.join(', ') : (mainImg || '');
+    document.getElementById('editProdGallery').value = gallery;
+    updateEditImagePreview();
+
+    const sizes = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || '');
+    document.getElementById('editProdSizes').value = sizes;
+
+    const colors = Array.isArray(product.colors) ? product.colors.join(', ') : (product.colors || '');
+    document.getElementById('editProdColors').value = colors;
+
+    const pDescEn = typeof product.description === 'object' ? (product.description.en || '') : (product.description || '');
+    const pDescAr = typeof product.description === 'object' ? (product.description.ar || pDescEn) : pDescEn;
+    const pDescKu = typeof product.description === 'object' ? (product.description.ku || pDescEn) : pDescEn;
+
+    document.getElementById('editProdDescEn').value = pDescEn;
+    document.getElementById('editProdDescAr').value = pDescAr;
+    document.getElementById('editProdDescKu').value = pDescKu;
+
+    calculateDiscountPreview();
+    document.getElementById('editProductModalOverlay').classList.add('open');
+}
+
+function closeEditProductModal() {
+    document.getElementById('editProductModalOverlay').classList.remove('open');
+}
+
+function updateEditImagePreview() {
+    const url = document.getElementById('editProdImage').value;
+    const imgEl = document.getElementById('editImageLivePreview');
+    if (imgEl && url) {
+        imgEl.src = url;
+    }
+}
+
+function setEditImagePreset(url) {
+    document.getElementById('editProdImage').value = url;
+    const galleryEl = document.getElementById('editProdGallery');
+    if (!galleryEl.value || galleryEl.value.indexOf(url) === -1) {
+        galleryEl.value = url;
+    }
+    updateEditImagePreview();
+}
+
+function setEditBadgePreset(en, ar, ku) {
+    document.getElementById('editProdBadge').value = en;
+    document.getElementById('editProdBadgeAr').value = ar;
+    document.getElementById('editProdBadgeKu').value = ku;
+}
+
+function calculateDiscountPreview() {
+    const price = Number(document.getElementById('editProdPrice').value) || 0;
+    const oldPrice = Number(document.getElementById('editProdOldPrice').value) || 0;
+    const badgeEl = document.getElementById('editDiscountBadge');
+    if (oldPrice > price && price > 0) {
+        const pct = Math.round(((oldPrice - price) / oldPrice) * 100);
+        const saveIqd = oldPrice - price;
+        badgeEl.style.display = 'inline-block';
+        badgeEl.innerText = pct + '% OFF (Save ' + saveIqd.toLocaleString() + ' IQD)';
+    } else {
+        badgeEl.style.display = 'none';
+    }
 }
 
 function openDispatchModal(order) {
@@ -1504,16 +1873,15 @@ function printOrderInvoice(order) {
     const container = document.getElementById('invoicePrintArea');
     const items = order.items || [];
     let itemsHtml = '';
-    const rate = <?php echo json_encode($rate); ?>;
     const ordTot = order.total || 0;
-    const ordIqd = order.total_iqd || (ordTot * rate);
+    const ordIqd = order.total_iqd || ordTot;
 
     items.forEach((it, idx) => {
         const itTitle = typeof it.title === 'object' ? (it.title.en || it.title) : it.title;
         itemsHtml += `
             <tr style="border-bottom:1px solid #e5e7eb;">
                 <td style="padding:10px 0;"><strong>${itTitle}</strong><br><small style="color:#6b7280;">Qty: ${it.quantity} ${it.size ? '• Size: ' + it.size : ''}</small></td>
-                <td style="padding:10px 0; text-align:right;">$${(it.price * it.quantity).toFixed(2)}</td>
+                <td style="padding:10px 0; text-align:right;">${Math.round(it.price * it.quantity).toLocaleString()} IQD</td>
             </tr>
         `;
     });
@@ -1561,12 +1929,12 @@ function printOrderInvoice(order) {
 
         <div style="border-top:2px solid #111827; padding-top:16px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <span style="font-size:12px; color:#6b7280;">Official Currency Equivalent:</span><br>
-                <strong style="font-size:18px; color:#111827;">${ordIqd.toLocaleString()} IQD</strong>
+                <span style="font-size:12px; color:#6b7280;">Payment Terms:</span><br>
+                <strong style="font-size:14px; color:#111827;">Official Currency: Iraqi Dinar (IQD)</strong>
             </div>
             <div style="text-align:right;">
-                <span style="font-size:12px; color:#6b7280;">Total Amount (USD):</span><br>
-                <strong style="font-size:24px; font-weight:800; color:#d97706;">$${ordTot.toFixed(2)}</strong>
+                <span style="font-size:12px; color:#6b7280;">Total Payable:</span><br>
+                <strong style="font-size:24px; font-weight:800; color:#d97706;">${Math.round(ordTot).toLocaleString()} IQD</strong>
             </div>
         </div>
     `;

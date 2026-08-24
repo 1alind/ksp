@@ -204,9 +204,9 @@ $featuredProducts = array_filter($products, function($p) {
 
                     <div class="product-price-row">
                         <div class="price-wrap">
-                            <span class="current-price">$<?php echo number_format($item['price'], 2); ?></span>
+                            <span class="current-price"><?php echo number_format($item['price']); ?> IQD</span>
                             <?php if (!empty($item['old_price']) && $item['old_price'] > $item['price']): ?>
-                                <span class="old-price">$<?php echo number_format($item['old_price'], 2); ?></span>
+                                <span class="old-price"><?php echo number_format($item['old_price']); ?> IQD</span>
                             <?php endif; ?>
                         </div>
 

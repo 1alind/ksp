@@ -84,13 +84,45 @@
             </div>
 
             <div class="footer-payment-col">
-                <h4 class="footer-heading"><?php echo $lang === 'ku' ? 'شێوازێن پارەدانێ' : ($lang === 'ar' ? 'وسائل الدفع المقبولة' : 'Payment Methods'); ?></h4>
-                <p class="footer-intro" style="margin-top:0;"><?php echo $lang === 'ku' ? 'پارەدانا باوەرپێکری و پاراستی دەمێ وەرگرتنا بەرهەمی یان ب رێکا ئەپێن دیجیتاڵی.' : ($lang === 'ar' ? 'دفع آمن وموثوق عند الاستلام أو عبر المحافظ الإلكترونية المعتمدة.' : 'Secure and guaranteed payments via Cash on Delivery or certified digital wallets.'); ?></p>
+                <h4 class="footer-heading"><?php echo $lang === 'ku' ? 'دەرگەهێن پارەدانا فەرمی' : ($lang === 'ar' ? 'بوابات الدفع المعتمدة' : 'Official Payment Gateways'); ?></h4>
+                <p class="footer-intro" style="margin-top:0;"><?php echo $lang === 'ku' ? 'پارەدانا ئێکسەر و باوەرپێکری ب رێکا FIB، فاست پای، و زەین کاش.' : ($lang === 'ar' ? 'دفع إلكتروني فوري وآمن حصرياً عبر FIB وفاسـت بـاي وزين كاش.' : 'Instant, certified Iraqi digital payments exclusively via FIB, FastPay, and ZainCash.'); ?></p>
                 <div class="payment-methods-icons">
-                    <span class="pay-tag">💵 Cash on Delivery (COD)</span>
-                    <span class="pay-tag">📱 FastPay</span>
-                    <span class="pay-tag">💳 ZainCash</span>
-                    <span class="pay-tag">🛡️ Visa / Master</span>
+                    <!-- FIB Logo Pill -->
+                    <div class="pay-logo-badge pay-logo-fib" title="First Iraqi Bank (FIB)">
+                        <svg viewBox="0 0 110 32" width="94" height="28" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="110" height="32" rx="6" fill="#0A192F"/>
+                            <path d="M12 16 L17 10 L22 16 L17 22 Z" fill="#D4AF37"/>
+                            <path d="M17 13 L19.5 16 L17 19 L14.5 16 Z" fill="#0A192F"/>
+                            <circle cx="17" cy="16" r="1.5" fill="#FFFFFF"/>
+                            <text x="28" y="21.5" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="14" letter-spacing="0.5">FIB</text>
+                            <text x="60" y="14.5" fill="#D4AF37" font-family="system-ui, sans-serif" font-weight="700" font-size="5.8" letter-spacing="0.4">FIRST IRAQI</text>
+                            <text x="60" y="22" fill="#94A3B8" font-family="system-ui, sans-serif" font-weight="600" font-size="5.5" letter-spacing="0.4">BANK</text>
+                        </svg>
+                    </div>
+                    <!-- FastPay Logo Pill -->
+                    <div class="pay-logo-badge pay-logo-fastpay" title="FastPay Mobile Wallet">
+                        <svg viewBox="0 0 110 32" width="94" height="28" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="110" height="32" rx="6" fill="#FFC800"/>
+                            <g transform="translate(8, 6)">
+                                <circle cx="10" cy="10" r="9" fill="#111827"/>
+                                <path d="M7 6.5 L11.5 10 L7 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <path d="M10.5 6.5 L15 10 L10.5 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            </g>
+                            <text x="32" y="21" fill="#111827" font-family="system-ui, sans-serif" font-weight="900" font-size="13.5" letter-spacing="-0.3">FastPay</text>
+                        </svg>
+                    </div>
+                    <!-- ZainCash Logo Pill -->
+                    <div class="pay-logo-badge pay-logo-zaincash" title="ZainCash">
+                        <svg viewBox="0 0 110 32" width="94" height="28" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="110" height="32" rx="6" fill="#1F132B"/>
+                            <g transform="translate(8, 6)">
+                                <circle cx="10" cy="10" r="8.5" fill="none" stroke="#EC4899" stroke-width="2.5"/>
+                                <path d="M6.5 10 C6.5 8 8 6.5 10 6.5 C12 6.5 13.5 8 13.5 10 C13.5 12 12 13.5 10 13.5" stroke="#A855F7" stroke-width="2" stroke-linecap="round" fill="none"/>
+                                <circle cx="10" cy="10" r="1.8" fill="#38BDF8"/>
+                            </g>
+                            <text x="32" y="21" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="13" letter-spacing="-0.2">Zain<tspan fill="#EC4899">Cash</tspan></text>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>

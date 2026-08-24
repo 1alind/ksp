@@ -7,7 +7,7 @@ $allProducts = get_all_products();
 $selectedCat = $_GET['cat'] ?? 'all';
 $searchQuery = trim($_GET['q'] ?? '');
 $sortOrder = $_GET['sort'] ?? 'featured';
-$maxPriceFilter = floatval($_GET['max_price'] ?? 1000);
+$maxPriceFilter = floatval($_GET['max_price'] ?? 1500000);
 
 // Filter logic
 $filteredProducts = array_filter($allProducts, function($p) use ($selectedCat, $searchQuery, $maxPriceFilter, $lang) {
@@ -113,11 +113,11 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                 <div class="sidebar-block">
                     <h3 class="sidebar-heading"><?php echo t('price_range', $lang); ?></h3>
                     <div class="price-slider-group">
-                        <input type="range" id="priceRangeSlider" min="50" max="1000" step="25" value="<?php echo $maxPriceFilter; ?>" class="slider-input" oninput="document.getElementById('priceRangeDisplay').innerText = '$' + this.value;">
+                        <input type="range" id="priceRangeSlider" min="50000" max="1500000" step="25000" value="<?php echo $maxPriceFilter; ?>" class="slider-input" oninput="document.getElementById('priceRangeDisplay').innerText = Number(this.value).toLocaleString() + ' IQD';">
                         <div class="price-range-labels">
-                            <span>$50</span>
-                            <span id="priceRangeDisplay" class="price-active-val">$<?php echo $maxPriceFilter; ?></span>
-                            <span>$1000</span>
+                            <span>50,000 IQD</span>
+                            <span id="priceRangeDisplay" class="price-active-val"><?php echo number_format($maxPriceFilter); ?> IQD</span>
+                            <span>1,500,000 IQD</span>
                         </div>
                     </div>
                 </div>
@@ -196,9 +196,9 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
 
                                 <div class="product-price-row">
                                     <div class="price-wrap">
-                                        <span class="current-price">$<?php echo number_format($item['price'], 2); ?></span>
+                                        <span class="current-price"><?php echo number_format($item['price']); ?> IQD</span>
                                         <?php if (!empty($item['old_price']) && $item['old_price'] > $item['price']): ?>
-                                            <span class="old-price">$<?php echo number_format($item['old_price'], 2); ?></span>
+                                            <span class="old-price"><?php echo number_format($item['old_price']); ?> IQD</span>
                                         <?php endif; ?>
                                     </div>
 

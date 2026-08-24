@@ -73,10 +73,10 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 <h1 class="single-product-title"><?php echo htmlspecialchars($titleText); ?></h1>
 
                 <div class="single-price-box">
-                    <span class="current-price-lg">$<?php echo number_format($product['price'], 2); ?></span>
+                    <span class="current-price-lg"><?php echo number_format($product['price']); ?> IQD</span>
                     <?php if (!empty($product['old_price']) && $product['old_price'] > $product['price']): ?>
-                        <span class="old-price-lg">$<?php echo number_format($product['old_price'], 2); ?></span>
-                        <span class="save-badge">Save $<?php echo number_format($product['old_price'] - $product['price'], 2); ?></span>
+                        <span class="old-price-lg"><?php echo number_format($product['old_price']); ?> IQD</span>
+                        <span class="save-badge">Save <?php echo number_format($product['old_price'] - $product['price']); ?> IQD</span>
                     <?php endif; ?>
                 </div>
 
@@ -196,7 +196,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                         <div class="product-details">
                             <h3 class="product-title"><a href="product.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($tTitle); ?></a></h3>
                             <div class="product-price-row">
-                                <span class="current-price">$<?php echo number_format($item['price'], 2); ?></span>
+                                <span class="current-price"><?php echo number_format($item['price']); ?> IQD</span>
                                 <button class="btn-add-cart-mini" onclick="window.AuraStore.addToCart(<?php echo $item['id']; ?>)">+ Add</button>
                             </div>
                         </div>

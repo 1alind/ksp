@@ -653,6 +653,12 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
     if (postData.add_new_product && postData.prod_title_en && postData.prod_price) {
       const newId = productsList.length > 0 ? Math.max(...productsList.map((p: any) => p.id)) + 1 : 1;
+      const galleryRaw = postData.prod_gallery || "";
+      const galleryImages = galleryRaw ? galleryRaw.split(",").map((s: string) => s.trim()).filter(Boolean) : (postData.prod_image ? [postData.prod_image] : []);
+      const mainImg = postData.prod_image || "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80";
+      if (!galleryImages.includes(mainImg)) {
+        galleryImages.unshift(mainImg);
+      }
       const newProd = {
         id: newId,
         title: {
@@ -666,11 +672,13 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
         rating: 5.0,
         reviews_count: 1,
         badge: postData.prod_badge || "New Arrival",
+        badge_ar: postData.prod_badge_ar || postData.prod_badge || "وصل حديثاً",
+        badge_ku: postData.prod_badge_ku || postData.prod_badge || "نوی گەهشتی",
         stock: parseInt(postData.prod_stock || "15", 10),
-        image: postData.prod_image || "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
-        images: [postData.prod_image || "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"],
-        sizes: postData.prod_category === "clothes" ? ["S", "M", "L", "XL"] : postData.prod_category === "watches" ? ["42mm Case"] : ["100ml / 3.4 oz"],
-        colors: ["Luxury Edition"],
+        image: mainImg,
+        images: galleryImages,
+        sizes: postData.prod_sizes ? postData.prod_sizes.split(",").map((s: string) => s.trim()).filter(Boolean) : (postData.prod_category === "clothes" ? ["S", "M", "L", "XL"] : postData.prod_category === "watches" ? ["42mm Case"] : ["100ml / 3.4 oz"]),
+        colors: postData.prod_colors ? postData.prod_colors.split(",").map((s: string) => s.trim()).filter(Boolean) : ["Luxury Edition"],
         description: {
           en: postData.prod_desc_en || "Exclusive luxury piece.",
           ar: postData.prod_desc_ar || "قطعة فاخرة وحصرية.",
@@ -681,6 +689,53 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       productsList.unshift(newProd);
       productsDb.products = productsList;
       saveDbFile("products.json", productsDb);
+    }
+
+    if (postData.update_product && postData.edit_prod_id) {
+      const editId = parseInt(postData.edit_prod_id, 10);
+      const pIdx = productsList.findIndex((p: any) => p.id === editId);
+      if (pIdx !== -1) {
+        const oldProd = productsList[pIdx];
+        const galleryRaw = (postData.edit_prod_gallery || "").trim();
+        let galleryImages = galleryRaw ? galleryRaw.split(",").map((s: string) => s.trim()).filter(Boolean) : (oldProd.images || []);
+        const mainImg = postData.edit_prod_image || oldProd.image;
+        if (mainImg && !galleryImages.includes(mainImg)) {
+          galleryImages.unshift(mainImg);
+        }
+        const sizesRaw = (postData.edit_prod_sizes || "").trim();
+        const sizes = sizesRaw ? sizesRaw.split(",").map((s: string) => s.trim()).filter(Boolean) : (oldProd.sizes || ["Standard"]);
+        const colorsRaw = (postData.edit_prod_colors || "").trim();
+        const colors = colorsRaw ? colorsRaw.split(",").map((s: string) => s.trim()).filter(Boolean) : (oldProd.colors || ["Luxury Edition"]);
+
+        productsList[pIdx] = {
+          ...oldProd,
+          id: editId,
+          title: {
+            en: postData.edit_prod_title_en || (typeof oldProd.title === 'object' ? oldProd.title.en : oldProd.title),
+            ar: postData.edit_prod_title_ar || (typeof oldProd.title === 'object' ? oldProd.title.ar : oldProd.title),
+            ku: postData.edit_prod_title_ku || (typeof oldProd.title === 'object' ? oldProd.title.ku : oldProd.title),
+          },
+          category: postData.edit_prod_category || oldProd.category,
+          price: parseFloat(postData.edit_prod_price || oldProd.price),
+          old_price: postData.edit_prod_old_price ? parseFloat(postData.edit_prod_old_price) : null,
+          badge: postData.edit_prod_badge !== undefined ? postData.edit_prod_badge : oldProd.badge,
+          badge_ar: postData.edit_prod_badge_ar || postData.edit_prod_badge || oldProd.badge_ar,
+          badge_ku: postData.edit_prod_badge_ku || postData.edit_prod_badge || oldProd.badge_ku,
+          stock: postData.edit_prod_stock !== undefined ? parseInt(postData.edit_prod_stock, 10) : oldProd.stock,
+          image: mainImg,
+          images: galleryImages,
+          sizes: sizes,
+          colors: colors,
+          description: {
+            en: postData.edit_prod_desc_en || (typeof oldProd.description === 'object' ? oldProd.description.en : oldProd.description),
+            ar: postData.edit_prod_desc_ar || (typeof oldProd.description === 'object' ? oldProd.description.ar : oldProd.description),
+            ku: postData.edit_prod_desc_ku || (typeof oldProd.description === 'object' ? oldProd.description.ku : oldProd.description),
+          },
+          featured: postData.edit_prod_featured === "1" || postData.edit_prod_featured === "on" || postData.edit_prod_featured === true
+        };
+        productsDb.products = productsList;
+        saveDbFile("products.json", productsDb);
+      }
     }
 
     if (postData.delete_product_id) {
@@ -939,30 +994,48 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$usersList\)\s*;?\s*\?>/g, String(usersCount));
 
     const orderRows = ordersList.map((ord: any) => `
-      <tr>
+      <tr data-status="${ord.order_status || 'Pending'}" data-search="${(ord.order_id + ' ' + (ord.customer_name || '') + ' ' + (ord.phone || '') + ' ' + (ord.city || '')).toLowerCase()}">
         <td><strong><a href="track.php?order_id=${ord.order_id}">${ord.order_id}</a></strong></td>
         <td><small>${new Date(ord.created_at).toLocaleDateString()}</small></td>
         <td>
           <strong>${ord.customer_name}</strong><br>
-          <small class="text-muted">${ord.city} • ${ord.phone}</small>
+          <small class="text-muted">${ord.city || ''} • ${ord.phone || ''}</small>
         </td>
         <td>${ord.items ? ord.items.length : 0} pcs</td>
-        <td class="font-bold text-primary">$${Number(ord.total).toFixed(2)}</td>
-        <td><span class="badge-tag">${ord.payment_method}</span></td>
+        <td class="font-bold text-primary">${Number(ord.total || 0).toLocaleString()} IQD</td>
         <td>
-          <form action="admin.php" method="POST" class="inline-status-form">
-            <input type="hidden" name="order_id" value="${ord.order_id}">
-            <input type="hidden" name="update_order_status" value="1">
-            <select name="order_status" class="status-select" onchange="this.form.submit()">
-              <option value="Pending" ${ord.order_status === "Pending" ? "selected" : ""}>Pending</option>
-              <option value="Processing" ${ord.order_status === "Processing" ? "selected" : ""}>Processing</option>
-              <option value="Shipped" ${ord.order_status === "Shipped" ? "selected" : ""}>Shipped</option>
-              <option value="Delivered" ${ord.order_status === "Delivered" ? "selected" : ""}>Delivered</option>
-            </select>
-          </form>
+          <span class="badge-tag">${ord.payment_method || 'COD'}</span><br>
+          <small class="text-muted">${ord.payment_status || 'Pending'}</small>
         </td>
         <td>
-          <a href="track.php?order_id=${ord.order_id}" class="btn btn-outline btn-xs">View Track</a>
+          <div class="courier-info-chip">
+            <span class="courier-name">${ord.courier || 'Unassigned'}</span>
+            ${ord.driver_name ? `<span class="courier-driver">👤 ${ord.driver_name} (${ord.driver_phone || ''})</span>` : ''}
+            ${ord.tracking_code ? `<code style="font-size:11px;">${ord.tracking_code}</code>` : ''}
+          </div>
+        </td>
+        <td>
+          <div class="order-status-wrapper" id="orderStatusWrap_${ord.order_id}">
+            <select name="order_status" class="status-select" data-previous-status="${ord.order_status || 'Pending'}" onchange="window.AuraStore.updateOrderStatus('${ord.order_id}', this.value, this)">
+              <option value="Pending" ${ord.order_status === "Pending" ? "selected" : ""}>Pending</option>
+              <option value="Processing" ${ord.order_status === "Processing" ? "selected" : ""}>Processing</option>
+              <option value="Shipped" ${ord.order_status === "Shipped" ? "selected" : ""}>Shipped (Dispatched)</option>
+              <option value="Out for Delivery" ${ord.order_status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
+              <option value="Delivered" ${ord.order_status === "Delivered" ? "selected" : ""}>Delivered</option>
+              <option value="Cancelled" ${ord.order_status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+            </select>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-xs" onclick='openDispatchModal(${JSON.stringify(ord).replace(/'/g, "&#39;").replace(/"/g, "&quot;")})' title="Manage Logistics">
+              🚚 Logistics
+            </button>
+            <button type="button" class="btn btn-outline btn-xs" onclick='printOrderInvoice(${JSON.stringify(ord).replace(/'/g, "&#39;").replace(/"/g, "&quot;")})' title="Print Invoice">
+              📄 Invoice
+            </button>
+            <a href="track.php?order_id=${ord.order_id}" class="btn btn-ghost btn-xs" title="Track Live">👁️</a>
+          </div>
         </td>
       </tr>
     `).join("");
@@ -971,27 +1044,50 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
     const prodRows = productsList.map((p: any) => {
       const pTitle = typeof p.title === "object" ? (p.title[lang] || p.title.en) : p.title;
+      const pPriceIqd = p.price || 0;
+      const pOldPriceIqd = p.old_price || null;
+      const safeJson = JSON.stringify(p).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
       return `
         <tr>
           <td>#${p.id}</td>
           <td>
             <div class="admin-prod-preview">
-              <img src="${p.image}" alt="" class="admin-prod-thumb">
+              <img src="${p.image}" alt="" class="admin-prod-thumb" id="adminThumb_${p.id}">
               <div>
-                <strong>${pTitle}</strong><br>
-                <small class="badge-tag">${p.badge || ""}</small>
+                <strong><a href="product.php?id=${p.id}" target="_blank" style="color:var(--text-primary);">${pTitle}</a></strong><br>
+                ${p.badge ? `<small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;">${p.badge}</small>` : ""}
+                ${p.featured ? `<small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>` : ""}
               </div>
             </div>
           </td>
           <td><span class="badge-tag text-uppercase">${p.category}</span></td>
-          <td class="font-bold">$${p.price.toFixed(2)}</td>
-          <td>${p.stock} left</td>
-          <td>★ ${p.rating.toFixed(1)}</td>
           <td>
-            <form action="admin.php" method="POST" onsubmit="return confirm('Delete product permanently?')">
-              <input type="hidden" name="delete_product_id" value="${p.id}">
-              <button type="submit" class="btn btn-ghost text-danger btn-xs">Delete</button>
-            </form>
+            <div style="display:flex; flex-direction:column;">
+              <strong class="font-bold" style="color:var(--accent-gold); font-size:14px;">${Number(pPriceIqd).toLocaleString()} IQD</strong>
+              ${pOldPriceIqd && pOldPriceIqd > pPriceIqd ? `<small style="text-decoration:line-through; color:var(--text-muted); font-size:11.5px;">${Number(pOldPriceIqd).toLocaleString()} IQD</small>` : ""}
+            </div>
+          </td>
+          <td>
+            <div class="stock-stepper" id="stockStepper_${p.id}">
+              <button type="button" class="btn-stock-step" title="Decrease stock" onclick="window.AuraStore.adjustStock(${p.id}, -1, this)">-</button>
+              <span class="stock-count-num" id="stockCount_${p.id}" style="${p.stock < 5 ? 'color:#ef4444;' : ''}">${p.stock}</span>
+              <button type="button" class="btn-stock-step" title="Increase stock" onclick="window.AuraStore.adjustStock(${p.id}, 1, this)">+</button>
+            </div>
+          </td>
+          <td>★ ${Number(p.rating || 5).toFixed(1)} (${p.reviews_count || 1})</td>
+          <td>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button type="button" class="btn btn-outline btn-xs" style="color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;" onclick='openEditProductModal(${safeJson})'>
+                ✏️ Edit
+              </button>
+              <a href="product.php?id=${p.id}" target="_blank" class="btn btn-ghost btn-xs" title="View in boutique">
+                👁️
+              </a>
+              <form action="admin.php" method="POST" onsubmit="return confirm('Delete product permanently?')" style="display:inline; margin:0;">
+                <input type="hidden" name="delete_product_id" value="${p.id}">
+                <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete product">🗑️</button>
+              </form>
+            </div>
           </td>
         </tr>
       `;
@@ -1310,6 +1406,69 @@ app.post("/api/admin/dispatch", (req, res) => {
   saveDbFile("orders.json", ordersDb);
 
   res.json({ success: true, order: ord });
+});
+
+// 4.1 Order Status Quick Update API (AJAX without page reload)
+app.post("/api/admin/order-status", (req, res) => {
+  const { order_id, order_status } = req.body || {};
+  if (!order_id || !order_status) {
+    return res.status(400).json({ success: false, error: "Missing order_id or order_status" });
+  }
+
+  const ordersDb = getDbFile("orders.json");
+  const orders = ordersDb.orders || [];
+  const ord = orders.find((o: any) => o.order_id === order_id);
+
+  if (!ord) {
+    return res.status(404).json({ success: false, error: `Order ${order_id} not found` });
+  }
+
+  ord.order_status = order_status;
+  ordersDb.orders = orders;
+  saveDbFile("orders.json", ordersDb);
+
+  res.json({
+    success: true,
+    order_id: ord.order_id,
+    order_status: ord.order_status,
+    message: `Order #${ord.order_id} status updated to "${order_status}" successfully`
+  });
+});
+
+// 4.2 Product Quick Stock Adjuster API (AJAX without page reload)
+app.post("/api/admin/stock-adjust", (req, res) => {
+  const { product_id, stock_delta, new_stock } = req.body || {};
+  const pId = parseInt(product_id, 10);
+  if (isNaN(pId)) {
+    return res.status(400).json({ success: false, error: "Invalid product_id" });
+  }
+
+  const productsDb = getDbFile("products.json");
+  const products = productsDb.products || [];
+  const prod = products.find((p: any) => p.id === pId);
+
+  if (!prod) {
+    return res.status(404).json({ success: false, error: `Product #${pId} not found` });
+  }
+
+  if (new_stock !== undefined) {
+    prod.stock = Math.max(0, parseInt(new_stock, 10) || 0);
+  } else if (stock_delta !== undefined) {
+    prod.stock = Math.max(0, (parseInt(prod.stock, 10) || 0) + (parseInt(stock_delta, 10) || 0));
+  }
+
+  productsDb.products = products;
+  saveDbFile("products.json", productsDb);
+
+  const title = typeof prod.title === "object" ? (prod.title.en || prod.title) : prod.title;
+
+  res.json({
+    success: true,
+    product_id: prod.id,
+    stock: prod.stock,
+    title: title,
+    message: `Stock for "${title}" updated to ${prod.stock}`
+  });
 });
 
 // 5. Store Live Rates & Gateways

@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $subtotal += ($ci['price'] * $ci['quantity']);
         }
         $discountRate = floatval($_POST['applied_discount_rate'] ?? 0);
-        $discount = $subtotal * $discountRate;
+        $discount = round($subtotal * $discountRate);
         $total = max(0, $subtotal - $discount);
-        $totalIqd = $total * $rate;
+        $totalIqd = $total;
 
         $isOnlinePaid = strpos($paymentMethod, 'FIB') !== false || strpos($paymentMethod, 'ZainCash') !== false || strpos($paymentMethod, 'FastPay') !== false;
 
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             'estimated_delivery' => 'Within 24-48 Hours across ' . htmlspecialchars($city),
             'items' => $cartItems,
             'subtotal' => $subtotal,
-            'shipping' => 0.00,
+            'shipping' => 0,
             'discount' => $discount,
             'total' => $total,
             'total_iqd' => $totalIqd,
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     </div>
                     <div>
                         <span class="text-muted"><?php echo $lang === 'ku' ? 'کوژمێ گشتی' : ($lang === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount'); ?></span>
-                        <h3 class="order-total-display">$<?php echo number_format($confirmedOrder['total'], 2); ?> <small style="font-size:14px; color:var(--text-muted);">(<?php echo number_format($confirmedOrder['total_iqd'] ?? ($confirmedOrder['total'] * $rate)); ?> IQD)</small></h3>
+                        <h3 class="order-total-display"><?php echo number_format($confirmedOrder['total']); ?> IQD</h3>
                     </div>
                     <div>
                         <span class="text-muted"><?php echo $lang === 'ku' ? 'شێوازێ دانێ' : ($lang === 'ar' ? 'طريقة الدفع' : 'Payment Method'); ?></span>
@@ -210,7 +210,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                     <input type="radio" name="payment_method" value="First Iraqi Bank (FIB Bank)" checked onchange="highlightPaymentOption(this)">
                                     <div class="payment-option-content">
                                         <div class="pay-title-row">
-                                            <span class="pay-icon">🏦</span>
+                                            <div class="pay-logo-inline">
+                                                <svg viewBox="0 0 110 32" width="90" height="26" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect width="110" height="32" rx="6" fill="#0A192F"/>
+                                                    <path d="M12 16 L17 10 L22 16 L17 22 Z" fill="#D4AF37"/>
+                                                    <path d="M17 13 L19.5 16 L17 19 L14.5 16 Z" fill="#0A192F"/>
+                                                    <circle cx="17" cy="16" r="1.5" fill="#FFFFFF"/>
+                                                    <text x="28" y="21.5" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="14" letter-spacing="0.5">FIB</text>
+                                                    <text x="60" y="14.5" fill="#D4AF37" font-family="system-ui, sans-serif" font-weight="700" font-size="5.8" letter-spacing="0.4">FIRST IRAQI</text>
+                                                    <text x="60" y="22" fill="#94A3B8" font-family="system-ui, sans-serif" font-weight="600" font-size="5.5" letter-spacing="0.4">BANK</text>
+                                                </svg>
+                                            </div>
                                             <strong><?php echo t('payment_fib', $lang); ?></strong>
                                             <span class="badge-tag" style="background:rgba(212,175,55,0.15); color:var(--accent-gold); border-color:var(--accent-gold); margin-left:auto;">Official Bank API</span>
                                         </div>
@@ -218,52 +228,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                     </div>
                                 </label>
 
-                                <!-- 2. ZainCash (زين كاش) -->
-                                <label class="payment-option-label" onclick="selectPaymentMethod('zaincash')">
-                                    <input type="radio" name="payment_method" value="ZainCash (زين كاش)" onchange="highlightPaymentOption(this)">
-                                    <div class="payment-option-content">
-                                        <div class="pay-title-row">
-                                            <span class="pay-icon">📱</span>
-                                            <strong><?php echo t('payment_zaincash', $lang); ?></strong>
-                                            <span class="badge-tag" style="background:rgba(131,24,67,0.15); color:#f472b6; border-color:#f472b6; margin-left:auto;">Wallet & OTP</span>
-                                        </div>
-                                        <p class="pay-desc"><?php echo t('payment_zaincash_desc', $lang); ?></p>
-                                    </div>
-                                </label>
-
-                                <!-- 3. Cash on Delivery (COD) -->
-                                <label class="payment-option-label" onclick="selectPaymentMethod('cod')">
-                                    <input type="radio" name="payment_method" value="Cash on Delivery" onchange="highlightPaymentOption(this)">
-                                    <div class="payment-option-content">
-                                        <div class="pay-title-row">
-                                            <span class="pay-icon">💵</span>
-                                            <strong><?php echo t('payment_cod', $lang); ?></strong>
-                                        </div>
-                                        <p class="pay-desc"><?php echo t('payment_cod_desc', $lang); ?></p>
-                                    </div>
-                                </label>
-
-                                <!-- 4. FastPay Mobile Wallet -->
+                                <!-- 2. FastPay Mobile Wallet -->
                                 <label class="payment-option-label" onclick="selectPaymentMethod('fastpay')">
                                     <input type="radio" name="payment_method" value="FastPay Wallet" onchange="highlightPaymentOption(this)">
                                     <div class="payment-option-content">
                                         <div class="pay-title-row">
-                                            <span class="pay-icon">⚡</span>
+                                            <div class="pay-logo-inline">
+                                                <svg viewBox="0 0 110 32" width="90" height="26" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect width="110" height="32" rx="6" fill="#FFC800"/>
+                                                    <g transform="translate(8, 6)">
+                                                        <circle cx="10" cy="10" r="9" fill="#111827"/>
+                                                        <path d="M7 6.5 L11.5 10 L7 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                                        <path d="M10.5 6.5 L15 10 L10.5 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                                    </g>
+                                                    <text x="32" y="21" fill="#111827" font-family="system-ui, sans-serif" font-weight="900" font-size="13.5" letter-spacing="-0.3">FastPay</text>
+                                                </svg>
+                                            </div>
                                             <strong><?php echo t('payment_fastpay', $lang); ?></strong>
+                                            <span class="badge-tag" style="background:rgba(255,200,0,0.15); color:#eab308; border-color:#eab308; margin-left:auto;">Instant Wallet</span>
                                         </div>
                                         <p class="pay-desc"><?php echo t('payment_fastpay_desc', $lang); ?></p>
                                     </div>
                                 </label>
 
-                                <!-- 5. Credit / Debit Card -->
-                                <label class="payment-option-label" onclick="selectPaymentMethod('card')">
-                                    <input type="radio" name="payment_method" value="Credit / Debit Card" onchange="highlightPaymentOption(this)">
+                                <!-- 3. ZainCash (زين كاش) -->
+                                <label class="payment-option-label" onclick="selectPaymentMethod('zaincash')">
+                                    <input type="radio" name="payment_method" value="ZainCash (زين كاش)" onchange="highlightPaymentOption(this)">
                                     <div class="payment-option-content">
                                         <div class="pay-title-row">
-                                            <span class="pay-icon">💳</span>
-                                            <strong><?php echo t('payment_card', $lang); ?></strong>
+                                            <div class="pay-logo-inline">
+                                                <svg viewBox="0 0 110 32" width="90" height="26" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect width="110" height="32" rx="6" fill="#1F132B"/>
+                                                    <g transform="translate(8, 6)">
+                                                        <circle cx="10" cy="10" r="8.5" fill="none" stroke="#EC4899" stroke-width="2.5"/>
+                                                        <path d="M6.5 10 C6.5 8 8 6.5 10 6.5 C12 6.5 13.5 8 13.5 10 C13.5 12 12 13.5 10 13.5" stroke="#A855F7" stroke-width="2" stroke-linecap="round" fill="none"/>
+                                                        <circle cx="10" cy="10" r="1.8" fill="#38BDF8"/>
+                                                    </g>
+                                                    <text x="32" y="21" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="13" letter-spacing="-0.2">Zain<tspan fill="#EC4899">Cash</tspan></text>
+                                                </svg>
+                                            </div>
+                                            <strong><?php echo t('payment_zaincash', $lang); ?></strong>
+                                            <span class="badge-tag" style="background:rgba(131,24,67,0.15); color:#f472b6; border-color:#f472b6; margin-left:auto;">Wallet & OTP</span>
                                         </div>
-                                        <p class="pay-desc"><?php echo t('payment_card_desc', $lang); ?></p>
+                                        <p class="pay-desc"><?php echo t('payment_zaincash_desc', $lang); ?></p>
                                     </div>
                                 </label>
 
@@ -285,12 +292,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                             <div class="summary-row">
                                 <span><?php echo t('cart_subtotal', $lang); ?></span>
-                                <strong id="coSubtotal">$0.00</strong>
+                                <strong id="coSubtotal">0 IQD</strong>
                             </div>
 
                             <div class="summary-row" id="coDiscountRow" style="display:none; color:var(--accent-gold);">
                                 <span><?php echo t('cart_discount', $lang); ?></span>
-                                <strong id="coDiscount">-$0.00</strong>
+                                <strong id="coDiscount">-0 IQD</strong>
                             </div>
 
                             <div class="summary-row">
@@ -303,9 +310,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                             <div class="summary-total-row">
                                 <div>
                                     <span class="total-label"><?php echo t('cart_total', $lang); ?></span>
-                                    <div class="iqd-price-pill" id="coTotalIqd">≈ 0 IQD</div>
                                 </div>
-                                <strong class="total-amount" id="coTotal">$0.00</strong>
+                                <strong class="total-amount" id="coTotal">0 IQD</strong>
                             </div>
 
                             <div class="summary-guarantee mt-20">
@@ -329,8 +335,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <div class="modal-dialog" style="max-width:480px;">
         <button class="modal-close-btn" onclick="closeFibModal()">✕</button>
         <div class="modal-body text-center">
-            <span class="gateway-icon-badge" style="margin:0 auto 12px; font-size:28px;">🏦</span>
-            <h3 style="font-size:22px; font-weight:800; color:var(--accent-gold); margin-bottom:4px;">First Iraqi Bank (FIB)</h3>
+            <div class="modal-logo-header" style="margin-bottom:14px;">
+                <svg viewBox="0 0 110 32" width="120" height="36" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="110" height="32" rx="6" fill="#0A192F"/>
+                    <path d="M12 16 L17 10 L22 16 L17 22 Z" fill="#D4AF37"/>
+                    <path d="M17 13 L19.5 16 L17 19 L14.5 16 Z" fill="#0A192F"/>
+                    <circle cx="17" cy="16" r="1.5" fill="#FFFFFF"/>
+                    <text x="28" y="21.5" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="14" letter-spacing="0.5">FIB</text>
+                    <text x="60" y="14.5" fill="#D4AF37" font-family="system-ui, sans-serif" font-weight="700" font-size="5.8" letter-spacing="0.4">FIRST IRAQI</text>
+                    <text x="60" y="22" fill="#94A3B8" font-family="system-ui, sans-serif" font-weight="600" font-size="5.5" letter-spacing="0.4">BANK</text>
+                </svg>
+            </div>
+            <h3 style="font-size:20px; font-weight:800; color:var(--accent-gold); margin-bottom:4px;">First Iraqi Bank (FIB)</h3>
             <p class="text-muted" style="font-size:13px; margin-bottom:16px;">Scan with your <strong>FIB Mobile Banking App</strong></p>
 
             <div class="fib-qr-frame" id="fibQrContainer">
@@ -343,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             </div>
 
             <div style="font-size:14px; color:var(--text-secondary); margin:12px 0;">
-                Amount to Authorize: <strong class="text-primary font-bold" id="fibAmountDisplay">$0.00 (0 IQD)</strong>
+                Amount to Authorize: <strong class="text-primary font-bold" id="fibAmountDisplay">0 IQD</strong>
             </div>
 
             <div style="background:var(--bg-subtle); padding:12px; border-radius:8px; font-size:12px; color:var(--text-muted); margin-bottom:20px;">
@@ -358,13 +374,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     </div>
 </div>
 
+<!-- FastPay Mobile Wallet Modal -->
+<div class="modal-overlay" id="fastpayPaymentModalOverlay">
+    <div class="modal-dialog" style="max-width:480px;">
+        <button class="modal-close-btn" onclick="closeFastPayModal()">✕</button>
+        <div class="modal-body text-center">
+            <div class="modal-logo-header" style="margin-bottom:14px;">
+                <svg viewBox="0 0 110 32" width="120" height="36" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="110" height="32" rx="6" fill="#FFC800"/>
+                    <g transform="translate(8, 6)">
+                        <circle cx="10" cy="10" r="9" fill="#111827"/>
+                        <path d="M7 6.5 L11.5 10 L7 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <path d="M10.5 6.5 L15 10 L10.5 13.5" stroke="#FFC800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </g>
+                    <text x="32" y="21" fill="#111827" font-family="system-ui, sans-serif" font-weight="900" font-size="13.5" letter-spacing="-0.3">FastPay</text>
+                </svg>
+            </div>
+            <h3 style="font-size:20px; font-weight:800; color:#eab308; margin-bottom:4px;">FastPay Mobile Wallet</h3>
+            <p class="text-muted" style="font-size:13px; margin-bottom:16px;">Scan FastPay QR code or authorize via wallet account</p>
+
+            <div class="fib-qr-frame" id="fastpayQrContainer">
+                <!-- FastPay QR injected via JS -->
+            </div>
+
+            <div style="text-align:left; background:var(--bg-subtle); padding:14px; border-radius:8px; margin:16px 0;">
+                <div class="form-group mb-10">
+                    <label style="font-size:12px;">FastPay Mobile Number</label>
+                    <input type="tel" id="fpMobileInput" value="07501234567" class="form-control" placeholder="0750xxxxxxx">
+                </div>
+                <div class="form-group mb-0">
+                    <label style="font-size:12px;">FastPay PIN / 6-digit OTP</label>
+                    <input type="password" id="fpPinInput" value="882244" maxlength="6" class="form-control" placeholder="Enter FastPay PIN / OTP">
+                </div>
+            </div>
+
+            <div style="font-size:14px; color:var(--text-secondary); margin:12px 0;">
+                Payable: <strong class="text-primary font-bold" id="fpAmountDisplay">0 IQD</strong>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn btn-secondary" style="flex:1;" onclick="closeFastPayModal()">Cancel</button>
+                <button type="button" class="btn btn-primary btn-luxury" style="flex:2; background:#FFC800; color:#111827; border-color:#FFC800;" onclick="confirmFastPayPayment()">✓ Authorize FastPay Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ZainCash Verification Modal -->
 <div class="modal-overlay" id="zainPaymentModalOverlay">
     <div class="modal-dialog" style="max-width:480px;">
         <button class="modal-close-btn" onclick="closeZainModal()">✕</button>
         <div class="modal-body text-center">
-            <span class="gateway-icon-badge" style="margin:0 auto 12px; font-size:28px; background:#831843;">📱</span>
-            <h3 style="font-size:22px; font-weight:800; color:#f472b6; margin-bottom:4px;">ZainCash (زين كاش)</h3>
+            <div class="modal-logo-header" style="margin-bottom:14px;">
+                <svg viewBox="0 0 110 32" width="120" height="36" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="110" height="32" rx="6" fill="#1F132B"/>
+                    <g transform="translate(8, 6)">
+                        <circle cx="10" cy="10" r="8.5" fill="none" stroke="#EC4899" stroke-width="2.5"/>
+                        <path d="M6.5 10 C6.5 8 8 6.5 10 6.5 C12 6.5 13.5 8 13.5 10 C13.5 12 12 13.5 10 13.5" stroke="#A855F7" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        <circle cx="10" cy="10" r="1.8" fill="#38BDF8"/>
+                    </g>
+                    <text x="32" y="21" fill="#FFFFFF" font-family="system-ui, sans-serif" font-weight="900" font-size="13" letter-spacing="-0.2">Zain<tspan fill="#EC4899">Cash</tspan></text>
+                </svg>
+            </div>
+            <h3 style="font-size:20px; font-weight:800; color:#f472b6; margin-bottom:4px;">ZainCash (زين كاش)</h3>
             <p class="text-muted" style="font-size:13px; margin-bottom:16px;">Authorize transaction with your Zain mobile wallet</p>
 
             <div style="text-align:left; background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:18px;">
@@ -427,7 +499,7 @@ function renderCheckoutCart() {
                     <h4 class="co-title">${itemTitle}</h4>
                     <span class="co-meta">Qty: ${item.quantity} ${item.size ? '• Size: ' + item.size : ''}</span>
                 </div>
-                <div class="co-price">$${itemTotal.toFixed(2)}</div>
+                <div class="co-price">${Math.round(itemTotal).toLocaleString()} IQD</div>
             </div>
         `;
     });
@@ -435,17 +507,15 @@ function renderCheckoutCart() {
     container.innerHTML = html;
 
     const activeDiscountRate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const discount = subtotal * activeDiscountRate;
-    const finalTotal = Math.max(0, subtotal - discount);
-    const finalIqd = finalTotal * EXCHANGE_RATE;
+    const discount = Math.round(subtotal * activeDiscountRate);
+    const finalTotal = Math.max(0, Math.round(subtotal - discount));
 
-    document.getElementById('coSubtotal').innerText = '$' + subtotal.toFixed(2);
+    document.getElementById('coSubtotal').innerText = Math.round(subtotal).toLocaleString() + ' IQD';
     if (activeDiscountRate > 0) {
         document.getElementById('coDiscountRow').style.display = 'flex';
-        document.getElementById('coDiscount').innerText = '-$' + discount.toFixed(2);
+        document.getElementById('coDiscount').innerText = '-' + discount.toLocaleString() + ' IQD';
     }
-    document.getElementById('coTotal').innerText = '$' + finalTotal.toFixed(2);
-    document.getElementById('coTotalIqd').innerText = '≈ ' + finalIqd.toLocaleString() + ' IQD';
+    document.getElementById('coTotal').innerText = finalTotal.toLocaleString() + ' IQD';
 
     document.getElementById('hiddenCartJson').value = JSON.stringify(cart);
     document.getElementById('hiddenDiscountRate').value = activeDiscountRate.toString();
@@ -467,14 +537,21 @@ function validateAndSubmitCheckout(event) {
 
     const selMethod = document.querySelector('input[name="payment_method"]:checked')?.value || '';
 
-    // If FIB is selected and not already confirmed, trigger the FIB QR modal
+    // 1. If FIB is selected and not already confirmed, trigger FIB modal
     if (selMethod.includes('FIB') && !window._fibPaidConfirmed) {
         event.preventDefault();
         showFibModal();
         return false;
     }
 
-    // If ZainCash is selected and not already confirmed, trigger ZainCash OTP modal
+    // 2. If FastPay is selected and not already confirmed, trigger FastPay modal
+    if (selMethod.includes('FastPay') && !window._fastpayPaidConfirmed) {
+        event.preventDefault();
+        showFastPayModal();
+        return false;
+    }
+
+    // 3. If ZainCash is selected and not already confirmed, trigger ZainCash OTP modal
     if (selMethod.includes('ZainCash') && !window._zainPaidConfirmed) {
         event.preventDefault();
         showZainModal();
@@ -489,35 +566,33 @@ function showFibModal() {
     let total = 0;
     cart.forEach(it => total += it.price * it.quantity);
     const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const finalTotal = Math.max(0, total - (total * rate));
-    const totalIqd = finalTotal * EXCHANGE_RATE;
+    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
 
-    document.getElementById('fibAmountDisplay').innerText = '$' + finalTotal.toFixed(2) + ' (' + totalIqd.toLocaleString() + ' IQD)';
+    document.getElementById('fibAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
     document.getElementById('fibCodeDisplay').innerText = 'FIB-' + Math.floor(10000 + Math.random() * 90000);
 
     // Render realistic SVG QR code pattern
     document.getElementById('fibQrContainer').innerHTML = `
         <svg viewBox="0 0 160 160" width="160" height="160" style="display:block; margin:0 auto;">
-            <rect width="160" height="160" fill="#ffffff" />
+            <rect width="160" height="160" fill="#ffffff" rx="8" />
             <!-- Outer Markers -->
-            <rect x="10" y="10" width="40" height="40" fill="#0c0e14" />
+            <rect x="10" y="10" width="40" height="40" fill="#0c0e14" rx="4" />
             <rect x="16" y="16" width="28" height="28" fill="#ffffff" />
             <rect x="22" y="22" width="16" height="16" fill="#d4af37" />
 
-            <rect x="110" y="10" width="40" height="40" fill="#0c0e14" />
+            <rect x="110" y="10" width="40" height="40" fill="#0c0e14" rx="4" />
             <rect x="116" y="16" width="28" height="28" fill="#ffffff" />
             <rect x="122" y="22" width="16" height="16" fill="#d4af37" />
 
-            <rect x="10" y="110" width="40" height="40" fill="#0c0e14" />
+            <rect x="10" y="110" width="40" height="40" fill="#0c0e14" rx="4" />
             <rect x="16" y="116" width="28" height="28" fill="#ffffff" />
-            <rect x="22" y="22" width="16" height="16" fill="#d4af37" />
             <rect x="22" y="122" width="16" height="16" fill="#d4af37" />
 
             <!-- Dynamic grid dots -->
             <rect x="60" y="20" width="10" height="10" fill="#0c0e14" />
             <rect x="80" y="20" width="10" height="20" fill="#0c0e14" />
             <rect x="60" y="40" width="20" height="10" fill="#d4af37" />
-            <rect x="60" y="60" width="40" height="40" fill="#0c0e14" />
+            <rect x="60" y="60" width="40" height="40" fill="#0c0e14" rx="2" />
             <rect x="70" y="70" width="20" height="20" fill="#ffffff" />
             <rect x="76" y="76" width="8" height="8" fill="#d4af37" />
             <rect x="110" y="60" width="20" height="10" fill="#0c0e14" />
@@ -549,15 +624,74 @@ function confirmFibPayment() {
     }, 600);
 }
 
+function showFastPayModal() {
+    const cart = window.AuraStore.getCart();
+    let total = 0;
+    cart.forEach(it => total += it.price * it.quantity);
+    const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
+    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
+
+    document.getElementById('fpAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
+
+    // Render FastPay QR code
+    document.getElementById('fastpayQrContainer').innerHTML = `
+        <svg viewBox="0 0 160 160" width="160" height="160" style="display:block; margin:0 auto;">
+            <rect width="160" height="160" fill="#ffffff" rx="8" />
+            <!-- Markers -->
+            <rect x="10" y="10" width="40" height="40" fill="#111827" rx="4" />
+            <rect x="16" y="16" width="28" height="28" fill="#ffffff" />
+            <rect x="22" y="22" width="16" height="16" fill="#FFC800" />
+
+            <rect x="110" y="10" width="40" height="40" fill="#111827" rx="4" />
+            <rect x="116" y="16" width="28" height="28" fill="#ffffff" />
+            <rect x="122" y="22" width="16" height="16" fill="#FFC800" />
+
+            <rect x="10" y="110" width="40" height="40" fill="#111827" rx="4" />
+            <rect x="16" y="116" width="28" height="28" fill="#ffffff" />
+            <rect x="22" y="122" width="16" height="16" fill="#FFC800" />
+
+            <!-- Pattern -->
+            <rect x="60" y="15" width="15" height="15" fill="#111827" />
+            <rect x="85" y="15" width="15" height="25" fill="#111827" />
+            <rect x="60" y="45" width="25" height="15" fill="#FFC800" />
+            <circle cx="80" cy="80" r="16" fill="#FFC800" />
+            <path d="M76 74 L81 80 L76 86" stroke="#111827" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M81 74 L86 80 L81 86" stroke="#111827" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <rect x="115" y="60" width="25" height="15" fill="#111827" />
+            <rect x="20" y="65" width="20" height="15" fill="#111827" />
+            <rect x="20" y="90" width="15" height="10" fill="#FFC800" />
+            <rect x="60" y="110" width="25" height="20" fill="#111827" />
+            <rect x="95" y="110" width="15" height="35" fill="#111827" />
+            <rect x="120" y="120" width="25" height="15" fill="#FFC800" />
+        </svg>
+    `;
+
+    document.getElementById('fastpayPaymentModalOverlay').classList.add('open');
+}
+
+function closeFastPayModal() {
+    document.getElementById('fastpayPaymentModalOverlay').classList.remove('open');
+}
+
+function confirmFastPayPayment() {
+    window._fastpayPaidConfirmed = true;
+    closeFastPayModal();
+    if (window.AuraStore) {
+        window.AuraStore.showToast('✓ FastPay Payment authorized successfully! Submitting order...', 'success');
+    }
+    setTimeout(() => {
+        document.getElementById('checkoutForm').submit();
+    }, 600);
+}
+
 function showZainModal() {
     const cart = window.AuraStore.getCart();
     let total = 0;
     cart.forEach(it => total += it.price * it.quantity);
     const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const finalTotal = Math.max(0, total - (total * rate));
-    const totalIqd = finalTotal * EXCHANGE_RATE;
+    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
 
-    document.getElementById('zcAmountDisplay').innerText = totalIqd.toLocaleString() + ' IQD ($' + finalTotal.toFixed(2) + ')';
+    document.getElementById('zcAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
     document.getElementById('zainPaymentModalOverlay').classList.add('open');
 }
 

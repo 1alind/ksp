@@ -23,7 +23,7 @@
   "brand_accent_color": "#d4af37",
   "announcement_enabled": true,
   "exchange_rate_usd_to_iqd": 1320,
-  "default_currency": "USD",
+  "default_currency": "IQD",
   "delivery_kurdistan_fee": 0,
   "delivery_iraq_fee": 0,
   "free_delivery_threshold": 0,
@@ -71,17 +71,6 @@
       "store_id": "FP_STORE_94821",
       "store_password": "FastPaySecretPass2026",
       "supported_currencies": ["IQD", "USD"]
-    },
-    "cod": {
-      "enabled": true,
-      "max_limit": 5000,
-      "inspection_allowed": true,
-      "note": "Payment upon home delivery across Kurdistan Region and all Federal Iraq governorates."
-    },
-    "card": {
-      "enabled": true,
-      "provider": "Stripe / Iraqi Switch / Visa / Mastercard",
-      "mode": "test"
     }
   }
 }
