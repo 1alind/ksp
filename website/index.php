@@ -11,9 +11,6 @@ $featuredProducts = array_filter($products, function($p) {
 
 <!-- 1. Hero Showcase Section -->
 <section class="hero-section">
-    <div class="hero-glow-orb hero-glow-1"></div>
-    <div class="hero-glow-orb hero-glow-2"></div>
-    
     <div class="container hero-grid">
         <div class="hero-text-content">
             <div class="hero-tag-badge">
@@ -42,7 +39,7 @@ $featuredProducts = array_filter($products, function($p) {
             <div class="hero-trust-metrics">
                 <div class="metric-item">
                     <span class="metric-num">100%</span>
-                    <span class="metric-label">Original Luxury</span>
+                    <span class="metric-label">Certified Origin</span>
                 </div>
                 <div class="metric-divider"></div>
                 <div class="metric-item">
@@ -51,8 +48,8 @@ $featuredProducts = array_filter($products, function($p) {
                 </div>
                 <div class="metric-divider"></div>
                 <div class="metric-item">
-                    <span class="metric-num">4.9★</span>
-                    <span class="metric-label">Client Rating</span>
+                    <span class="metric-num">VIP</span>
+                    <span class="metric-label">FIB & ZainCash</span>
                 </div>
             </div>
         </div>
@@ -61,20 +58,6 @@ $featuredProducts = array_filter($products, function($p) {
             <div class="hero-card-inner">
                 <div class="hero-main-image-wrap">
                     <img src="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1000&q=80" alt="Luxury Timepiece" class="hero-main-img">
-                    <div class="hero-badge-floating floating-1">
-                        <span class="floating-icon">⌚</span>
-                        <div class="floating-text">
-                            <strong>Swiss Mechanical</strong>
-                            <span>Skeleton Automatic</span>
-                        </div>
-                    </div>
-                    <div class="hero-badge-floating floating-2">
-                        <span class="floating-icon">✨</span>
-                        <div class="floating-text">
-                            <strong>100% Authentic</strong>
-                            <span>Royal Oud & Silk</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -141,38 +124,15 @@ $featuredProducts = array_filter($products, function($p) {
     </div>
 </section>
 
-<!-- 3. Flash Sale & Countdown Timer Section -->
+<!-- 3. Spotlight Promotion Section -->
 <section class="flash-sale-section">
     <div class="container">
         <div class="flash-sale-card">
             <div class="flash-sale-content">
-                <span class="sale-badge-pill">🔥 <?php echo t('flash_sale_badge', $lang); ?></span>
+                <span class="sale-badge-pill">✦ <?php echo t('flash_sale_badge', $lang); ?></span>
                 <h2 class="sale-title"><?php echo t('flash_sale_title', $lang); ?></h2>
                 <p class="sale-description"><?php echo t('flash_sale_desc', $lang); ?></p>
                 
-                <!-- Live Countdown Timer -->
-                <div class="countdown-timer" id="saleCountdown">
-                    <div class="countdown-box">
-                        <span class="count-num" id="countDays">03</span>
-                        <span class="count-label"><?php echo t('countdown_days', $lang); ?></span>
-                    </div>
-                    <div class="countdown-colon">:</div>
-                    <div class="countdown-box">
-                        <span class="count-num" id="countHours">14</span>
-                        <span class="count-label"><?php echo t('countdown_hours', $lang); ?></span>
-                    </div>
-                    <div class="countdown-colon">:</div>
-                    <div class="countdown-box">
-                        <span class="count-num" id="countMins">28</span>
-                        <span class="count-label"><?php echo t('countdown_mins', $lang); ?></span>
-                    </div>
-                    <div class="countdown-colon">:</div>
-                    <div class="countdown-box">
-                        <span class="count-num" id="countSecs">45</span>
-                        <span class="count-label"><?php echo t('countdown_secs', $lang); ?></span>
-                    </div>
-                </div>
-
                 <div class="sale-action">
                     <a href="shop.php" class="btn btn-primary btn-luxury"><?php echo t('hero_shop_now', $lang); ?> →</a>
                 </div>
@@ -188,7 +148,7 @@ $featuredProducts = array_filter($products, function($p) {
     </div>
 </section>
 
-<!-- 4. Trending & Featured Products Section -->
+<!-- 4. Curated Collection / Featured Products Section -->
 <section class="products-showcase-section">
     <div class="container">
         <div class="showcase-header-flex">
@@ -236,10 +196,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <div class="product-details">
                     <div class="product-meta-row">
                         <span class="product-cat-name"><?php echo t('filter_' . $item['category'], $lang); ?></span>
-                        <div class="product-rating">
-                            <span class="star-icon">★</span>
-                            <span class="rating-val"><?php echo number_format($item['rating'], 1); ?></span>
-                        </div>
                     </div>
 
                     <h3 class="product-title">
@@ -268,72 +224,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <span><?php echo t('shop_title', $lang); ?></span>
                 <span>→</span>
             </a>
-        </div>
-    </div>
-</section>
-
-<!-- 5. Client Testimonials / Reviews -->
-<section class="testimonials-section">
-    <div class="container">
-        <div class="section-title-wrap text-center">
-            <span class="section-kicker"><?php echo t('reviews', $lang); ?></span>
-            <h2 class="section-main-heading"><?php echo $lang === 'ku' ? 'کریارێن مە دەربارەی مە چ دبێژن؟' : ($lang === 'ar' ? 'ماذا يقول عملاؤنا المميزون؟' : 'What Our Connoisseurs Say'); ?></h2>
-        </div>
-
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <div class="stars-row">★★★★★</div>
-                <p class="testimonial-text">
-                    <?php echo $lang === 'ku' 
-                    ? '"دەمژمێرا سکێلێتۆن یا ئۆتۆماتیک گەلەک جوانە و کوالێتیا وێ یا بێ وێنەیە. زوو گەهشت دەستێ من ل دهۆکێ ب پاکێجەکێ شاهانە."' 
-                    : ($lang === 'ar' 
-                    ? '"الساعة الأوتوماتيكية ذات جودة سويسرية مذهلة وتفاصيل في غاية الدقة. التوصيل كان سريعاً جداً والتغليف فاخر يليق بالإهداء."' 
-                    : '"The Onyx Skeleton Watch exceeded all expectations. Swiss precision mechanics combined with pristine customer care. Delivered to my doorstep within 24 hours."'); ?>
-                </p>
-                <div class="testimonial-author">
-                    <div class="author-avatar">KD</div>
-                    <div>
-                        <h4>Kawa Duhoki</h4>
-                        <span>Duhok, Kurdistan</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="testimonial-card">
-                <div class="stars-row">★★★★★</div>
-                <p class="testimonial-text">
-                    <?php echo $lang === 'ku' 
-                    ? '"عەترێ عوودێ کەمبۆدی و عەنبەرێ زێڕین بێهنەکا گەلەک فەخم یا هەی و پتر ژ دوو ڕۆژان ل سەر جلکان دمینیت. دەستێن هەوە خۆش بن."' 
-                    : ($lang === 'ar' 
-                    ? '"عطر العود والعنبر الملكي ثابت وفواح لأكثر من يومين. كل من حولي يسألني عن سر هذه الرائحة المميزة. متجر راقٍ بكل معنى الكلمة."' 
-                    : '"The Smoked Oud and Royal Amber is pure olfactory mastery. Incredibly long-lasting with rich sillage that turns heads wherever I enter."'); ?>
-                </p>
-                <div class="testimonial-author">
-                    <div class="author-avatar">TM</div>
-                    <div>
-                        <h4>Tariq Mansoor</h4>
-                        <span>Erbil / Baghdad</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="testimonial-card">
-                <div class="stars-row">★★★★★</div>
-                <p class="testimonial-text">
-                    <?php echo $lang === 'ku' 
-                    ? '"ساکێ مەخمەلی ژ قوماشێ هەرە باش هاتیە درووتن و نەخشێ وی سەد دەرسەد رێک و پێکە. ئەزموونەکا کڕینێ یا بێ کێماسی بوو."' 
-                    : ($lang === 'ar' 
-                    ? '"بليزر المخمل الملكي بتفصيل راقٍ جداً ينافس أكبر دور الأزياء في ميلانو وباريس. شحن سريع وتعامل في قمة الذوق."' 
-                    : '"The bespoke velvet blazer fit like a tailored glove. Elegant silk lapels and impeccable stitch work. Aura Studio is our go-to luxury destination."'); ?>
-                </p>
-                <div class="testimonial-author">
-                    <div class="author-avatar">AH</div>
-                    <div>
-                        <h4>Alexander Hayes</h4>
-                        <span>International Collector</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>

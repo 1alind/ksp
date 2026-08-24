@@ -188,11 +188,6 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                             <div class="product-details">
                                 <div class="product-meta-row">
                                     <span class="product-cat-name"><?php echo t('filter_' . $item['category'], $lang); ?></span>
-                                    <div class="product-rating">
-                                        <span class="star-icon">★</span>
-                                        <span class="rating-val"><?php echo number_format($item['rating'], 1); ?></span>
-                                        <span class="rating-count">(<?php echo $item['reviews_count'] ?? 0; ?>)</span>
-                                    </div>
                                 </div>
 
                                 <h3 class="product-title">

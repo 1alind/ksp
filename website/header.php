@@ -54,7 +54,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
     <!-- Google Fonts for English, Arabic, and Kurdish Badini -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -177,9 +177,8 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
                     <a href="shop.php?cat=perfumes" class="mob-link"><?php echo t('nav_perfumes', $lang); ?></a>
                     <a href="shop.php?cat=accessories" class="mob-link"><?php echo t('nav_accessories', $lang); ?></a>
                     <a href="track.php" class="mob-link"><?php echo t('nav_track', $lang); ?></a>
-                    <a href="admin.php" class="mob-link admin-highlight"><?php echo t('nav_admin', $lang); ?></a>
-                    <a href="about.php" class="mob-link"><?php echo t('nav_about', $lang); ?></a>
                     <a href="contact.php" class="mob-link"><?php echo t('nav_contact', $lang); ?></a>
+                    <a href="admin.php" class="mob-link admin-highlight"><?php echo t('nav_admin', $lang); ?></a>
                 </nav>
 
                 <div class="mobile-drawer-footer">

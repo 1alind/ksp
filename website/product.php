@@ -21,35 +21,6 @@ $relatedProducts = array_filter($allProducts, function($p) use ($product) {
     return $p['category'] === $product['category'] && $p['id'] !== $product['id'];
 });
 $relatedProducts = array_slice($relatedProducts, 0, 4);
-
-// Handle Review Submission (if POSTed)
-$reviewSuccessMsg = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
-    $reviewerName = trim($_POST['reviewer_name'] ?? 'Anonymous Guest');
-    $rating = intval($_POST['rating'] ?? 5);
-    $comment = trim($_POST['comment'] ?? '');
-    
-    if (!empty($comment)) {
-        $reviewsData = read_json_db('reviews.json');
-        $reviewsList = $reviewsData['reviews'] ?? [];
-        $newReview = [
-            'id' => count($reviewsList) + 1,
-            'product_id' => $productId,
-            'user_name' => htmlspecialchars($reviewerName),
-            'rating' => $rating,
-            'comment' => htmlspecialchars($comment),
-            'date' => date('Y-m-d')
-        ];
-        array_unshift($reviewsList, $newReview);
-        $reviewsData['reviews'] = $reviewsList;
-        write_json_db('reviews.json', $reviewsData);
-        $reviewSuccessMsg = $lang === 'ku' ? 'سوپاس بۆ تە! بۆچوونا تە ب سەرکەفتیانە هاتە تۆمارکرن.' : ($lang === 'ar' ? 'شكراً لك! تم إرسال تقييمك بنجاح.' : 'Thank you! Your review has been submitted.');
-    }
-}
-
-// Fetch Reviews for this product
-$reviewsData = read_json_db('reviews.json');
-$productReviews = array_filter($reviewsData['reviews'] ?? [], fn($r) => $r['product_id'] == $productId);
 ?>
 
 <!-- Breadcrumb -->
@@ -69,10 +40,6 @@ $productReviews = array_filter($reviewsData['reviews'] ?? [], fn($r) => $r['prod
 
 <section class="single-product-section">
     <div class="container">
-        
-        <?php if (!empty($reviewSuccessMsg)): ?>
-            <div class="alert alert-success mb-30"><?php echo $reviewSuccessMsg; ?></div>
-        <?php endif; ?>
 
         <div class="product-view-grid">
             
@@ -98,16 +65,12 @@ $productReviews = array_filter($reviewsData['reviews'] ?? [], fn($r) => $r['prod
 
             <!-- Product Purchase Details & Options -->
             <div class="product-buy-info">
-                <span class="product-cat-pill"><?php echo t('filter_' . $product['category'], $lang); ?></span>
+                <div class="product-meta-header">
+                    <span class="product-cat-pill"><?php echo t('filter_' . $product['category'], $lang); ?></span>
+                    <span class="stock-status in-stock">● <?php echo t('in_stock', $lang); ?></span>
+                </div>
                 
                 <h1 class="single-product-title"><?php echo htmlspecialchars($titleText); ?></h1>
-
-                <div class="single-rating-row">
-                    <div class="stars">★★★★★</div>
-                    <span class="rating-num"><?php echo number_format($product['rating'], 1); ?></span>
-                    <span class="reviews-count-link">(<?php echo count($productReviews) ?: ($product['reviews_count'] ?? 1); ?> <?php echo t('reviews', $lang); ?>)</span>
-                    <span class="stock-status in-stock">● <?php echo t('in_stock', $lang); ?> (<?php echo $product['stock']; ?> items)</span>
-                </div>
 
                 <div class="single-price-box">
                     <span class="current-price-lg">$<?php echo number_format($product['price'], 2); ?></span>
@@ -174,21 +137,20 @@ $productReviews = array_filter($reviewsData['reviews'] ?? [], fn($r) => $r['prod
             </div>
         </div>
 
-        <!-- Product Tabs (Description, Specifications, Reviews) -->
+        <!-- Product Details & Specifications Tabs (No Reviews) -->
         <div class="product-tabs-container">
             <div class="tabs-nav">
-                <button class="tab-btn active" onclick="switchProductTab('tab-desc', this)">Description</button>
-                <button class="tab-btn" onclick="switchProductTab('tab-specs', this)">Specifications</button>
-                <button class="tab-btn" onclick="switchProductTab('tab-reviews', this)"><?php echo t('reviews', $lang); ?> (<?php echo count($productReviews); ?>)</button>
+                <button class="tab-btn active" onclick="switchProductTab('tab-desc', this)">Details & Craftsmanship</button>
+                <button class="tab-btn" onclick="switchProductTab('tab-specs', this)">Specifications & Origin</button>
             </div>
 
             <div class="tab-content active" id="tab-desc">
                 <div class="prose-content">
                     <p><?php echo nl2br(htmlspecialchars($descText)); ?></p>
                     <ul class="luxury-features-list">
-                        <li>Handcrafted using premium certified luxury materials.</li>
-                        <li>Rigorous artisan inspection before packaging in a satin-lined collector box.</li>
-                        <li>Includes official Aura Certificate of Authenticity and international warranty.</li>
+                        <li>Handcrafted using certified luxury materials and precision finishing.</li>
+                        <li>Individually inspected and packaged in an authentic signature collector box.</li>
+                        <li>Includes Certificate of Authenticity and international guarantee.</li>
                     </ul>
                 </div>
             </div>
@@ -214,55 +176,6 @@ $productReviews = array_filter($reviewsData['reviews'] ?? [], fn($r) => $r['prod
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="tab-content" id="tab-reviews">
-                <div class="reviews-wrapper-grid">
-                    <!-- Reviews List -->
-                    <div class="reviews-list">
-                        <?php if (empty($productReviews)): ?>
-                            <p class="text-muted">No reviews yet. Be the first to review this luxury piece!</p>
-                        <?php else: ?>
-                            <?php foreach ($productReviews as $rev): ?>
-                                <div class="review-entry">
-                                    <div class="review-head">
-                                        <strong><?php echo htmlspecialchars($rev['user_name']); ?></strong>
-                                        <div class="stars"><?php echo str_repeat('★', $rev['rating']); ?></div>
-                                    </div>
-                                    <span class="review-date"><?php echo htmlspecialchars($rev['date']); ?></span>
-                                    <p class="review-comment"><?php echo htmlspecialchars($rev['comment']); ?></p>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Add Review Form -->
-                    <div class="add-review-box">
-                        <h3><?php echo t('write_review', $lang); ?></h3>
-                        <form action="product.php?id=<?php echo $productId; ?>" method="POST" class="review-form">
-                            <div class="form-group">
-                                <label><?php echo t('checkout_name', $lang); ?>:</label>
-                                <input type="text" name="reviewer_name" required class="form-control" placeholder="Your Name">
-                            </div>
-
-                            <div class="form-group">
-                                <label><?php echo t('your_rating', $lang); ?>:</label>
-                                <select name="rating" class="form-control">
-                                    <option value="5">★★★★★ (5/5) Exceptional</option>
-                                    <option value="4">★★★★☆ (4/5) Very Good</option>
-                                    <option value="3">★★★☆☆ (3/5) Good</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label><?php echo t('your_comment', $lang); ?>:</label>
-                                <textarea name="comment" rows="4" required class="form-control" placeholder="<?php echo t('your_comment', $lang); ?>"></textarea>
-                            </div>
-
-                            <button type="submit" name="submit_review" class="btn btn-primary w-full"><?php echo t('submit_review', $lang); ?></button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
 

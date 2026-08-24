@@ -133,7 +133,7 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
     <!-- Google Fonts for English, Arabic, and Kurdish Badini -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -205,9 +205,6 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
                 <a href="shop.php?cat=perfumes" class="nav-link ${activePage === 'perfumes' ? 'active' : ''}">
                     ${t('nav_perfumes', lang)}
                 </a>
-                <a href="about.php" class="nav-link ${activePage === 'about' ? 'active' : ''}">
-                    ${t('nav_about', lang)}
-                </a>
                 <a href="contact.php" class="nav-link ${activePage === 'contact' ? 'active' : ''}">
                     ${t('nav_contact', lang)}
                 </a>
@@ -273,9 +270,6 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
             </a>
             <a href="track.php" class="mobile-nav-item">
                 <span>📦</span> ${t('nav_track', lang)}
-            </a>
-            <a href="about.php" class="mobile-nav-item ${activePage === 'about' ? 'active' : ''}">
-                <span>📖</span> ${t('nav_about', lang)}
             </a>
             <a href="contact.php" class="mobile-nav-item ${activePage === 'contact' ? 'active' : ''}">
                 <span>✉️</span> ${t('nav_contact', lang)}
@@ -365,7 +359,6 @@ function renderFooter(lang: string): string {
                 <ul class="footer-menu">
                     <li><a href="index.php">${t('nav_home', lang)}</a></li>
                     <li><a href="shop.php">${t('nav_shop', lang)}</a></li>
-                    <li><a href="about.php">${t('nav_about', lang)}</a></li>
                     <li><a href="contact.php">${t('nav_contact', lang)}</a></li>
                     <li><a href="track.php">${t('nav_track', lang)}</a></li>
                     <li><a href="admin.php">${t('nav_admin', lang)}</a></li>
@@ -383,18 +376,15 @@ function renderFooter(lang: string): string {
                 </ul>
             </div>
 
-            <!-- Col 4: Newsletter -->
-            <div class="footer-col newsletter-col">
-                <h4 class="footer-heading">${t('newsletter_title', lang)}</h4>
-                <p class="newsletter-sub">${t('newsletter_desc', lang)}</p>
-                <form class="newsletter-form" onsubmit="window.AuraStore.handleNewsletter(event)">
-                    <input type="email" placeholder="${t('newsletter_placeholder', lang)}" required class="newsletter-input" id="newsletterEmailInput">
-                    <button type="submit" class="btn btn-primary">${t('newsletter_btn', lang)}</button>
-                </form>
+            <!-- Col 4: Payments Accepted -->
+            <div class="footer-col payment-col">
+                <h4 class="footer-heading">${lang === 'ku' ? 'شێوازێن پارەدانێ' : (lang === 'ar' ? 'طرق الدفع' : 'Payment Methods')}</h4>
+                <p class="footer-bio-text" style="margin-top:0;">${lang === 'ku' ? 'پارەدانا باوەرپێکری دەمێ وەرگرتنا بەرهەمی یان ب رێکا ئەپێن پارەدانێ.' : (lang === 'ar' ? 'دفع آمن وموثوق عند الاستلام أو عبر المحافظ الإلكترونية المعتمدة.' : 'Secure payment upon delivery or through verified digital banking.')}</p>
                 <div class="payment-methods-accepted">
                     <span>💵 Cash on Delivery</span>
                     <span>📱 FastPay</span>
-                    <span>💳 Visa / MasterCard</span>
+                    <span>💳 ZainCash</span>
+                    <span>🛡️ Visa / MasterCard</span>
                 </div>
             </div>
         </div>
@@ -403,11 +393,11 @@ function renderFooter(lang: string): string {
             <div class="container footer-bottom-inner">
                 <p>&copy; 2026 AURA Luxury Store. ${t('rights_reserved', lang)}</p>
                 <div class="footer-bottom-links">
-                    <a href="about.php">Heritage</a>
-                    <span>•</span>
                     <a href="contact.php">VIP Concierge</a>
                     <span>•</span>
                     <a href="track.php">Delivery Tracker</a>
+                    <span>•</span>
+                    <a href="admin.php">Management</a>
                 </div>
             </div>
         </div>
@@ -780,10 +770,6 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
             <div class="product-details">
                 <div class="product-meta-row">
                     <span class="product-cat-name">${t('filter_' + item.category, lang)}</span>
-                    <div class="product-rating">
-                        <span class="star-icon">★</span>
-                        <span class="rating-val">${Number(item.rating).toFixed(1)}</span>
-                    </div>
                 </div>
                 <h3 class="product-title">
                     <a href="product.php?id=${item.id}">${titleText}</a>
@@ -849,10 +835,6 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
           <div class="product-details">
             <div class="product-meta-row">
               <span class="product-cat-name">${p.category}</span>
-              <div class="product-rating">
-                <span>★</span>
-                <span>${Number(p.rating).toFixed(1)}</span>
-              </div>
             </div>
             <h3 class="product-title">
               <a href="product.php?id=${p.id}">${pTitle}</a>
@@ -878,28 +860,71 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     const prod = productsList.find((p: any) => p.id === prodId) || productsList[0] || {};
     const prodTitle = typeof prod.title === "object" ? (prod.title[lang] || prod.title.en) : prod.title;
     const prodDesc = typeof prod.description === "object" ? (prod.description[lang] || prod.description.en) : prod.description;
+    const prodBadge = prod[`badge_${lang}`] || prod.badge || "";
 
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$titleText\)\s*;?\s*\?>/g, prodTitle || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$productTitle\)\s*;?\s*\?>/g, prodTitle || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$productTitle\s*;?\s*\?>/g, prodTitle || "");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$descText\)\s*;?\s*\?>/g, prodDesc || "");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+nl2br\(htmlspecialchars\(\$descText\)\)\s*;?\s*\?>/g, (prodDesc || "").replace(/\n/g, "<br>"));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$productDesc\)\s*;?\s*\?>/g, prodDesc || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$productDesc\s*;?\s*\?>/g, prodDesc || "");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$badgeText\)\s*;?\s*\?>/g, prodBadge || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['id'\]\s*;?\s*\?>/g, String(prod.id || 1));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['category'\]\s*;?\s*\?>/g, prod.category || "clothes");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['category'\]\)\s*;?\s*\?>/g, prod.category || "clothes");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+ucfirst\(\$product\['category'\]\)\s*;?\s*\?>/g, (prod.category || "Clothes").charAt(0).toUpperCase() + (prod.category || "Clothes").slice(1));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['price'\],\s*2\)\s*;?\s*\?>/g, prod.price ? prod.price.toFixed(2) : "0.00");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\],\s*2\)\s*;?\s*\?>/g, prod.old_price ? prod.old_price.toFixed(2) : "");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['rating'\],\s*1\)\s*;?\s*\?>/g, prod.rating ? prod.rating.toFixed(1) : "5.0");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['reviews_count'\]\s*;?\s*\?>/g, String(prod.reviews_count || 1));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\]\s*-\s*\$product\['price'\],\s*2\)\s*;?\s*\?>/g, prod.old_price && prod.price ? (prod.old_price - prod.price).toFixed(2) : "0.00");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['stock'\]\s*;?\s*\?>/g, String(prod.stock || 25));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['image'\]\)\s*;?\s*\?>/g, prod.image || "");
 
-    const sizesHtml = (prod.sizes || ["Standard"]).map((sz: string, idx: number) => `
-      <button type="button" class="size-pill ${idx === 0 ? 'active' : ''}" onclick="selectSize(this, '${sz}')">${sz}</button>
+    const sizes = prod.sizes || ["Standard"];
+    const sizesHtml = sizes.map((sz: string, idx: number) => `
+      <button type="button" class="size-pill ${idx === 0 ? 'active' : ''}" onclick="document.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.getElementById('selectedSizeLabel').innerText = '${sz}';">${sz}</button>
     `).join("");
-    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$idx\s*=>\s*\$sz\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, sizesHtml);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['sizes'\]\[0\]\)\s*;?\s*\?>/g, sizes[0] || "");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$i\s*=>\s*\$size\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, sizesHtml);
 
-    const colorsHtml = (prod.colors || ["Classic"]).map((col: string, idx: number) => `
-      <button type="button" class="color-badge-pill ${idx === 0 ? 'active' : ''}" onclick="selectColor(this, '${col}')">${col}</button>
+    const colors = prod.colors || ["Classic"];
+    const colorsHtml = colors.map((col: string, idx: number) => `
+      <button type="button" class="color-badge-pill ${idx === 0 ? 'active' : ''}" onclick="document.querySelectorAll('.color-badge-pill').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.getElementById('selectedColorLabel').innerText = '${col}';">${col}</button>
     `).join("");
-    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['colors'\]\s+as\s+\$idx\s*=>\s*\$col\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, colorsHtml);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['colors'\]\[0\]\)\s*;?\s*\?>/g, colors[0] || "");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['colors'\]\s+as\s+\$i\s*=>\s*\$color\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, colorsHtml);
+
+    // Gallery Thumbs
+    const images = prod.images || [prod.image];
+    const thumbsHtml = images.map((img: string, idx: number) => `
+      <button class="thumb-btn ${idx === 0 ? 'active' : ''}" onclick="document.getElementById('mainProductImage').src = '${img}'; document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">
+        <img src="${img}" alt="Thumbnail">
+      </button>
+    `).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['images'\]\s+as\s+\$idx\s*=>\s*\$imgUrl\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, thumbsHtml);
+
+    // Related Products Loop
+    const related = productsList.filter((p: any) => p.category === prod.category && p.id !== prod.id).slice(0, 4);
+    const relatedHtml = related.map((item: any) => {
+      const tTitle = typeof item.title === "object" ? (item.title[lang] || item.title.en) : item.title;
+      return `
+        <div class="product-card">
+          <div class="product-image-container">
+            <a href="product.php?id=${item.id}">
+              <img src="${item.image}" alt="${tTitle}" class="product-thumb">
+            </a>
+          </div>
+          <div class="product-details">
+            <h3 class="product-title"><a href="product.php?id=${item.id}">${tTitle}</a></h3>
+            <div class="product-price-row">
+              <span class="current-price">$${Number(item.price).toFixed(2)}</span>
+              <button class="btn-add-cart-mini" onclick="window.AuraStore.addToCart(${item.id})">+ ${t('add_to_cart', lang)}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$relatedProducts\s+as\s+\$item\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, relatedHtml);
   }
 
   // Admin Dashboard Content

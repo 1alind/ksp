@@ -78,27 +78,19 @@
                 <ul class="footer-nav">
                     <li><a href="shop.php"><?php echo t('nav_shop', $lang); ?></a></li>
                     <li><a href="track.php"><?php echo t('nav_track', $lang); ?></a></li>
-                    <li><a href="about.php"><?php echo t('nav_about', $lang); ?></a></li>
                     <li><a href="contact.php"><?php echo t('nav_contact', $lang); ?></a></li>
                     <li><a href="admin.php"><?php echo t('nav_admin', $lang); ?></a></li>
                 </ul>
             </div>
 
-            <div class="footer-newsletter-col">
-                <h4 class="footer-heading"><?php echo t('newsletter_title', $lang); ?></h4>
-                <p class="newsletter-sub"><?php echo t('newsletter_desc', $lang); ?></p>
-                <form class="newsletter-form" onsubmit="event.preventDefault(); window.AuraStore.showToast('<?php echo $lang === 'ku' ? 'سوپاس بۆ بەشداربوونا تە د یانا ئۆرادا!' : ($lang === 'ar' ? 'شكراً لانضمامك إلى مجتمع أورا!' : 'Thank you for joining the Aura Circle!'); ?>', 'success'); this.reset();">
-                    <div class="newsletter-input-group">
-                        <input type="email" placeholder="<?php echo t('newsletter_placeholder', $lang); ?>" required class="newsletter-input">
-                        <button type="submit" class="newsletter-submit-btn"><?php echo t('newsletter_btn', $lang); ?></button>
-                    </div>
-                </form>
-
+            <div class="footer-payment-col">
+                <h4 class="footer-heading"><?php echo $lang === 'ku' ? 'شێوازێن پارەدانێ' : ($lang === 'ar' ? 'وسائل الدفع المقبولة' : 'Payment Methods'); ?></h4>
+                <p class="footer-intro" style="margin-top:0;"><?php echo $lang === 'ku' ? 'پارەدانا باوەرپێکری و پاراستی دەمێ وەرگرتنا بەرهەمی یان ب رێکا ئەپێن دیجیتاڵی.' : ($lang === 'ar' ? 'دفع آمن وموثوق عند الاستلام أو عبر المحافظ الإلكترونية المعتمدة.' : 'Secure and guaranteed payments via Cash on Delivery or certified digital wallets.'); ?></p>
                 <div class="payment-methods-icons">
-                    <span class="pay-tag">Cash on Delivery (COD)</span>
-                    <span class="pay-tag">FastPay</span>
-                    <span class="pay-tag">ZainCash</span>
-                    <span class="pay-tag">Visa / Master</span>
+                    <span class="pay-tag">💵 Cash on Delivery (COD)</span>
+                    <span class="pay-tag">📱 FastPay</span>
+                    <span class="pay-tag">💳 ZainCash</span>
+                    <span class="pay-tag">🛡️ Visa / Master</span>
                 </div>
             </div>
         </div>
@@ -107,9 +99,9 @@
             <div class="container footer-bottom-flex">
                 <p>&copy; <?php echo date('Y'); ?> AURA STUDIO. <?php echo t('rights_reserved', $lang); ?></p>
                 <div class="footer-legal-links">
-                    <a href="about.php">Privacy & Terms</a>
                     <a href="contact.php">VIP Concierge</a>
-                    <a href="admin.php">Management</a>
+                    <a href="track.php"><?php echo t('nav_track', $lang); ?></a>
+                    <a href="admin.php"><?php echo t('nav_admin', $lang); ?></a>
                 </div>
             </div>
         </div>
