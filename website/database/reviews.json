@@ -1,0 +1,28 @@
+{
+  "reviews": [
+    {
+      "id": 1,
+      "product_id": 2,
+      "user_name": "Kawa Duhoki",
+      "rating": 5,
+      "comment": "گەلەک دەمژمێرەکا جوانە و کوالێتیا وێ یا بێ وێنەیە! زوو گەهشت دەستێ من ل دهۆکێ.",
+      "date": "2026-08-15"
+    },
+    {
+      "id": 2,
+      "product_id": 3,
+      "user_name": "Tariq Mansoor",
+      "rating": 5,
+      "comment": "عطر العود والعنبر فواح جداً وثابت على الملابس أكثر من يومين. تجربة ممتازة.",
+      "date": "2026-08-12"
+    },
+    {
+      "id": 3,
+      "product_id": 1,
+      "user_name": "Alexander Hayes",
+      "rating": 5,
+      "comment": "The velvet texture and tailoring are absolute bespoke quality. Wore it to an award gala and received endless compliments.",
+      "date": "2026-08-10"
+    }
+  ]
+}

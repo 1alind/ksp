@@ -1,0 +1,6 @@
+{
+  "name": "PHP Showcase Website",
+  "description": "A beautiful, fully-functional multi-page portfolio website built with PHP, HTML, CSS, and JavaScript, served through a custom PHP template engine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

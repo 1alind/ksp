@@ -1,0 +1,67 @@
+{
+  "orders": [
+    {
+      "order_id": "ORD-84920",
+      "customer_name": "Alind Duhoki",
+      "email": "admin@aurastore.com",
+      "phone": "+964 750 123 4567",
+      "city": "Duhok",
+      "address": "KRO Commercial Avenue, Building 4",
+      "payment_method": "Cash on Delivery",
+      "payment_status": "Pending",
+      "order_status": "Processing",
+      "items": [
+        {
+          "product_id": 2,
+          "title": "Onyx Skeleton Automatic Watch",
+          "price": 420.00,
+          "quantity": 1,
+          "color": "Black Onyx & Gold",
+          "size": "41mm Case",
+          "image": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "product_id": 3,
+          "title": "Royal Amber & Smoked Oud Eau de Parfum",
+          "price": 145.00,
+          "quantity": 1,
+          "color": "Gold Edition Bottle",
+          "size": "100ml / 3.4 oz",
+          "image": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "subtotal": 565.00,
+      "shipping": 0.00,
+      "discount": 0.00,
+      "total": 565.00,
+      "created_at": "2026-08-20T11:45:00Z"
+    },
+    {
+      "order_id": "ORD-73195",
+      "customer_name": "Dr. Zana",
+      "email": "dr.zana@example.com",
+      "phone": "+964 750 443 2110",
+      "city": "Erbil",
+      "address": "Dream City, Villa 88",
+      "payment_method": "FastPay / ZainCash",
+      "payment_status": "Paid",
+      "order_status": "Delivered",
+      "items": [
+        {
+          "product_id": 1,
+          "title": "Royal Midnight Velvet Blazer",
+          "price": 185.00,
+          "quantity": 1,
+          "color": "Midnight Blue",
+          "size": "L",
+          "image": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "subtotal": 185.00,
+      "shipping": 0.00,
+      "discount": 18.50,
+      "total": 166.50,
+      "created_at": "2026-08-18T09:15:00Z"
+    }
+  ]
+}
