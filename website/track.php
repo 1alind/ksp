@@ -8,6 +8,40 @@ $foundOrder = null;
 $searched = false;
 $settings = get_store_settings();
 $rate = $settings['exchange_rate_usd_to_iqd'] ?? 1320;
+$issueSubmitted = false;
+$issueTicketId = '';
+
+// Handle Package Issue Claim Submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_package_issue'])) {
+    $claimOrderId = trim($_POST['claim_order_id'] ?? '');
+    $claimCategory = trim($_POST['claim_category'] ?? 'Damaged Package');
+    $claimName = trim($_POST['claim_name'] ?? '');
+    $claimPhone = trim($_POST['claim_phone'] ?? '');
+    $claimDetails = trim($_POST['claim_details'] ?? '');
+
+    if (!empty($claimOrderId) && !empty($claimDetails)) {
+        $inqData = read_json_db('inquiries.json');
+        $inqList = $inqData['inquiries'] ?? [];
+        $issueTicketId = 'CLAIM-' . rand(10000, 99999);
+        $newClaim = [
+            'id' => $issueTicketId,
+            'is_package_claim' => true,
+            'order_id' => htmlspecialchars($claimOrderId),
+            'category' => htmlspecialchars($claimCategory),
+            'name' => htmlspecialchars($claimName),
+            'email' => htmlspecialchars($_POST['claim_email'] ?? ''),
+            'phone' => htmlspecialchars($claimPhone),
+            'subject' => '🚨 DELIVERED PACKAGE CLAIM (' . htmlspecialchars($claimOrderId) . '): ' . htmlspecialchars($claimCategory),
+            'message' => htmlspecialchars($claimDetails),
+            'status' => 'Pending Inspection',
+            'date' => date('Y-m-d H:i:s')
+        ];
+        array_unshift($inqList, $newClaim);
+        $inqData['inquiries'] = $inqList;
+        write_json_db('inquiries.json', $inqData);
+        $issueSubmitted = true;
+    }
+}
 
 if (!empty($searchOrderId)) {
     $searched = true;
@@ -37,6 +71,32 @@ if (!empty($searchOrderId)) {
 <section class="track-section">
     <div class="container">
         
+        <!-- Fully Online Automated Fulfillment Guarantee Banner -->
+        <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:28px;">⚡</span>
+                <div>
+                    <strong style="display:block; font-size:14.5px; color:var(--text-primary);"><?php echo t('policy_full_online_badge', $lang); ?></strong>
+                    <span style="font-size:12.5px; color:var(--text-secondary);"><?php echo t('policy_full_online_desc', $lang); ?></span>
+                </div>
+            </div>
+            <span class="badge-tag" style="background:rgba(217,119,6,0.15); color:var(--accent-gold); font-size:11.5px; font-weight:700;">
+                🛡️ <?php echo $lang === 'ku' ? 'زەمانەتا پشکنینا پاکێجێ' : ($lang === 'ar' ? 'ضمان وسلامة الطرد 100%' : '100% Package Guarantee'); ?>
+            </span>
+        </div>
+
+        <?php if ($issueSubmitted): ?>
+            <div class="alert alert-success mb-24" style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; border-radius:10px; padding:18px; color:var(--text-primary);">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                    <span style="font-size:22px;">✅</span>
+                    <h4 style="margin:0; font-size:16px; color:#22c55e;"><?php echo t('issue_success_msg', $lang); ?></h4>
+                </div>
+                <p style="margin:0; font-size:13.5px; color:var(--text-secondary);">
+                    Your Claim Ticket Reference: <strong style="font-family:monospace; color:var(--accent-gold); font-size:15px;"><?php echo htmlspecialchars($issueTicketId); ?></strong>. Our Quality & Replacement Dispatcher will review your case within 2-4 hours.
+                </p>
+            </div>
+        <?php endif; ?>
+
         <!-- Search Order Form Card -->
         <div class="track-search-card">
             <form action="track.php" method="GET" class="track-form">
@@ -207,11 +267,60 @@ if (!empty($searchOrderId)) {
                     </div>
                 </div>
 
-                <!-- Direct WhatsApp Concierge Help -->
+                <!-- Package Issue / Problem Claim Box (Exclusive Concierge Intervention) -->
+                <div class="package-issue-claim-card mt-24" style="background:var(--bg-subtle); border:1px solid rgba(217,119,6,0.3); border-radius:12px; padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:20px;">📦</span>
+                                <h3 style="font-size:17px; font-weight:800; color:var(--text-primary); margin:0;"><?php echo t('report_package_issue', $lang); ?></h3>
+                            </div>
+                            <p style="font-size:12.5px; color:var(--text-secondary); margin:4px 0 0;"><?php echo t('report_package_issue_desc', $lang); ?></p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-xs" onclick="const f=document.getElementById('packageIssueForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none';" style="color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;">
+                            ⚠️ <?php echo $lang === 'ku' ? 'تۆمارکرنا کێشەیێ' : ($lang === 'ar' ? 'فتح بلاغ مشكلة' : 'Open Claim Form'); ?>
+                        </button>
+                    </div>
+
+                    <form action="track.php?order_id=<?php echo urlencode($foundOrder['order_id']); ?>" method="POST" id="packageIssueForm" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
+                        <input type="hidden" name="submit_package_issue" value="1">
+                        <input type="hidden" name="claim_order_id" value="<?php echo htmlspecialchars($foundOrder['order_id']); ?>">
+                        <input type="hidden" name="claim_name" value="<?php echo htmlspecialchars($foundOrder['customer_name']); ?>">
+                        <input type="hidden" name="claim_phone" value="<?php echo htmlspecialchars($foundOrder['phone']); ?>">
+                        <input type="hidden" name="claim_email" value="<?php echo htmlspecialchars($foundOrder['email'] ?? ''); ?>">
+
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label style="font-size:12.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px; display:block;"><?php echo t('issue_category', $lang); ?> <span class="text-danger">*</span></label>
+                            <select name="claim_category" required class="form-control" style="font-size:13.5px;">
+                                <option value="<?php echo t('issue_cat_damaged', $lang); ?>">📦 <?php echo t('issue_cat_damaged', $lang); ?></option>
+                                <option value="<?php echo t('issue_cat_wrong_item', $lang); ?>">🔄 <?php echo t('issue_cat_wrong_item', $lang); ?></option>
+                                <option value="<?php echo t('issue_cat_defective', $lang); ?>">⚙️ <?php echo t('issue_cat_defective', $lang); ?></option>
+                                <option value="<?php echo t('issue_cat_missing', $lang); ?>">🔍 <?php echo t('issue_cat_missing', $lang); ?></option>
+                                <option value="<?php echo t('issue_cat_courier', $lang); ?>">🚚 <?php echo t('issue_cat_courier', $lang); ?></option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px; display:block;"><?php echo t('issue_details', $lang); ?> <span class="text-danger">*</span></label>
+                            <textarea name="claim_details" rows="3" required class="form-control" placeholder="<?php echo $lang === 'ku' ? 'تکایە هویرکاریێن ئاریشەیا رویدای د پاکێجێ دا بنڤیسە...' : ($lang === 'ar' ? 'يرجى كتابة تفاصيل المشكلة التي واجهتها في الطرد المستلم...' : 'Please describe any defect, damage, sizing error, or missing piece...'); ?>" style="font-size:13px;"></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span class="text-muted" style="font-size:11.5px;">
+                                🔒 <?php echo $lang === 'ku' ? 'داخازی دێ هێتە شاندن بۆ بەشێ زەمانەتێ' : ($lang === 'ar' ? 'سيتم إحالة الطلب مباشرة لقسم الضمان والاستبدال' : 'Direct VIP routing to our Quality & Warranty inspector'); ?>
+                            </span>
+                            <button type="submit" class="btn btn-primary btn-luxury btn-sm">
+                                🚀 <?php echo t('issue_submit', $lang); ?>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Direct Concierge Help for Package Issues -->
                 <div class="mt-24 text-center">
-                    <p class="text-muted" style="font-size:13px;">Need priority delivery adjustments or packaging requests?</p>
-                    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', $settings['contact_whatsapp'] ?? '9647501234567'); ?>?text=<?php echo rawurlencode('Hello AURA Concierge, I would like an update on my order ' . $foundOrder['order_id']); ?>" target="_blank" class="btn btn-outline btn-sm" style="color:#22c55e; border-color:#22c55e;">
-                        💬 Contact Concierge on WhatsApp
+                    <p class="text-muted" style="font-size:12.5px;"><?php echo t('policy_issue_only_notice', $lang); ?></p>
+                    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', $settings['contact_whatsapp'] ?? '9647501234567'); ?>?text=<?php echo rawurlencode('Hello AURA Claims Inspector, I have an issue regarding my delivered package for order ' . $foundOrder['order_id']); ?>" target="_blank" class="btn btn-outline btn-sm" style="color:#22c55e; border-color:#22c55e;">
+                        💬 <?php echo $lang === 'ku' ? 'پەیوەندیکرن ب بەشێ زەمانەتێ ل سەر واتسئەپ' : ($lang === 'ar' ? 'التواصل المباشر مع مسؤول الضمان عبر واتساب' : 'Contact Package Claims on WhatsApp'); ?>
                     </a>
                 </div>
 
