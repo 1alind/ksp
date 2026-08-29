@@ -92,6 +92,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_gateway_settings
     $actionMsg = 'FIB, ZainCash & Gateway configurations saved successfully!';
 }
 
+// Handle Save Website Branding & Store Customizer
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_website_branding'])) {
+    $currentSettings = get_store_settings();
+    
+    // Logo & Branding
+    $currentSettings['logo_type'] = $_POST['logo_type'] ?? 'emblem';
+    $currentSettings['logo_emblem'] = trim($_POST['logo_emblem'] ?? 'A');
+    $currentSettings['logo_main'] = trim($_POST['logo_main'] ?? 'AURA');
+    $currentSettings['logo_sub'] = trim($_POST['logo_sub'] ?? 'STUDIO');
+    $currentSettings['brand_accent_color'] = trim($_POST['brand_accent_color'] ?? '#d97706');
+    $currentSettings['logo_image_url'] = trim($_POST['logo_image_url'] ?? '');
+    $currentSettings['favicon_url'] = trim($_POST['favicon_url'] ?? '');
+
+    // Multilingual Store Name & Taglines
+    $currentSettings['store_name'] = trim($_POST['store_name'] ?? 'AURA Luxury Store');
+    $currentSettings['store_name_ar'] = trim($_POST['store_name_ar'] ?? 'متجر أورا الفاخر');
+    $currentSettings['store_name_ku'] = trim($_POST['store_name_ku'] ?? 'فروشگەها لوکس یا ئۆرا');
+    $currentSettings['store_tagline_en'] = trim($_POST['store_tagline_en'] ?? '');
+    $currentSettings['store_tagline_ar'] = trim($_POST['store_tagline_ar'] ?? '');
+    $currentSettings['store_tagline_ku'] = trim($_POST['store_tagline_ku'] ?? '');
+
+    // Hero Section
+    $currentSettings['hero_headline_en'] = trim($_POST['hero_headline_en'] ?? '');
+    $currentSettings['hero_headline_ar'] = trim($_POST['hero_headline_ar'] ?? '');
+    $currentSettings['hero_headline_ku'] = trim($_POST['hero_headline_ku'] ?? '');
+    $currentSettings['hero_subtitle_en'] = trim($_POST['hero_subtitle_en'] ?? '');
+    $currentSettings['hero_subtitle_ar'] = trim($_POST['hero_subtitle_ar'] ?? '');
+    $currentSettings['hero_subtitle_ku'] = trim($_POST['hero_subtitle_ku'] ?? '');
+
+    // Store Descriptions & About
+    $currentSettings['store_description_en'] = trim($_POST['store_description_en'] ?? '');
+    $currentSettings['store_description_ar'] = trim($_POST['store_description_ar'] ?? '');
+    $currentSettings['store_description_ku'] = trim($_POST['store_description_ku'] ?? '');
+
+    // Announcement Bar & Contacts
+    $currentSettings['announcement_enabled'] = isset($_POST['announcement_enabled']);
+    $currentSettings['announcement_text_en'] = trim($_POST['announcement_text_en'] ?? '');
+    $currentSettings['announcement_text_ar'] = trim($_POST['announcement_text_ar'] ?? '');
+    $currentSettings['announcement_text_ku'] = trim($_POST['announcement_text_ku'] ?? '');
+    $currentSettings['contact_phone'] = trim($_POST['contact_phone'] ?? '');
+    $currentSettings['contact_whatsapp'] = trim($_POST['contact_whatsapp'] ?? '');
+    $currentSettings['contact_email'] = trim($_POST['contact_email'] ?? '');
+    $currentSettings['boutique_location_en'] = trim($_POST['boutique_location_en'] ?? '');
+    $currentSettings['boutique_location_ar'] = trim($_POST['boutique_location_ar'] ?? '');
+    $currentSettings['boutique_location_ku'] = trim($_POST['boutique_location_ku'] ?? '');
+
+    // Financials & Delivery Rules
+    if (isset($_POST['exchange_rate_usd_to_iqd'])) {
+        $currentSettings['exchange_rate_usd_to_iqd'] = intval($_POST['exchange_rate_usd_to_iqd']);
+    }
+    if (isset($_POST['delivery_kurdistan_fee'])) {
+        $currentSettings['delivery_kurdistan_fee'] = floatval($_POST['delivery_kurdistan_fee']);
+    }
+    if (isset($_POST['delivery_iraq_fee'])) {
+        $currentSettings['delivery_iraq_fee'] = floatval($_POST['delivery_iraq_fee']);
+    }
+    if (isset($_POST['free_delivery_threshold'])) {
+        $currentSettings['free_delivery_threshold'] = floatval($_POST['free_delivery_threshold']);
+    }
+
+    save_store_settings($currentSettings);
+    $actionMsg = 'Website branding, logos, and store settings saved successfully!';
+}
+
 // Handle Add Product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_new_product'])) {
     $titleEn = trim($_POST['prod_title_en'] ?? '');
