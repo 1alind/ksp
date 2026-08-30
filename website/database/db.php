@@ -4,7 +4,7 @@
  * Exclusively uses MySQL database for products, orders, users, inquiries, reviews, and settings.
  */
 
-// --- MySQL Configuration ---
+// --- MySQL Conjfiguration ---
 define('MYSQL_ENABLED', true);
 define('MYSQL_HOST', getenv('MYSQL_HOST') ?: 'sql104.infinityfree.com');
 define('MYSQL_PORT', getenv('MYSQL_PORT') ?: '3306');
