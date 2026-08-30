@@ -1,17 +1,27 @@
 -- ==============================================================================
--- AURA Luxury Store — Complete Seed Data SQL Script (Clean & Compatible)
--- Creates all required tables if not exist, and inserts all example data.
--- Compatible with: MySQL 5.5+, 5.6+, 5.7+, 8.0+, MariaDB & InfinityFree Hosting
--- Charset: utf8mb4 / Collation: utf8mb4_unicode_ci (Kurdish, Arabic, English)
+-- AURA Luxury Store — Extended Database Schema & Seed Data
+-- Complete Table Reset + Rich Examples Across All 4 Categories & All 8 Order Statuses
+-- Compatible with: MySQL 5.5+, 5.6+, 5.7+, 8.0+, MariaDB & InfinityFree phpMyAdmin
+-- Charset: utf8mb4 / Collation: utf8mb4_unicode_ci
 -- ==============================================================================
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ------------------------------------------------------------------------------
--- 1. Table structure for table `products`
+-- 1. DROP ALL EXISTING TABLES
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `products` (
+DROP TABLE IF EXISTS `reviews`;
+DROP TABLE IF EXISTS `inquiries`;
+DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `settings`;
+DROP TABLE IF EXISTS `products`;
+
+-- ------------------------------------------------------------------------------
+-- 2. CREATE `products` TABLE
+-- ------------------------------------------------------------------------------
+CREATE TABLE `products` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title_en` VARCHAR(255) NOT NULL,
   `title_ar` VARCHAR(255) NOT NULL,
@@ -42,9 +52,9 @@ CREATE TABLE IF NOT EXISTS `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 2. Table structure for table `orders`
+-- 3. CREATE `orders` TABLE
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `orders` (
+CREATE TABLE `orders` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `order_id` VARCHAR(50) NOT NULL UNIQUE,
   `customer_name` VARCHAR(255) NOT NULL,
@@ -77,9 +87,9 @@ CREATE TABLE IF NOT EXISTS `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 3. Table structure for table `users`
+-- 4. CREATE `users` TABLE
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_code` VARCHAR(50) NOT NULL UNIQUE,
   `name` VARCHAR(255) NOT NULL,
@@ -96,9 +106,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 4. Table structure for table `inquiries`
+-- 5. CREATE `inquiries` TABLE
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `inquiries` (
+CREATE TABLE `inquiries` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `inquiry_code` VARCHAR(50) NOT NULL UNIQUE,
   `name` VARCHAR(255) NOT NULL,
@@ -113,9 +123,9 @@ CREATE TABLE IF NOT EXISTS `inquiries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 5. Table structure for table `settings`
+-- 6. CREATE `settings` TABLE
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `settings` (
+CREATE TABLE `settings` (
   `key_name` VARCHAR(100) NOT NULL,
   `value_json` LONGTEXT NOT NULL,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -123,9 +133,9 @@ CREATE TABLE IF NOT EXISTS `settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 6. Table structure for table `reviews`
+-- 7. CREATE `reviews` TABLE
 -- ------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `reviews` (
+CREATE TABLE `reviews` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `product_id` INT UNSIGNED NOT NULL,
   `user_name` VARCHAR(255) NOT NULL,
@@ -137,13 +147,13 @@ CREATE TABLE IF NOT EXISTS `reviews` (
   KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- ------------------------------------------------------------------------------
--- SEED DATA: PRODUCTS (All Categories)
+-- 8. EXTENSIVE PRODUCTS SEED (16 Luxury Items Across All 4 Categories)
 -- ------------------------------------------------------------------------------
-REPLACE INTO `products` 
+INSERT INTO `products` 
 (`id`, `title_en`, `title_ar`, `title_ku`, `category`, `price`, `old_price`, `rating`, `reviews_count`, `badge_en`, `badge_ar`, `badge_ku`, `stock`, `image`, `images`, `colors`, `sizes`, `size_measurements`, `description_en`, `description_ar`, `description_ku`, `featured`)
 VALUES
+-- --- CLOTHES (4 Items) ---
 (
   1,
   'Royal Midnight Velvet Blazer',
@@ -162,82 +172,10 @@ VALUES
   '["https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"]',
   '["Midnight Blue","Obsidian Black","Burgundy"]',
   '["S","M","L","XL"]',
-  '{"S":"Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm • Sleeve: 62 cm","M":"Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm • Sleeve: 63 cm","L":"Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm • Sleeve: 65 cm","XL":"Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm • Sleeve: 66 cm"}',
+  '{"S":"Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm","M":"Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm","L":"Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm","XL":"Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm"}',
   'Impeccably tailored luxury velvet blazer designed with silk lapels and custom metal buttons. Perfect for evening galas, high-profile events, and formal dinners.',
   'بليزر مخملي فاخر بتفصيل متقن مع ياقة حريرية وأزرار معدنية مخصصة. مثالي للحفلات المسائية والمناسبات الرسمية.',
   'ساکێ مخمەلی یێ گەلەک جوان و شاهانە ب نەخشیێن ئاوریشمی و دوگماێن زێڕین. گەلەک گونجایە بۆ ئاهەنگ و هەلکەفتێن فەرمی.',
-  1
-),
-(
-  2,
-  'Onyx Skeleton Automatic Watch',
-  'ساعة أوتوماتيكية أونيكس هيكلية',
-  'دەمژمێرا ئۆتۆماتیک یا سکێلێتۆن ئۆنیکس',
-  'watches',
-  550000.00,
-  725000.00,
-  5.00,
-  64,
-  'Luxury',
-  'فاخر',
-  'لوکس و نازک',
-  8,
-  'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80"]',
-  '["Black Onyx & Gold","Silver Steel","Rose Gold"]',
-  '["41mm Case"]',
-  '{"41mm Case":"Case Diameter: 41 mm • Thickness: 11.5 mm • Strap Width: 20 mm • Lug-to-Lug: 47 mm"}',
-  'Self-winding mechanical automatic movement with an open-heart skeleton dial, sapphire crystal glass, and Italian genuine leather strap. Water-resistant up to 50M.',
-  'حركة ميكانيكية أوتوماتيكية مع ميناء هيكلي مكشوف وزجاج من الكريستال الياقوتي المقاوم للخدش وسوار جلد إيطالي أصلي.',
-  'دەمژمێرەکا ميكانيكی یا ئۆتۆماتیك ب دیزاینێ سکێلێتۆن و شوشەیا یاقووتی یا دژی کڕاندنێ و قایشا چەرمی یا ئیتالی یا رەسەن.',
-  1
-),
-(
-  3,
-  'Royal Amber & Smoked Oud Eau de Parfum',
-  'عطر العود المدخن والعنبر الملكي',
-  'عەترێ عوودێ دووکەلی و عەنبەرێ شاهانە',
-  'perfumes',
-  190000.00,
-  250000.00,
-  4.80,
-  92,
-  'Signature',
-  'مميز',
-  'تایبەت',
-  25,
-  'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80"]',
-  '["Gold Edition Bottle","Smoked Obsidian Flacon","Dark Amber Flacon"]',
-  '["100ml / 3.4 oz","50ml / 1.7 oz"]',
-  '{"100ml / 3.4 oz":"Height: 14.5 cm • Width: 6.2 cm • Depth: 4.5 cm • Net: 100 ml (3.4 fl oz)","50ml / 1.7 oz":"Height: 11.2 cm • Width: 5.0 cm • Depth: 3.8 cm • Net: 50 ml (1.7 fl oz)"}',
-  'An intoxicating, long-lasting fragrance blending aged Cambodian oud, warm golden amber, Madagascar vanilla, and Damascus rose. Lasts over 24 hours.',
-  'عطر ساحر وثابت يمزج بين العود الكمبودي الفاخر والعنبر الذهبي الدافئ والفانيليا وزهور دمشق. يدوم لأكثر من 24 ساعة.',
-  'عەترەکێ گەلەک خوش و بێهنا وی گەلەک دمینیت ژ عوودێ کەمبۆدی، عەنبەرێ زێڕین و گولێن دیمەشقێ. پتر ژ 24 دەمژمێران دمینیت.',
-  1
-),
-(
-  4,
-  'Italian Leather Minimalist Weekender Bag',
-  'حقيبة عطلة نهاية الأسبوع من الجلد الإيطالي',
-  'جانتا چەرمێ ئیتالی یا گەشت و دەوامێ',
-  'accessories',
-  275000.00,
-  370000.00,
-  4.90,
-  45,
-  'Handcrafted',
-  'صناعة يدوية',
-  'دەستکرد',
-  11,
-  'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"]',
-  '["Vintage Tan","Deep Espresso","Matte Black"]',
-  '["Standard 45L"]',
-  '{"Standard 45L":"Length: 52 cm • Height: 30 cm • Width: 26 cm • Handle Drop: 18 cm"}',
-  'Crafted from full-grain vegetable-tanned Italian leather with solid brass hardware, YKK zippers, and padded laptop compartment.',
-  'مصنوعة من جلد إيطالي أصلي كامل الحبيبات مع إكسسوارات من النحاس الصلب وسحابات متينة وحجرة مبطنة للكمبيوتر المحمول.',
-  'ژ چەرمێ ئیتالی یێ رەسەن و پاقژ هاتیە چێکرن دگەل قفلێن برۆنز و جهێ لەپتۆپی یێ تایبەت.',
   1
 ),
 (
@@ -265,78 +203,6 @@ VALUES
   0
 ),
 (
-  6,
-  'Celestial Diamond Chronograph',
-  'ساعة كرونوغراف سيليستيال الماسية',
-  'دەمژمێرا کرۆنۆگراف یا ئەلماسی یا سەلێستیال',
-  'watches',
-  890000.00,
-  1150000.00,
-  5.00,
-  51,
-  'Exclusive',
-  'حصري',
-  'ب تایبەت',
-  4,
-  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"]',
-  '["18K Rose Gold & Diamond Dial","Platinum Silver"]',
-  '["42mm Case"]',
-  '{"42mm Case":"Diameter: 42 mm • Sapphire Glass • Triple Subdial Chronograph • 100M Water Resistance"}',
-  'Precision Swiss chronograph with certified diamond hour markers and sunburst guilloché dial.',
-  'ساعة كرونوغراف سويسرية فائقة الدقة مرصعة بماسات معتمدة وميناء بتشطيبات فنية مذهلة.',
-  'دەمژمێرەکا سویسری یا دقیق مرسەع کری ب ئەلماسان و سەعەتێن زێڕین یێن شاهانە.',
-  1
-),
-(
-  7,
-  'Nocturne Noir Rose Extrait de Parfum',
-  'عطر نوكتورن نوار روز المركز',
-  'عەترێ نوکتۆرن نوار رۆز یێ خەست',
-  'perfumes',
-  230000.00,
-  295000.00,
-  4.90,
-  83,
-  'Limited',
-  'إصدار محدود',
-  'چاپی یا کێم',
-  18,
-  'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"]',
-  '["Black Crystal Flacon"]',
-  '["100ml / 3.4 oz"]',
-  '{"100ml / 3.4 oz":"Pure Extrait concentration 30% oils • Lasts 36+ hours on skin and fabrics"}',
-  'Dark and mysterious blend of Turkish Black Rose, saffron, leather, patchouli, and white musk.',
-  'توليفة ساحرة من الورد التركي الأسود، الزعفران، الجلد، والباتشولي والمسك الأبيض.',
-  'تێکەلەکێ سەرسۆڕهێنەر ژ گولێن رەش یێن تورکی، زەعفەران، چەرم و مسکا سپی.',
-  0
-),
-(
-  8,
-  'Artisan Braided Leather Belt with Gold Buckle',
-  'حزام جلد يدوي الصنع بإبزيم ذهبي',
-  'قایشا چەرمی یا دەستچێکری ب قفلا زێڕین',
-  'accessories',
-  95000.00,
-  130000.00,
-  4.70,
-  39,
-  'Handmade',
-  'يدوي',
-  'دەستچێکری',
-  30,
-  'https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"]',
-  '["Cognac Brown","Matte Black"]',
-  '["90 cm (32-34)","100 cm (36-38)","110 cm (40-42)"]',
-  '{"90 cm (32-34)":"Width: 3.5 cm • Total Length: 105 cm","100 cm (36-38)":"Width: 3.5 cm • Total Length: 115 cm","110 cm (40-42)":"Width: 3.5 cm • Total Length: 125 cm"}',
-  'Full-grain Spanish bridle leather, hand-braided and fitted with a 24K gold-plated solid brass buckle.',
-  'جلد إسباني طبيعي مجدول يدوياً بدقة عالية مع إبزيم من النحاس الصلب مطلي بالذهب عيار 24.',
-  'قایشا چەرمێ ئیسپانی یا رەسەن یا دەستچێکری دگەل قفلا مسێ هاتیە رووپۆشکرن ب زێڕێ 24 عەیار.',
-  0
-),
-(
   9,
   'Cashmere & Silk Tailored Trench Coat',
   'معطف كشمير وحرير كلاسيكي فاخر',
@@ -358,6 +224,80 @@ VALUES
   'Ultra-soft Mongolian cashmere with silk lining, water-repellent finish, and signature horn buttons.',
   'كشمير منغولي فائق النعومة مبطن بالحرير الخالص ومقاوم للماء مع أزرار طبيعية فاخرة.',
   'کەشمیرا مەنگۆلی یا گەلەک نەرم ب بەتانا ئاوریشمی و دژی ئاڤێ دگەل دوگماێن سروشتی.',
+  1
+),
+(
+  13,
+  'Bespoke Italian Silk Knit Polo',
+  'قميص بولو حريري إيطالي مخصص',
+  'پۆلۆیا ئاوریشمی یا ئیتالی یا تایبەت',
+  'clothes',
+  165000.00,
+  210000.00,
+  4.85,
+  19,
+  'Summer Luxury',
+  'أناقة الصيف',
+  'هاڤینا لوکس',
+  18,
+  'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"]',
+  '["Ivory White","Navy Marine","Sand Gold"]',
+  '["S","M","L","XL"]',
+  '{"S":"Chest: 94cm • Length: 68cm","M":"Chest: 100cm • Length: 70cm","L":"Chest: 106cm • Length: 72cm","XL":"Chest: 112cm • Length: 74cm"}',
+  'Finely knitted Mulberry silk and Egyptian cotton yarn polo with mother-of-pearl buttons.',
+  'بولو حريري ناعم منسوج من الحرير التوتي والقطن المصري مع أزرار صدفية أصلية.',
+  'پۆلۆیا ئاوریشمی یا نرم ب دوگماێن صەدەفی یێن رەسەن و قوماشێ ئیتالی.',
+  0
+),
+
+-- --- WATCHES (4 Items) ---
+(
+  2,
+  'Onyx Skeleton Automatic Watch',
+  'ساعة أوتوماتيكية أونيكس هيكلية',
+  'دەمژمێرا ئۆتۆماتیک یا سکێلێتۆن ئۆنیکس',
+  'watches',
+  550000.00,
+  725000.00,
+  5.00,
+  64,
+  'Luxury',
+  'فاخر',
+  'لوکس و نازک',
+  8,
+  'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80"]',
+  '["Black Onyx & Gold","Silver Steel","Rose Gold"]',
+  '["41mm Case"]',
+  '{"41mm Case":"Case Diameter: 41 mm • Thickness: 11.5 mm • Strap Width: 20 mm"}',
+  'Self-winding mechanical automatic movement with an open-heart skeleton dial, sapphire crystal glass, and Italian genuine leather strap. Water-resistant up to 50M.',
+  'حركة ميكانيكية أوتوماتيكية مع ميناء هيكلي مكشوف وزجاج من الكريستال الياقوتي المقاوم للخدش وسوار جلد إيطالي أصلي.',
+  'دەمژمێرەکا ميكانيكی یا ئۆتۆماتیك ب دیزاینێ سکێلێتۆن و شوشەیا یاقووتی یا دژی کڕاندنێ و قایشا چەرمی یا ئیتالی یا رەسەن.',
+  1
+),
+(
+  6,
+  'Celestial Diamond Chronograph',
+  'ساعة كرونوغراف سيليستيال الماسية',
+  'دەمژمێرا کرۆنۆگراف یا ئەلماسی یا سەلێستیال',
+  'watches',
+  890000.00,
+  1150000.00,
+  5.00,
+  51,
+  'Exclusive',
+  'حصري',
+  'ب تایبەت',
+  4,
+  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"]',
+  '["18K Rose Gold & Diamond Dial","Platinum Silver"]',
+  '["42mm Case"]',
+  '{"42mm Case":"Diameter: 42 mm • Sapphire Glass • Triple Subdial Chronograph • 100M Water Resistance"}',
+  'Precision Swiss chronograph with certified diamond hour markers and sunburst guilloché dial.',
+  'ساعة كرونوغراف سويسرية فائقة الدقة مرصعة بماسات معتمدة وميناء بتشطيبات فنية مذهلة.',
+  'دەمژمێرەکا سویسری یا دقیق مرسەع کری ب ئەلماسان و سەعەتێن زێڕین یێن شاهانە.',
   1
 ),
 (
@@ -385,6 +325,80 @@ VALUES
   0
 ),
 (
+  14,
+  'Grand Royal Emerald Moonphase',
+  'ساعة جراند رويال الزمردية بأطوار القمر',
+  'دەمژمێرا گراند رۆیاڵ یا زومڕوتی ب دیزاینێ هەیڤێ',
+  'watches',
+  740000.00,
+  950000.00,
+  4.95,
+  42,
+  'Limited Edition',
+  'إصدار خاص',
+  'ئیدیشنێ تایبەت',
+  5,
+  'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=800&q=80"]',
+  '["Emerald Green & 18K Gold","Midnight Blue"]',
+  '["40mm Classic"]',
+  '{"40mm Classic":"Diameter: 40 mm • Real Moonphase Dial • Genuine Alligator Strap • Exhibition Caseback"}',
+  'Classic moonphase complication with deep emerald sunburst dial and genuine alligator leather strap.',
+  'ساعة كلاسيكية راقية تعرض أطوار القمر مع ميناء أخضر زمردي فاخر وحزام من جلد التمساح الطبيعي.',
+  'دەمژمێرەکا گەلەک کەشخە ب سیستەمێ پیشاندانا هەیڤێ و مینایێ کەسکێ زومڕوتی و قایشا ئەسڵی.',
+  0
+),
+
+-- --- PERFUMES (4 Items) ---
+(
+  3,
+  'Royal Amber & Smoked Oud Eau de Parfum',
+  'عطر العود المدخن والعنبر الملكي',
+  'عەترێ عوودێ دووکەلی و عەنبەرێ شاهانە',
+  'perfumes',
+  190000.00,
+  250000.00,
+  4.80,
+  92,
+  'Signature',
+  'مميز',
+  'تایبەت',
+  25,
+  'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80"]',
+  '["Gold Edition Bottle","Smoked Obsidian Flacon","Dark Amber Flacon"]',
+  '["100ml / 3.4 oz","50ml / 1.7 oz"]',
+  '{"100ml / 3.4 oz":"Net: 100 ml (3.4 fl oz) • 24h Longevity","50ml / 1.7 oz":"Net: 50 ml (1.7 fl oz)"}',
+  'An intoxicating, long-lasting fragrance blending aged Cambodian oud, warm golden amber, Madagascar vanilla, and Damascus rose. Lasts over 24 hours.',
+  'عطر ساحر وثابت يمزج بين العود الكمبودي الفاخر والعنبر الذهبي الدافئ والفانيليا وزهور دمشق. يدوم لأكثر من 24 ساعة.',
+  'عەترەکێ گەلەک خوش و بێهنا وی گەلەک دمینیت ژ عوودێ کەمبۆدی، عەنبەرێ زێڕین و گولێن دیمەشقێ. پتر ژ 24 دەمژمێران دمینیت.',
+  1
+),
+(
+  7,
+  'Nocturne Noir Rose Extrait de Parfum',
+  'عطر نوكتورن نوار روز المركز',
+  'عەترێ نوکتۆرن نوار رۆز یێ خەست',
+  'perfumes',
+  230000.00,
+  295000.00,
+  4.90,
+  83,
+  'Limited',
+  'إصدار محدود',
+  'چاپی یا کێم',
+  18,
+  'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"]',
+  '["Black Crystal Flacon"]',
+  '["100ml / 3.4 oz"]',
+  '{"100ml / 3.4 oz":"Pure Extrait concentration 30% oils • Lasts 36+ hours on skin and fabrics"}',
+  'Dark and mysterious blend of Turkish Black Rose, saffron, leather, patchouli, and white musk.',
+  'توليفة ساحرة من الورد التركي الأسود، الزعفران، الجلد، والباتشولي والمسك الأبيض.',
+  'تێکەلەکێ سەرسۆڕهێنەر ژ گولێن رەش یێن تورکی، زەعفەران، چەرم و مسکا سپی.',
+  0
+),
+(
   11,
   'Imperial Sandalwood & White Musk',
   'عطر الصندل الإمبراطوري والمسك الأبيض',
@@ -406,6 +420,80 @@ VALUES
   'Creamy Mysore sandalwood paired with clean white musk, Italian bergamot, and cedarwood.',
   'خشب الصندل الميسوري الكريمي مع المسك الأبيض النقي والبرغموت الإيطالي وخشب الأرز.',
   'داری سەندەل یێ تایبەت دگەل مسکا پاقژ و بەرگامۆتا ئیتالی و داری سەروو.',
+  0
+),
+(
+  15,
+  'Velvet Tobacco & French Vanilla',
+  'عطر توباكو المخملي والفانيليا الفرنسية',
+  'عەترێ تۆباکۆیێ مەخمەلی و ڤانێلا فەرەنسی',
+  'perfumes',
+  210000.00,
+  270000.00,
+  4.90,
+  55,
+  'Winter Choice',
+  'خيار الشتاء',
+  'هەلبژارتنا زڤستانێ',
+  15,
+  'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80"]',
+  '["Amber Crystal Flacon"]',
+  '["100ml / 3.4 oz"]',
+  '{"100ml / 3.4 oz":"Notes: Cuban Tobacco, Bourbon Vanilla, Honey, Tonka Bean, Cocoa"}',
+  'Warm and opulent blend of aged Cuban tobacco leaves, Bourbon vanilla, and rich cocoa.',
+  'عطر شتوي دافئ وغني بأوراق التبغ الكوبية وفانيليا البوربون والكاكاو والعسل.',
+  'عەترەکێ گەرم و شاهانە ژ تێکەلێ گەلایێن تۆباکۆ، ڤانێلا بۆربۆن و کاکاوا خەست.',
+  0
+),
+
+-- --- ACCESSORIES (4 Items) ---
+(
+  4,
+  'Italian Leather Minimalist Weekender Bag',
+  'حقيبة عطلة نهاية الأسبوع من الجلد الإيطالي',
+  'جانتا چەرمێ ئیتالی یا گەشت و دەوامێ',
+  'accessories',
+  275000.00,
+  370000.00,
+  4.90,
+  45,
+  'Handcrafted',
+  'صناعة يدوية',
+  'دەستکرد',
+  11,
+  'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80"]',
+  '["Vintage Tan","Deep Espresso","Matte Black"]',
+  '["Standard 45L"]',
+  '{"Standard 45L":"Length: 52 cm • Height: 30 cm • Width: 26 cm • Handle Drop: 18 cm"}',
+  'Crafted from full-grain vegetable-tanned Italian leather with solid brass hardware, YKK zippers, and padded laptop compartment.',
+  'مصنوعة من جلد إيطالي أصلي كامل الحبيبات مع إكسسوارات من النحاس الصلب وسحابات متينة وحجرة مبطنة للكمبيوتر المحمول.',
+  'ژ چەرمێ ئیتالی یێ رەسەن و پاقژ هاتیە چێکرن دگەل قفلێن برۆنز و جهێ لەپتۆپی یێ تایبەت.',
+  1
+),
+(
+  8,
+  'Artisan Braided Leather Belt with Gold Buckle',
+  'حزام جلد يدوي الصنع بإبزيم ذهبي',
+  'قایشا چەرمی یا دەستچێکری ب قفلا زێڕین',
+  'accessories',
+  95000.00,
+  130000.00,
+  4.70,
+  39,
+  'Handmade',
+  'يدوي',
+  'دەستچێکری',
+  30,
+  'https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"]',
+  '["Cognac Brown","Matte Black"]',
+  '["90 cm (32-34)","100 cm (36-38)","110 cm (40-42)"]',
+  '{"90 cm (32-34)":"Width: 3.5 cm • Total Length: 105 cm","100 cm (36-38)":"Width: 3.5 cm • Total Length: 115 cm","110 cm (40-42)":"Width: 3.5 cm • Total Length: 125 cm"}',
+  'Full-grain Spanish bridle leather, hand-braided and fitted with a 24K gold-plated solid brass buckle.',
+  'جلد إسباني طبيعي مجدول يدوياً بدقة عالية مع إبزيم من النحاس الصلب مطلي بالذهب عيار 24.',
+  'قایشا چەرمێ ئیسپانی یا رەسەن یا دەستچێکری دگەل قفلا مسێ هاتیە رووپۆشکرن ب زێڕێ 24 عەیار.',
   0
 ),
 (
@@ -431,62 +519,101 @@ VALUES
   'إطار تيتانيوم ياباني خفيف الوزن للغاية مع عدسات مستقطبة من زايس وحماية كاملة من الأشعة فوق البنفسجية.',
   'چاڤیلکەکا ژ تیتانیۆمێ ژاپۆنی یێ گەلەک سڤک دگەل عەدەسێن پۆلارایز یێن پلە ئێک.',
   0
+),
+(
+  16,
+  'Carbon Fiber & 18K Gold Cufflinks Set',
+  'أزرار أكمام كربون فايبر وذهب عيار 18',
+  'قۆپچەیێن قۆلێ ژ کاربۆن فایبەر و زێڕێ 18',
+  'accessories',
+  115000.00,
+  155000.00,
+  4.95,
+  31,
+  'Luxury Gift',
+  'هدية فاخرة',
+  'دیارییا شاهانە',
+  22,
+  'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"]',
+  '["Gold & Black Carbon","Platinum Silver Carbon"]',
+  '["Standard Pair"]',
+  '{"Standard Pair":"Diameter: 16mm • Material: Aerospace grade carbon fiber & 18K Gold Vermeil"}',
+  'Aerospace-grade woven carbon fiber insert framed in polished 18K gold vermeil with luxury presentation gift box.',
+  'أزرار أكمام راقية تجمع بين ألياف الكربون ومعدن الفضة المطلي بالذهب عيار 18 مع علبة هدايا جلدية فاخرة.',
+  'قۆپچەیێن قۆلێ یێن شاهانە ژ کاربۆن فایبەر و زێڕێ 18 عەیار دگەل باکێتا دیاریێ یا چەرمی.',
+  0
 );
 
 -- ------------------------------------------------------------------------------
--- SEED DATA: ALL TYPES OF ORDERS
+-- 9. EXTENSIVE ORDERS SEED (Covering All 8 Order Statuses & All Payment Types)
+-- 
+-- Order Statuses:
+--  1. Received
+--  2. Confirmed
+--  3. Processing
+--  4. Shipped
+--  5. Out for Delivery
+--  6. Delivered
+--  7. Cancelled
+--  8. Returned / Refunded
 -- ------------------------------------------------------------------------------
-REPLACE INTO `orders` 
+INSERT INTO `orders` 
 (`id`, `order_id`, `customer_name`, `customer_phone`, `customer_email`, `governorate`, `district`, `customer_address`, `subtotal`, `shipping_fee`, `discount_amount`, `total_amount`, `payment_method`, `payment_status`, `order_status`, `courier`, `driver_name`, `driver_phone`, `tracking_code`, `dispatch_notes`, `estimated_delivery`, `items_json`)
 VALUES
+-- Status 1: Received | Cash on Delivery | Brand New Order Queue | Zakho
 (
   1,
   'ORD-98421',
-  'Shivan Berwari',
-  '+964 750 442 8811',
-  'shivan.berwari@gmail.com',
-  'Duhok',
-  'KRO District',
-  'Villa 14, Near Dream City Gate',
-  795000.00,
+  'Nechirvan Zakholi',
+  '+964 750 662 4433',
+  'nechir.zakho@hotmail.com',
+  'Zakho',
+  'Pira Dalal Area',
+  'Main Street, Near Old Bridge Plaza',
+  240000.00,
+  5000.00,
   0.00,
-  0.00,
-  795000.00,
-  'First Iraqi Bank (FIB)',
-  'Paid (FIB Verified)',
-  'Out for Delivery',
+  245000.00,
+  'Cash on Delivery (دفع عند الاستلام)',
+  'Pending',
+  'Received',
   'Lezzoo Logistics Kurdistan',
-  'Karwan Zaxo',
-  '+964 750 331 9922',
-  'LZ-DHK-99218',
-  'Fragile luxury package. Customer requested delivery between 4:00 PM - 7:00 PM.',
-  'Today by 6:00 PM',
-  '[{"product_id":2,"title":"Onyx Skeleton Automatic Watch","price":550000,"quantity":1,"color":"Black Onyx & Gold","size":"41mm Case","image":"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"},{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"L","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
+  'Awaiting Warehouse Dispatch',
+  'N/A',
+  'LZ-ZKH-55019',
+  'Brand new checkout order placed via mobile. Ready for order confirmation call.',
+  'Within 2-3 Days',
+  '[{"product_id":12,"title":"Hand-Polished Aviator Titanium Sunglasses","price":145000,"quantity":1,"color":"Gold Frame / Gradient Brown Lens","size":"58mm Standard","image":"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80"},{"product_id":8,"title":"Artisan Braided Leather Belt with Gold Buckle","price":95000,"quantity":1,"color":"Cognac Brown","size":"100 cm (36-38)","image":"https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 2: Confirmed | Cash on Delivery | VIP Concierge Verified | Erbil
 (
   2,
   'ORD-98422',
-  'Dr. Hiba Al-Nuaimi',
-  '+964 780 119 2200',
-  'dr.hiba.nuaimi@yahoo.com',
-  'Baghdad',
-  'Al-Mansour',
-  'Street 14, Near Baghdad Tower, Building 8',
-  465000.00,
+  'Lana Peshraw',
+  '+964 750 991 2233',
+  'lana.peshraw@gmail.com',
+  'Erbil',
+  'Empire World',
+  'Diamond Tower 2, Floor 14, Apt 1402',
+  420000.00,
   0.00,
   0.00,
-  465000.00,
-  'ZainCash (زين كاش)',
-  'Paid (ZainCash Verified)',
-  'Shipped',
-  'Sandooq Express Iraq',
-  'Ammar Al-Janabi',
-  '+964 780 554 1122',
-  'SND-BGD-40192',
-  'Express airway cargo to Baghdad International Airport Hub, dispatched to local courier.',
-  'Tomorrow by 2:00 PM',
-  '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":4,"title":"Italian Leather Minimalist Weekender Bag","price":275000,"quantity":1,"color":"Vintage Tan","size":"Standard 45L","image":"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"}]'
+  420000.00,
+  'Cash on Delivery (دفع عند الاستلام)',
+  'Pending',
+  'Confirmed',
+  'Aura VIP White-Glove Courier',
+  'Rebin Barzani',
+  '+964 750 771 6655',
+  'AUR-ERB-00192',
+  'Customer confirmed address via phone call. VIP white-glove packaging requested.',
+  'Tomorrow by 11:00 AM',
+  '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":7,"title":"Nocturne Noir Rose Extrait de Parfum","price":230000,"quantity":1,"color":"Black Crystal Flacon","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 3: Processing | FastPay Paid | Quality Inspection & Luxury Gift Boxing | Sulaymaniyah
 (
   3,
   'ORD-98423',
@@ -507,58 +634,64 @@ VALUES
   'Dyar Rostam',
   '+964 770 123 7890',
   'FX-SUL-88310',
-  'Under quality inspection and luxury gift boxing in our Erbil logistics fulfillment center.',
+  'Payment verified via FastPay API. Undergoing horology calibration check in Erbil hub.',
   'In 2 Days',
   '[{"product_id":2,"title":"Onyx Skeleton Automatic Watch","price":550000,"quantity":1,"color":"Rose Gold","size":"41mm Case","image":"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 4: Shipped | ZainCash Paid | In Airway Transit to Baghdad Cargo Hub | Baghdad
 (
   4,
   'ORD-98424',
-  'Lana Peshraw',
-  '+964 750 991 2233',
-  'lana.peshraw@gmail.com',
-  'Erbil',
-  'Empire World',
-  'Diamond Tower 2, Floor 14, Apt 1402',
-  420000.00,
+  'Dr. Hiba Al-Nuaimi',
+  '+964 780 119 2200',
+  'dr.hiba.nuaimi@yahoo.com',
+  'Baghdad',
+  'Al-Mansour',
+  'Street 14, Near Baghdad Tower, Building 8',
+  465000.00,
   0.00,
   0.00,
-  420000.00,
-  'Cash on Delivery (دفع عند الاستلام)',
-  'Pending',
-  'Confirmed',
-  'Aura VIP White-Glove Courier',
-  'Rebin Barzani',
-  '+964 750 771 6655',
-  'AUR-ERB-00192',
-  'VIP customer white glove delivery with pre-notification via WhatsApp.',
-  'Tomorrow by 11:00 AM',
-  '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":7,"title":"Nocturne Noir Rose Extrait de Parfum","price":230000,"quantity":1,"color":"Black Crystal Flacon","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80"}]'
+  465000.00,
+  'ZainCash (زين كاش)',
+  'Paid (ZainCash Verified)',
+  'Shipped',
+  'Sandooq Express Iraq',
+  'Ammar Al-Janabi',
+  '+964 780 554 1122',
+  'SND-BGD-40192',
+  'Air Cargo flight dispatched to Baghdad Int Airport Hub. Handover to local courier scheduled for 8:00 AM.',
+  'Tomorrow by 2:00 PM',
+  '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":4,"title":"Italian Leather Minimalist Weekender Bag","price":275000,"quantity":1,"color":"Vintage Tan","size":"Standard 45L","image":"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 5: Out for Delivery | First Iraqi Bank (FIB) Paid | Active Driver in City | Duhok
 (
   5,
   'ORD-98425',
-  'Mustafa Al-Hilli',
-  '+964 781 330 9988',
-  'mustafa.hilli@gmail.com',
-  'Basra',
-  'Al-Jazaer',
-  'Al-Ashar Corniche, Palm Residence 5',
-  245000.00,
+  'Shivan Berwari',
+  '+964 750 442 8811',
+  'shivan.berwari@gmail.com',
+  'Duhok',
+  'KRO District',
+  'Villa 14, Near Dream City Gate',
+  795000.00,
   0.00,
   0.00,
-  245000.00,
-  'ZainCash (زين كاش)',
-  'Refunded',
-  'Cancelled',
-  'Fast Iraq Express Cargo',
-  'N/A',
-  'N/A',
-  'CAN-BSR-40291',
-  'Order cancelled upon customer request for size adjustment. Full payment refunded to ZainCash wallet.',
-  'Cancelled & Refunded',
-  '[{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"XL","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
+  795000.00,
+  'First Iraqi Bank (FIB)',
+  'Paid (FIB Verified)',
+  'Out for Delivery',
+  'Lezzoo Logistics Kurdistan',
+  'Karwan Zaxo',
+  '+964 750 331 9922',
+  'LZ-DHK-99218',
+  'Driver Karwan is in transit with package. Customer requested delivery between 4:00 PM - 7:00 PM.',
+  'Today by 6:00 PM',
+  '[{"product_id":2,"title":"Onyx Skeleton Automatic Watch","price":550000,"quantity":1,"color":"Black Onyx & Gold","size":"41mm Case","image":"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"},{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"L","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 6: Delivered | FIB Paid | Completed & Signed | Erbil Gulan
 (
   6,
   'ORD-98426',
@@ -579,68 +712,98 @@ VALUES
   'Alan Merani',
   '+964 750 448 3311',
   'AUR-ERB-00188',
-  'Hand delivered directly to customer. Signed receipt confirmed.',
+  'VIP hand delivery completed at residence. Customer inspected timepiece and signed receipt.',
   'Delivered on Aug 28, 2026',
   '[{"product_id":6,"title":"Celestial Diamond Chronograph","price":890000,"quantity":1,"color":"18K Rose Gold & Diamond Dial","size":"42mm Case","image":"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80"},{"product_id":5,"title":"Silk Jacquard Formal Evening Suit","price":380000,"quantity":1,"color":"Deep Emerald Jacquard","size":"50 (L)","image":"https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"}]'
 ),
+
+-- Status 7: Cancelled | Cash on Delivery | Customer Requested Cancellation | Kirkuk
 (
   7,
   'ORD-98427',
-  'Nechirvan Zakholi',
-  '+964 750 662 4433',
-  'nechir.zakho@hotmail.com',
-  'Zakho',
-  'Pira Dalal Area',
-  'Main Street, Near Old Bridge Plaza',
-  240000.00,
-  5000.00,
+  'Ahmed Al-Karkhi',
+  '+964 771 992 0011',
+  'ahmed.karkhi@gmail.com',
+  'Kirkuk',
+  'Rahimawa',
+  'Near Kirkuk Castle, Street 7',
+  460000.00,
+  0.00,
+  0.00,
+  460000.00,
+  'Cash on Delivery (دفع عند الاستلام)',
+  'Cancelled',
+  'Cancelled',
+  'Fast Iraq Express Cargo',
+  'N/A',
+  'N/A',
+  'CAN-KRK-10291',
+  'Order cancelled before shipment upon customer request. Items returned to stock.',
+  'Cancelled',
+  '[{"product_id":9,"title":"Cashmere & Silk Tailored Trench Coat","price":460000,"quantity":1,"color":"Camel Tan","size":"L (50)","image":"https://images.unsplash.com/photo-1544923246-77307dd654cb?auto=format&fit=crop&w=800&q=80"}]'
+),
+
+-- Status 8: Returned / Refunded | ZainCash Paid | Refund Processed | Basra
+(
+  8,
+  'ORD-98428',
+  'Mustafa Al-Hilli',
+  '+964 781 330 9988',
+  'mustafa.hilli@gmail.com',
+  'Basra',
+  'Al-Jazaer',
+  'Al-Ashar Corniche, Palm Residence 5',
+  245000.00,
+  0.00,
   0.00,
   245000.00,
-  'Cash on Delivery (دفع عند الاستلام)',
-  'Pending',
-  'Received',
-  'Lezzoo Logistics Kurdistan',
-  'Pending Dispatch',
-  'N/A',
-  'LZ-ZKH-55019',
-  'Brand new order placed via mobile checkout. Awaiting warehouse packaging queue.',
-  'Within 2-3 Days',
-  '[{"product_id":12,"title":"Hand-Polished Aviator Titanium Sunglasses","price":145000,"quantity":1,"color":"Gold Frame / Gradient Brown Lens","size":"58mm Standard","image":"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80"},{"product_id":8,"title":"Artisan Braided Leather Belt with Gold Buckle","price":95000,"quantity":1,"color":"Cognac Brown","size":"100 cm (36-38)","image":"https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"}]'
+  'ZainCash (زين كاش)',
+  'Refunded',
+  'Refunded',
+  'Sandooq Express Iraq',
+  'Hussein Al-Basri',
+  '+964 781 223 9900',
+  'REF-BSR-40291',
+  'Customer returned package for custom sizing change. Full refund of 245,000 IQD credited back to ZainCash wallet.',
+  'Returned & Refunded',
+  '[{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"XL","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
 );
 
 -- ------------------------------------------------------------------------------
--- SEED DATA: USERS (Admin & Customers)
+-- 10. SEED USERS (Admin, Managers & Customers)
 -- ------------------------------------------------------------------------------
-REPLACE INTO `users` (`id`, `user_code`, `name`, `email`, `password_hash`, `phone`, `city`, `address`, `role`)
+INSERT INTO `users` (`id`, `user_code`, `name`, `email`, `password_hash`, `phone`, `city`, `address`, `role`)
 VALUES
 (1, 'USR-1001', 'Alind Duhoki', 'admin@aurastore.com', 'admin123', '+964 750 123 4567', 'Duhok', 'KRO Street, Duhok, Kurdistan Region', 'admin'),
 (2, 'USR-1002', 'Soran Ahmed', 'soran@example.com', 'customer123', '+964 750 987 6543', 'Erbil', 'Empire World, Gulan St, Erbil', 'customer'),
-(3, 'USR-1003', 'Hiba Al-Nuaimi', 'dr.hiba.nuaimi@yahoo.com', 'customer123', '+964 780 119 2200', 'Baghdad', 'Al-Mansour, Street 14, Building 8', 'customer');
+(3, 'USR-1003', 'Hiba Al-Nuaimi', 'dr.hiba.nuaimi@yahoo.com', 'customer123', '+964 780 119 2200', 'Baghdad', 'Al-Mansour, Street 14, Building 8', 'customer'),
+(4, 'USR-1004', 'Hawre Qadir', 'hawre.qadir@outlook.com', 'customer123', '+964 770 882 3344', 'Sulaymaniyah', 'Sarchinar, Gardenia Homes', 'customer');
 
 -- ------------------------------------------------------------------------------
--- SEED DATA: INQUIRIES
+-- 11. SEED INQUIRIES & PACKAGE TRACKING CLAIMS
 -- ------------------------------------------------------------------------------
-REPLACE INTO `inquiries` (`id`, `inquiry_code`, `name`, `email`, `phone`, `subject`, `message`, `status`)
+INSERT INTO `inquiries` (`id`, `inquiry_code`, `name`, `email`, `phone`, `subject`, `message`, `status`)
 VALUES
 (1, 'INQ-901', 'Barzan Mustafa', 'barzan.m@gmail.com', '+964 750 221 8899', 'Custom Swiss Watch Sizing Inquiry', 'Hello AURA team, I am interested in the Onyx Skeleton Automatic Watch. Can you adjust the stainless steel link bracelet before shipping to Duhok?', 'New'),
 (2, 'INQ-902', 'Zaid Al-Bayati', 'zaid.bayati@baghdad.iq', '+964 780 445 1200', 'ZainCash Payment & Express Delivery to Mansour, Baghdad', 'Peace be upon you. Can I pay via ZainCash wallet and receive same-day or 24hr express delivery in Mansour, Baghdad?', 'Replied'),
-(3, 'INQ-903', 'Shivan Berwari', 'shivan.berwari@gmail.com', '+964 750 442 8811', 'Delivery Time Request for ORD-98421', 'Please ensure the courier calls me 30 minutes before arriving at Dream City gate.', 'In Progress');
+(3, 'INQ-903', 'Shivan Berwari', 'shivan.berwari@gmail.com', '+964 750 442 8811', 'Delivery Time Request for ORD-98425', 'Please ensure the courier calls me 30 minutes before arriving at Dream City gate.', 'In Progress');
 
 -- ------------------------------------------------------------------------------
--- SEED DATA: REVIEWS
+-- 12. SEED CUSTOMER REVIEWS
 -- ------------------------------------------------------------------------------
-REPLACE INTO `reviews` (`id`, `product_id`, `user_name`, `rating`, `comment`, `date`)
+INSERT INTO `reviews` (`id`, `product_id`, `user_name`, `rating`, `comment`, `date`)
 VALUES
 (1, 2, 'Kawa Duhoki', 5, 'گەلەک دەمژمێرەکا جوانە و کوالێتیا وێ یا بێ وێنەیە! زوو گەهشت دەستێ من ل دهۆکێ.', '2026-08-15'),
 (2, 3, 'Tariq Mansoor', 5, 'عطر العود والعنبر فواح جداً وثابت على الملابس أكثر من يومين. تجربة ممتازة.', '2026-08-12'),
 (3, 1, 'Alexander Hayes', 5, 'The velvet texture and tailoring are absolute bespoke quality. Wore it to an award gala and received endless compliments.', '2026-08-10'),
-(4, 4, 'Soran Ahmed', 5, 'جلد طبيعي فاخر جداً والمساحة ممتازة للسفر والعمل. شكراً لخدمة العملاء السريعة.', '2026-08-20');
+(4, 4, 'Soran Ahmed', 5, 'جلد طبيعي فاخر جداً والمساحة ممتازة للسفر والعمل. شكراً لخدمة العملاء السريعة.', '2026-08-20'),
+(5, 6, 'Dr. Hiba Al-Nuaimi', 5, 'الساعة قمة في الفخامة والأناقة، والتوصيل لبغداد المنصور كان سريع ومغلف بعناية فائقة.', '2026-08-25');
 
 -- ------------------------------------------------------------------------------
--- SEED DATA: STORE SETTINGS
+-- 13. SEED STORE SETTINGS
 -- ------------------------------------------------------------------------------
-REPLACE INTO `settings` (`key_name`, `value_json`)
+INSERT INTO `settings` (`key_name`, `value_json`)
 VALUES
-('store_config', '{"store_name":"AURA Luxury Store","store_name_ar":"متجر أورا الفاخر","store_name_ku":"فرووشگەها ئۆرا یا لوکس","store_tagline_en":"Haute Couture & Swiss Horology","store_tagline_ar":"أزياء راقية وساعات سويسرية فاخرة","store_tagline_ku":"جلوبەرگێن سەردەم و دەمژمێرێن سویسری یێن شاهانە","store_description_en":"Exclusive online luxury boutique offering Swiss timepieces, haute couture, and rare artisan perfumes.","store_description_ar":"بوتيك إلكتروني فاخر يقدم الساعات السويسرية، الأزياء الراقية، والعطور النادرة.","store_description_ku":"بوتیکا سەرهێل یا لوکس بۆ دەمژمێرێن سویسری، جلوبەرگێن مارکە، و عەترێن دەگمەن.","hero_headline_en":"Timeless Elegance & Haute Horology","hero_headline_ar":"أناقة خالدة وساعات سويسرية فاخرة","hero_headline_ku":"جوانییا بێ داوی و دەمژمێرێن شاهانە","hero_subtitle_en":"Curated masterworks of Swiss watchmaking, bespoke couture, and rare fragrances with express delivery across Iraq and Kurdistan.","hero_subtitle_ar":"تشكيلة مختارة من الساعات السويسرية والأزياء الراقية مع توصيل سريع في العراق وكوردستان.","hero_subtitle_ku":"کۆمەکا تایبەت ژ دەمژمێرێن سویسری و جلوبەرگێن لوکس دگەل گەهاندنا لەزگین.","logo_type":"emblem","logo_emblem":"A","logo_main":"AURA","logo_sub":"STUDIO","logo_image_url":"","favicon_url":"","brand_accent_color":"#d4af37","announcement_enabled":true,"exchange_rate_usd_to_iqd":1320,"default_currency":"IQD","delivery_kurdistan_fee":0,"delivery_iraq_fee":0,"free_delivery_threshold":0,"contact_phone":"+964 750 123 4567","contact_email":"concierge@aurastore.com","contact_whatsapp":"9647501234567","boutique_location_en":"100% Online Luxury Store • Express Door-to-Door Delivery","boutique_location_ar":"متجر إلكتروني فاخر 100% • توصيل سريع ومباشر للباب","boutique_location_ku":"فرۆشگەها سەرهێل یا لوکس ١٠٠٪ • گەهاندنا ئێکسەر بۆ بەر دەرگەهی","announcement_text_en":"Express Delivery (Iraq & Kurdistan Region Only) • Exclusive Limited Time Collection","announcement_text_ar":"توصيل سريع (العراق وإقليم كوردستان فقط) • تخفيضات حصرية لفترة محدودة","announcement_text_ku":"گەهاندنا لەزگین (عیراق و هەرێما کوردستانێ ب تنێ) • داشکاندنا تایبەت بۆ دەمەکێ دیارکری","gateways":{"fib":{"enabled":true,"mode":"test","client_id":"fib_live_client_89420ab92c","client_secret":"fib_sec_9941a87b32f9104c99a0","base_url_test":"https://api.test.fib.iq/v1","base_url_prod":"https://api.fib.iq/v1","account_holder":"AURA LUXURY TRADING LTD (FIB Iraq)","account_iban":"IQ44FIBQ0000001009283741","callback_url":"https://aurastore.iq/api/fib/callback","webhook_secret":"whsec_fib_849204810238"},"zaincash":{"enabled":true,"mode":"test","merchant_id":"5ff589a1033dd50000000001","secret_key":"$2y$10$hBbAZo2GfBggR50s/m2k9u.hF7x6y.Z.2023912837492","msisdn":"9647835077893","init_url_test":"https://test.zaincash.iq/transaction/init","init_url_prod":"https://api.zaincash.iq/transaction/init","redirect_url":"https://aurastore.iq/payment/zaincash/redirect.php"},"fastpay":{"enabled":true,"mode":"test","merchant_mobile":"+9647501234567","store_password":"fastpay_store_pass_8821","store_id":"FP-STORE-99214","api_url_test":"https://dev.fast-pay.cash/merchant/generate-payment-token","api_url_prod":"https://api.fast-pay.cash/merchant/generate-payment-token","callback_url":"https://aurastore.iq/payment/fastpay/callback.php"},"cod":{"enabled":true,"instructions_en":"Pay in Cash upon receiving and inspecting your luxury package.","instructions_ar":"الدفع نقداً عند استلام الشحنة ومعاينتها.","instructions_ku":"پارەدانا کاش دەمێ وەرگرتنا پاکێتا خوە."}}}');
+('store_config', '{"store_name":"AURA Luxury Store","store_name_ar":"متجر أورا الفاخر","store_name_ku":"فرووشگەها ئۆرا یا لوکس","store_tagline_en":"Haute Couture & Swiss Horology","store_tagline_ar":"أزياء راقية وساعات سويسرية فاخرة","store_tagline_ku":"جلوبەرگێن سەردەم و دەمژمێرێن سویسری یێن شاهانە","store_description_en":"Exclusive online luxury boutique offering Swiss timepieces, haute couture, and rare artisan perfumes.","store_description_ar":"بوتيك إلكتروني فاخر يقدم الساعات السويسرية، الأزياء الراقية، والعطور النادرة.","store_description_ku":"بوتیکا سەرهێل یا لوکس بۆ دەمژمێرێن سویسری، جلوبەرگێن مارکە، و عەترێن دەگمەن.","logo_type":"emblem","logo_emblem":"A","logo_main":"AURA","logo_sub":"STUDIO","logo_image_url":"","favicon_url":"","brand_accent_color":"#d4af37","announcement_enabled":true,"exchange_rate_usd_to_iqd":1320,"default_currency":"IQD","delivery_kurdistan_fee":0,"delivery_iraq_fee":0,"free_delivery_threshold":0,"contact_phone":"+964 750 123 4567","contact_email":"concierge@aurastore.com","contact_whatsapp":"9647501234567","boutique_location_en":"100% Online Luxury Store • Express Door-to-Door Delivery","boutique_location_ar":"متجر إلكتروني فاخر 100% • توصيل سريع ومباشر للباب","boutique_location_ku":"فرۆشگەها سەرهێل یا لوکس ١٠٠٪ • گەهاندنا ئێکسەر بۆ بەر دەرگەهی","announcement_text_en":"Express Delivery (Iraq & Kurdistan Region Only) • Exclusive Limited Time Collection","announcement_text_ar":"توصيل سريع (العراق وإقليم كوردستان فقط) • تخفيضات حصرية لفترة محدودة","announcement_text_ku":"گەهاندنا لەزگین (عیراق و هەرێما کوردستانێ ب تنێ) • داشکاندنا تایبەت بۆ دەمەکێ دیارکری","gateways":{"fib":{"enabled":true,"mode":"test","client_id":"fib_live_client_89420ab92c","client_secret":"fib_sec_9941a87b32f9104c99a0","base_url_test":"https://api.test.fib.iq/v1","base_url_prod":"https://api.fib.iq/v1","account_holder":"AURA LUXURY TRADING LTD (FIB Iraq)","account_iban":"IQ44FIBQ0000001009283741","callback_url":"https://aurastore.iq/api/fib/callback","webhook_secret":"whsec_fib_849204810238"},"zaincash":{"enabled":true,"mode":"test","merchant_id":"5ff589a1033dd50000000001","secret_key":"$2y$10$hBbAZo2GfBggR50s/m2k9u.hF7x6y.Z.2023912837492","msisdn":"9647835077893","init_url_test":"https://test.zaincash.iq/transaction/init","init_url_prod":"https://api.zaincash.iq/transaction/init","redirect_url":"https://aurastore.iq/payment/zaincash/redirect.php"},"fastpay":{"enabled":true,"mode":"test","merchant_mobile":"+9647501234567","store_password":"fastpay_store_pass_8821","store_id":"FP-STORE-99214","api_url_test":"https://dev.fast-pay.cash/merchant/generate-payment-token","api_url_prod":"https://api.fast-pay.cash/merchant/generate-payment-token","callback_url":"https://aurastore.iq/payment/fastpay/callback.php"},"cod":{"enabled":true,"instructions_en":"Pay in Cash upon receiving and inspecting your luxury package.","instructions_ar":"الدفع نقداً عند استلام الشحنة ومعاينتها.","instructions_ku":"پارەدانا کاش دەمێ وەرگرتنا پاکێتا خوە."}}}');
 
 SET FOREIGN_KEY_CHECKS = 1;
