@@ -1007,7 +1007,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       }
       const safeKey = sz.replace(/[^a-zA-Z0-9]/g, "");
       return `
-        <tr id="modalMatrixRow_${safeKey}">
+        <tr id="modalMatrixRow_${safeKey}" class="clickable-matrix-row" onclick="selectSizeFromModal('${sz}')">
             <td><strong class="matrix-sz-pill">${sz}</strong></td>
             <td>${hVal}</td>
             <td>${wVal}</td>

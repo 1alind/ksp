@@ -160,8 +160,8 @@ if (!empty($product['colors'])) {
                             <?php endforeach; ?>
                         </div>
 
-                        <!-- Simple & Clean Height & Width Display Directly Under Size -->
-                        <div class="size-simple-specs-card" id="sizeSpecsCard">
+                        <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to open popup) -->
+                        <div class="size-simple-specs-card" id="sizeSpecsCard" onclick="openSizeGuideModal(event)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openSizeGuideModal(event); }" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
                             <div class="size-specs-display">
                                 <div class="size-spec-row">
                                     <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
@@ -173,10 +173,11 @@ if (!empty($product['colors'])) {
                                 </div>
                             </div>
                             
-                            <button type="button" class="btn-how-to-know-size" id="btnHowToKnowSize" onclick="openSizeGuideModal()">
+                            <div class="btn-how-to-know-size" id="btnHowToKnowSize">
                                 <span class="how-icon">📏</span>
                                 <span class="how-text"><?php echo t('how_to_know_size', $lang); ?></span>
-                            </button>
+                                <span class="popup-badge-hint">↗</span>
+                            </div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -352,7 +353,7 @@ if (!empty($product['colors'])) {
                         <!-- Width Measurement Badge -->
                         <g transform="translate(180, 115)">
                             <rect width="100" height="26" rx="13" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
-                            <text x="50" y="17" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: 45cm</text>
+                            <text id="modalSvgWidthText" x="50" y="17" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
                         </g>
 
                         <!-- Vertical Height Indicator (Length: Shoulder Collar Seam straight to Hem) -->
@@ -366,7 +367,7 @@ if (!empty($product['colors'])) {
                         <!-- Height Measurement Badge -->
                         <g transform="translate(45, 160)">
                             <rect width="105" height="26" rx="13" fill="#0d1017" stroke="#ef4444" stroke-width="1.5" />
-                            <text x="52" y="17" fill="#ef4444" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: 65cm</text>
+                            <text id="modalSvgHeightText" x="52" y="17" fill="#ef4444" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
                         </g>
                     </svg>
                 </div>
@@ -402,7 +403,7 @@ if (!empty($product['colors'])) {
             <!-- Complete Dimensions Matrix Reference Table -->
             <?php if (!empty($product['sizes'])): ?>
                 <div class="modal-matrix-container">
-                    <h4 class="modal-matrix-heading">📊 <?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی' : ($lang === 'ar' ? 'جدول كافة القياسات لهذا المنتج' : 'Available Sizes for this Product'); ?></h4>
+                    <h4 class="modal-matrix-heading">📊 <?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی (کلیک بکە بۆ دەستنیشانکرنێ)' : ($lang === 'ar' ? 'جدول كافة القياسات لهذا المنتج (انقر للتحديد)' : 'Available Sizes for this Product (Click row to select)'); ?></h4>
                     <table class="modal-dim-table">
                         <thead>
                             <tr>
@@ -424,7 +425,9 @@ if (!empty($product['colors'])) {
                                 }
                                 $safeKey = preg_replace('/[^a-zA-Z0-9]/', '', $sz);
                             ?>
-                                <tr id="modalMatrixRow_<?php echo htmlspecialchars($safeKey); ?>">
+                                <tr id="modalMatrixRow_<?php echo htmlspecialchars($safeKey); ?>" 
+                                    class="clickable-matrix-row"
+                                    onclick="selectSizeFromModal('<?php echo htmlspecialchars(addslashes($sz)); ?>')">
                                     <td><strong class="matrix-sz-pill"><?php echo htmlspecialchars($sz); ?></strong></td>
                                     <td><?php echo htmlspecialchars($hVal); ?></td>
                                     <td><?php echo htmlspecialchars($wVal); ?></td>
@@ -546,15 +549,35 @@ function onSizeSelected(btn, sizeName) {
         setTimeout(() => wEl.classList.remove('spec-highlight-flash'), 400);
     }
 
+    // Update diagram SVG badges inside popup
+    const svgW = document.getElementById('modalSvgWidthText');
+    const svgH = document.getElementById('modalSvgHeightText');
+    if (svgW) svgW.textContent = 'Width: ' + dims.width;
+    if (svgH) svgH.textContent = 'Height: ' + dims.height;
+
     // Highlight row in modal matrix table
     document.querySelectorAll('.modal-dim-table tbody tr').forEach(r => r.classList.remove('highlighted'));
     const safeKey = sizeName.replace(/[^a-zA-Z0-9]/g, '');
     const targetRow = document.getElementById('modalMatrixRow_' + safeKey);
-    if (targetRow) targetRow.classList.add('highlighted');
+    if (targetRow) {
+        targetRow.classList.add('highlighted');
+        try { targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e){}
+    }
+}
+
+function selectSizeFromModal(sizeName) {
+    const btn = document.querySelector(`.size-pill[data-size="${sizeName}"]`);
+    if (btn) {
+        onSizeSelected(btn, sizeName);
+    } else {
+        window.selectedProductSize = sizeName;
+    }
+    closeSizeGuideModal();
 }
 
 function openSizeGuideModal(e) {
     if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
         modal.style.display = 'flex';
@@ -564,12 +587,20 @@ function openSizeGuideModal(e) {
 
 function closeSizeGuideModal(e) {
     if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
     }
 }
+
+// Close modal on Escape key press
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+        closeSizeGuideModal();
+    }
+});
 
 function onColorSelected(btn, colorName, imageUrl) {
     // 1. Remove active state from all color buttons

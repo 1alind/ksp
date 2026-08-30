@@ -3914,18 +3914,30 @@ select option {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 14px 18px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    user-select: none;
+}
+
+.size-simple-specs-card:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    background: rgba(212, 175, 55, 0.04);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
 }
 
 .size-specs-display {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    cursor: pointer;
 }
 
 .size-spec-row {
@@ -3961,7 +3973,7 @@ select option {
     background: var(--bg-subtle);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 8px 14px;
+    padding: 7px 14px;
     border-radius: 9999px;
     font-size: 13px;
     font-weight: 600;
@@ -3970,16 +3982,22 @@ select option {
     user-select: none;
 }
 
+.size-simple-specs-card:hover .btn-how-to-know-size,
 .btn-how-to-know-size:hover {
     background: var(--accent-gold);
     color: #0c0e14;
     border-color: var(--accent-gold);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .btn-how-to-know-size .how-icon {
-    font-size: 15px;
+    font-size: 14px;
+}
+
+.popup-badge-hint {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-left: 2px;
 }
 
 /* Size Guide Modal Overlay */
@@ -4188,8 +4206,17 @@ select option {
     border-bottom: none;
 }
 
+.modal-dim-table tr.clickable-matrix-row {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.modal-dim-table tr.clickable-matrix-row:hover {
+    background: rgba(212, 175, 55, 0.08);
+}
+
 .modal-dim-table tr.highlighted {
-    background: rgba(212, 175, 55, 0.12);
+    background: rgba(212, 175, 55, 0.15) !important;
 }
 
 .modal-dim-table tr.highlighted td {
