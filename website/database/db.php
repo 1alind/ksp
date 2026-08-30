@@ -25,7 +25,7 @@ function get_mysql_pdo() {
         return $pdo;
     }
     
-    if (!MYSQL_ENABLED && !getenv('MYSQL_HOST')) {
+    if (!MYSQL_ENABLED) {
         return null;
     }
     

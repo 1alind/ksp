@@ -1,25 +1,14 @@
 -- =========================================================
--- AURA Luxury Store - MySQL Database Schema & Seed Script
--- Compatible with MySQL 5.7+, MySQL 8.0+, and MariaDB
--- Default Character Set: utf8mb4 (Full Unicode for Kurdish & Arabic)
+-- Complete MySQL Schema & 12 Seed Products for AURA Store
+-- Character Set: utf8mb4 (Full Unicode support for Kurdish & Arabic)
 -- =========================================================
 
-CREATE DATABASE IF NOT EXISTS `aura_store` 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci;
-
-USE `aura_store`;
-
--- ---------------------------------------------------------
--- 1. Table: `products`
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `products`;
-CREATE TABLE `products` (
+CREATE TABLE IF NOT EXISTS `products` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title_en` VARCHAR(255) NOT NULL,
   `title_ar` VARCHAR(255) NOT NULL,
   `title_ku` VARCHAR(255) NOT NULL,
-  `category` ENUM('clothes', 'watches', 'perfumes', 'accessories') NOT NULL DEFAULT 'clothes',
+  `category` ENUM("clothes", "watches", "perfumes", "accessories") NOT NULL DEFAULT "clothes",
   `price` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
   `old_price` DECIMAL(12, 2) DEFAULT NULL,
   `rating` DECIMAL(3, 2) NOT NULL DEFAULT 5.00,
@@ -41,103 +30,9 @@ CREATE TABLE `products` (
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_category` (`category`),
-  KEY `idx_featured` (`featured`),
-  KEY `idx_price` (`price`)
+  KEY `idx_featured` (`featured`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------
--- 2. Table: `orders`
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `orders`;
-CREATE TABLE `orders` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `order_id` VARCHAR(64) NOT NULL UNIQUE,
-  `customer_name` VARCHAR(255) NOT NULL,
-  `customer_phone` VARCHAR(64) NOT NULL,
-  `customer_email` VARCHAR(255) DEFAULT NULL,
-  `governorate` VARCHAR(100) NOT NULL,
-  `district` VARCHAR(100) DEFAULT NULL,
-  `customer_address` TEXT NOT NULL,
-  `subtotal` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-  `shipping_fee` DECIMAL(12, 2) NOT NULL DEFAULT 5000.00,
-  `discount_amount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-  `total_amount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-  `payment_method` VARCHAR(100) NOT NULL DEFAULT 'COD',
-  `payment_status` ENUM('Pending', 'Paid', 'Failed', 'Refunded') NOT NULL DEFAULT 'Pending',
-  `order_status` ENUM('Received', 'Packaging', 'Shipped', 'OutForDelivery', 'Delivered', 'Cancelled') NOT NULL DEFAULT 'Received',
-  `items_json` JSON NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_order_id` (`order_id`),
-  KEY `idx_customer_phone` (`customer_phone`),
-  KEY `idx_order_status` (`order_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------
--- 3. Table: `users`
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) NOT NULL UNIQUE,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `phone` VARCHAR(64) DEFAULT NULL,
-  `role` ENUM('admin', 'customer', 'concierge') NOT NULL DEFAULT 'customer',
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------
--- 4. Table: `reviews`
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `reviews`;
-CREATE TABLE `reviews` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `product_id` INT UNSIGNED NOT NULL,
-  `user_name` VARCHAR(255) NOT NULL,
-  `user_avatar` VARCHAR(500) DEFAULT NULL,
-  `rating` INT NOT NULL DEFAULT 5,
-  `comment` TEXT NOT NULL,
-  `verified_purchase` TINYINT(1) NOT NULL DEFAULT 1,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_product_id` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------
--- 5. Table: `inquiries` (Customer & Package Issues)
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `inquiries`;
-CREATE TABLE `inquiries` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `order_id` VARCHAR(64) DEFAULT NULL,
-  `customer_name` VARCHAR(255) NOT NULL,
-  `customer_phone` VARCHAR(64) NOT NULL,
-  `issue_category` VARCHAR(100) NOT NULL,
-  `message` TEXT NOT NULL,
-  `status` ENUM('Open', 'In Review', 'Resolved') NOT NULL DEFAULT 'Open',
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_order_id` (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------
--- 6. Table: `settings`
--- ---------------------------------------------------------
-DROP TABLE IF EXISTS `settings`;
-CREATE TABLE `settings` (
-  `key_name` VARCHAR(128) NOT NULL,
-  `key_value` TEXT NOT NULL,
-  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`key_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------
--- SEED DATA: Insert Initial Catalog Products
--- ---------------------------------------------------------
 INSERT INTO `products` 
 (`id`, `title_en`, `title_ar`, `title_ku`, `category`, `price`, `old_price`, `rating`, `reviews_count`, `badge_en`, `badge_ar`, `badge_ku`, `stock`, `image`, `images`, `colors`, `sizes`, `size_measurements`, `description_en`, `description_ar`, `description_ku`, `featured`)
 VALUES
@@ -156,10 +51,10 @@ VALUES
   'پڕفرۆشترین',
   14,
   'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"]',
-  '["Midnight Blue", "Obsidian Black", "Burgundy"]',
-  '["S", "M", "L", "XL"]',
-  '{"S": "Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm • Sleeve: 62 cm", "M": "Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm • Sleeve: 63 cm", "L": "Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm • Sleeve: 65 cm", "XL": "Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm • Sleeve: 66 cm"}',
+  '["https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"]',
+  '["Midnight Blue","Obsidian Black","Burgundy"]',
+  '["S","M","L","XL"]',
+  '{"S":"Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm • Sleeve: 62 cm","M":"Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm • Sleeve: 63 cm","L":"Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm • Sleeve: 65 cm","XL":"Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm • Sleeve: 66 cm"}',
   'Impeccably tailored luxury velvet blazer designed with silk lapels and custom metal buttons. Perfect for evening galas, high-profile events, and formal dinners.',
   'بليزر مخملي فاخر بتفصيل متقن مع ياقة حريرية وأزرار معدنية مخصصة. مثالي للحفلات المسائية والمناسبات الرسمية.',
   'ساکێ مخمەلی یێ گەلەک جوان و شاهانە ب نەخشیێن ئاوریشمی و دوگماێن زێڕین. گەلەک گونجایە بۆ ئاهەنگ و هەلکەفتێن فەرمی.',
@@ -180,10 +75,10 @@ VALUES
   'لوکس و نازک',
   8,
   'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80"]',
-  '["Black Onyx & Gold", "Silver Steel", "Rose Gold"]',
+  '["https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80"]',
+  '["Black Onyx & Gold","Silver Steel","Rose Gold"]',
   '["41mm Case"]',
-  '{"41mm Case": "Case Diameter: 41 mm • Thickness: 11.5 mm • Strap Width: 20 mm • Lug-to-Lug: 47 mm"}',
+  '{"41mm Case":"Case Diameter: 41 mm • Thickness: 11.5 mm • Strap Width: 20 mm • Lug-to-Lug: 47 mm"}',
   'Self-winding mechanical automatic movement with an open-heart skeleton dial, sapphire crystal glass, and Italian genuine leather strap. Water-resistant up to 50M.',
   'حركة ميكانيكية أوتوماتيكية مع ميناء هيكلي مكشوف وزجاج من الكريستال الياقوتي المقاوم للخدش وسوار جلد إيطالي أصلي.',
   'دەمژمێرەکا ميكانيكی یا ئۆتۆماتیك ب دیزاینێ سکێلێتۆن و شوشەیا یاقووتی یا دژی کڕاندنێ و قایشا چەرمی یا ئیتالی یا رەسەن.',
@@ -204,10 +99,10 @@ VALUES
   'تایبەت',
   25,
   'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80"]',
-  '["Gold Edition Bottle", "Smoked Obsidian Flacon", "Dark Amber Flacon"]',
-  '["100ml / 3.4 oz", "50ml / 1.7 oz"]',
-  '{"100ml / 3.4 oz": "Height: 14.5 cm • Width: 6.2 cm • Depth: 4.5 cm • Net: 100 ml (3.4 fl oz)", "50ml / 1.7 oz": "Height: 11.2 cm • Width: 5.0 cm • Depth: 3.8 cm • Net: 50 ml (1.7 fl oz)"}',
+  '["https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80"]',
+  '["Gold Edition Bottle","Smoked Obsidian Flacon","Dark Amber Flacon"]',
+  '["100ml / 3.4 oz","50ml / 1.7 oz"]',
+  '{"100ml / 3.4 oz":"Height: 14.5 cm • Width: 6.2 cm • Depth: 4.5 cm • Net: 100 ml (3.4 fl oz)","50ml / 1.7 oz":"Height: 11.2 cm • Width: 5.0 cm • Depth: 3.8 cm • Net: 50 ml (1.7 fl oz)"}',
   'An intoxicating, long-lasting fragrance blending aged Cambodian oud, warm golden amber, Madagascar vanilla, and Damascus rose. Lasts over 24 hours.',
   'عطر ساحر وثابت يمزج بين العود الكمبودي الفاخر والعنبر الذهبي الدافئ والفانيليا وزهور دمشق. يدوم لأكثر من 24 ساعة.',
   'عەترەکێ گەلەک خوش و بێهنا وی گەلەک دمینیت ژ عوودێ کەمبۆدی، عەنبەرێ زێڕین و گولێن دیمەشقێ. پتر ژ 24 دەمژمێران دمینیت.',
@@ -228,12 +123,204 @@ VALUES
   'دەستکرد',
   11,
   'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80',
-  '["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"]',
-  '["Vintage Tan", "Deep Espresso", "Matte Black"]',
+  '["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"]',
+  '["Vintage Tan","Deep Espresso","Matte Black"]',
   '["Standard 45L"]',
-  '{"Standard 45L": "Length: 52 cm • Height: 30 cm • Width: 26 cm • Handle Drop: 18 cm"}',
+  '{"Standard 45L":"Length: 52 cm • Height: 30 cm • Width: 26 cm • Handle Drop: 18 cm"}',
   'Crafted from full-grain vegetable-tanned Italian leather with solid brass hardware, YKK zippers, and padded laptop compartment.',
   'مصنوعة من جلد إيطالي أصلي كامل الحبيبات مع إكسسوارات من النحاس الصلب وسحابات متينة وحجرة مبطنة للكمبيوتر المحمول.',
   'ژ چەرمێ ئیتالی یێ رەسەن و پاقژ هاتیە چێکرن دگەل قفلێن برۆنز و جهێ لەپتۆپی یێ تایبەت.',
   1
+),
+(
+  5,
+  'Pure Mulberry Silk Evening Dress',
+  'فستان سهرة من حرير التوت النقي',
+  'کڕاسێ ئێڤاران یێ ئاوریشمێ خالص',
+  'clothes',
+  345000.00,
+  450000.00,
+  4.90,
+  29,
+  'New Arrival',
+  'وصل حديثاً',
+  'گەهشتنا نوی',
+  9,
+  'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80"]',
+  '["Emerald Green","Champagne Gold","Royal Navy"]',
+  '["XS","S","M","L"]',
+  '{"XS":"Dress Length: 142 cm • Bust: 84 cm • Waist: 66 cm • Hips: 92 cm","S":"Dress Length: 145 cm • Bust: 88 cm • Waist: 70 cm • Hips: 96 cm","M":"Dress Length: 148 cm • Bust: 94 cm • Waist: 76 cm • Hips: 102 cm","L":"Dress Length: 150 cm • Bust: 100 cm • Waist: 82 cm • Hips: 108 cm"}',
+  'Exquisite floor-length draped evening gown created from 100% high-grade Mulberry silk. Boasts a flattering silhouette, fluid movement, and luxurious sheen.',
+  'فستان سهرة رائع بطول الأرض منسوج من حرير التوت الطبيعي بنسبة 100%. يتميز بقصة انسيابية ولمعان فاخر.',
+  'کڕاسەکێ درێژ و نایاب یێ ئاهەنگان ژ ١٠٠٪ ئاوریشمێ تفی یێ ئەسلی هاتیە درووتن دگەل بریقە و جوانیەکا بێ وێنە.',
+  1
+),
+(
+  6,
+  'Chronograph Riviera Rose Gold Watch',
+  'ساعة كرونوغراف ريفييرا بالذهب الوردي',
+  'دەمژمێرا کرۆنۆگراف ریڤێرا یا زێڕێ گول',
+  'watches',
+  495000.00,
+  645000.00,
+  4.80,
+  51,
+  'Top Rated',
+  'الأعلى تقييماً',
+  'بلندترین بها',
+  16,
+  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80"]',
+  '["Rose Gold & Sunburst Dial","Stealth Black"]',
+  '["42mm Case"]',
+  '{"42mm Case":"Case Diameter: 42 mm • Thickness: 12 mm • Strap Width: 22 mm • Lug-to-Lug: 49 mm"}',
+  'Precision Swiss-engineered quartz chronograph with tachymeter bezel, 3 sub-dials, date window, and 18K rose-gold PVD coating.',
+  'ساعة كرونوغراف سويسرية دقيقة مع ميناء ثلاثي، نافذة للتاريخ، وطبقة طلاء من الذهب الوردي عيار 18 قيراط.',
+  'دەمژمێرا سویسری یا دقیق یا کرۆنۆگراف ب 3 دەمژمێرکێن ناڤخۆیی، نیشاندانا رێکەفتێ و تەڵایێ زێڕێ گول یێ ١٨ عەیار.',
+  1
+),
+(
+  7,
+  'Velvet Noir & French Rose Extrait',
+  'عطر فيلفيت نوار والورد الفرنسي المركز',
+  'عەترێ ڤێلڤێت نوار و گولێن فەرەنسی یێ خەست',
+  'perfumes',
+  210000.00,
+  275000.00,
+  4.90,
+  78,
+  'Exclusive',
+  'حصري',
+  'تایبەت و ناوازە',
+  19,
+  'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"]',
+  '["Matte Black Bottle","Crystal Amber Flacon"]',
+  '["100ml / 3.4 oz","50ml / 1.7 oz"]',
+  '{"100ml / 3.4 oz":"Height: 15.0 cm • Width: 6.0 cm • Depth: 4.5 cm • Net: 100 ml","50ml / 1.7 oz":"Height: 11.5 cm • Width: 5.0 cm • Depth: 3.5 cm • Net: 50 ml"}',
+  'A magnetic sensual scent featuring Grasse French rose, dark patchouli, saffron, and velvety musk. Leaves an unforgettable aura wherever you go.',
+  'عطر ساحر وجذاب يجمع بين ورود غراس الفرنسية والباتشولي والزعفران والمسك المخملي. يترك أثراً لا يُنسى.',
+  'عەترەکێ سەرنجڕاکێش ژ گولێن گراس یێن فەرەنسی، زەعفەران، و میسکێ مخمەلی. بێهنەکا بێ وێنە پەیدا دکەت.',
+  1
+),
+(
+  8,
+  'Handmade Damascus Steel Aviator Sunglasses',
+  'نظارات شمسية أفياتور من فولاذ دمشقي',
+  'چاڤلکێن ڕۆژێ یێن ئەڤیاتۆر ب تەرزێ پۆڵایێ دیمەشقی',
+  'accessories',
+  175000.00,
+  230000.00,
+  4.70,
+  33,
+  'Polarized',
+  'مستقطبة',
+  'پۆلەرایزد دژی تیشکێ',
+  20,
+  'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=800&q=80"]',
+  '["Gold & Dark Green Lenses","Gunmetal & Grey","Silver Flash"]',
+  '["Universal Fit"]',
+  '{"Universal Fit":"Frame Width: 14.2 cm • Lens Height: 4.8 cm • Bridge: 1.4 cm • Temple: 14.0 cm"}',
+  'Hand-forged ultra-lightweight frames with UV400 polarized Zeiss lenses providing crystal clear vision and superior sun protection.',
+  'إطارات خفيفة الوزن للغاية ومصنوعة يدوياً مع عدسات زايس مستقطبة بحماية كاملة UV400 لرؤية فائقة الوضوح.',
+  'چوارچۆڤەکێ گەلەک سڤک ب دەستان هاتیە چێکرن دگەل عەدەسێن زایس یێن پارێزەر ژ تیشکا روژێ UV400.',
+  0
+),
+(
+  9,
+  'Merino Wool Cashmere Tailored Overcoat',
+  'معطف صوف مارينو وكشمير مفصل',
+  'پالتۆێ درێژ یێ خوریێ مارینۆ و کاشمیر',
+  'clothes',
+  410000.00,
+  550000.00,
+  5.00,
+  42,
+  'Winter Luxury',
+  'شتوي فاخر',
+  'لوکسا زڤستانێ',
+  10,
+  'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"]',
+  '["Camel Tan","Charcoal Grey","Navy Blue"]',
+  '["M","L","XL","XXL"]',
+  '{"M":"Coat Length: 104 cm • Chest: 106 cm • Shoulder: 47 cm • Sleeve: 64 cm","L":"Coat Length: 107 cm • Chest: 112 cm • Shoulder: 49 cm • Sleeve: 66 cm","XL":"Coat Length: 110 cm • Chest: 118 cm • Shoulder: 51 cm • Sleeve: 67 cm","XXL":"Coat Length: 112 cm • Chest: 124 cm • Shoulder: 53 cm • Sleeve: 68 cm"}',
+  'Crafted from a blend of pure Australian Merino wool and soft Cashmere. Provides exceptional warmth, featherweight comfort, and sharp tailored lines.',
+  'مصنوع من مزيج صوف المارينو الأسترالي والكشمير الناعم. يمنحك دفئاً استثنائياً وخطوطاً أنيقة ومتقنة.',
+  'ژ تێکەلا خوریێ مارینۆ یێ ئوسترالی و کاشمیری یێ گەلەک نەرم، گەرمیەکا بلند و دیزاینەکا رێک و پێک پێشکێش دکەت.',
+  0
+),
+(
+  10,
+  'Diamond Bezel Chronograph Classic',
+  'ساعة كلاسيكية بإطار مرصع بالألماس',
+  'دەمژمێرا کلاسیک یا چوارچۆڤە ئەڵماس',
+  'watches',
+  850000.00,
+  1120000.00,
+  5.00,
+  27,
+  'Prestige',
+  'برستيج',
+  'پرێستیج',
+  5,
+  'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"]',
+  '["Silver Diamond","Two-Tone Gold/Steel"]',
+  '["40mm Case"]',
+  '{"40mm Case":"Case Diameter: 40 mm • Thickness: 11.0 mm • Strap Width: 20 mm • Total Weight: 145 g"}',
+  'Masterpiece chronometer featuring certified handset laboratory-grade diamonds along the bezel, mother-of-pearl dial, and deployment clasp.',
+  'تحفة فنية مع إطار مرصع بأحجار الألماس اللامعة وميناء من عرق اللؤلؤ الطبيعي مع قفل محكم.',
+  'شاهکارەکا دەمژمێران دگەل چوارچۆڤەکێ نەخشاندی ب ئەڵماسان و مینایێ مرواری یێ سرشتی.',
+  0
+),
+(
+  11,
+  'Imperial Leather & Smoky Tobacco Scent',
+  'عطر الجلد الإمبراطوري والتبغ المدخن',
+  'عەترێ چەرمێ ئیمپراتۆری و توتنێ دووکەلی',
+  'perfumes',
+  205000.00,
+  260000.00,
+  4.80,
+  61,
+  'Bold',
+  'قوي وجريء',
+  'بهێز و کاریگەر',
+  22,
+  'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"]',
+  '["Dark Amber Glass","Frosted Crystal"]',
+  '["100ml / 3.4 oz","50ml / 1.7 oz"]',
+  '{"100ml / 3.4 oz":"Height: 14.8 cm • Width: 6.4 cm • Depth: 4.8 cm • Net: 100 ml","50ml / 1.7 oz":"Height: 11.0 cm • Width: 5.2 cm • Depth: 3.6 cm • Net: 50 ml"}',
+  'A rich masculine aroma highlighting Virginia cured tobacco leaves, Tuscan leather, Tonka bean, and spicy cardamom.',
+  'عطر رجالي قوي يبرز أوراق التبغ الفرجيني والجلد التوسكاني وحبوب التونكا والهيل الحار.',
+  'عەترەکێ پیاوانە یێ بهێز ژ گەلایێن توتنا ڤێرجینیا، چەرمێ تۆسکانی، تۆنکا و هێلێ تیژ.',
+  0
+),
+(
+  12,
+  'Reversible Full-Grain Leather Dress Belt',
+  'حزام جلد طبيعي أصلي قابل للارتداء على الوجهين',
+  'قایشی چەرمێ ئەسلی یێ دوو ڕوو (ڕەش و قاوەیی)',
+  'accessories',
+  98000.00,
+  125000.00,
+  4.90,
+  84,
+  'Essential',
+  'أساسي',
+  'پێدڤی',
+  35,
+  'https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80',
+  '["https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"]',
+  '["Reversible Black / Cognac Brown","Hand-Burnished Espresso"]',
+  '["32 (Waist 80-85cm)","34 (Waist 85-90cm)","36 (Waist 90-95cm)","38 (Waist 95-100cm)","40 (Waist 100-105cm)"]',
+  '{"32 (Waist 80-85cm)":"Belt Length: 100 cm • Width: 3.4 cm • Waist Fit: 80 - 85 cm","34 (Waist 85-90cm)":"Belt Length: 105 cm • Width: 3.4 cm • Waist Fit: 85 - 90 cm","36 (Waist 90-95cm)":"Belt Length: 110 cm • Width: 3.4 cm • Waist Fit: 90 - 95 cm","38 (Waist 95-100cm)":"Belt Length: 115 cm • Width: 3.4 cm • Waist Fit: 95 - 100 cm","40 (Waist 100-105cm)":"Belt Length: 120 cm • Width: 3.4 cm • Waist Fit: 100 - 105 cm"}',
+  'Two versatile looks in one. Premium Italian leather with a sleek rotating brushed silver buckle that transitions seamlessly from black to rich cognac brown.',
+  'إطلالتان في تصميم واحد. جلد إيطالي ممتاز مع مشبك فضي دوار يتحول بسلاسة بين اللونين الأسود والبني.',
+  'دوو شێواز د ئێک قایشدا! ژ چەرمێ ئیتالی یێ تایبەت ب قفلا زیڤین یا زڤڕوک دناڤبەرا رەنگێ رەش و قاوەیی دا.',
+  0
 );
