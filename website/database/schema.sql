@@ -1,14 +1,22 @@
--- =========================================================
--- Complete MySQL Schema & 12 Seed Products for AURA Store
--- Character Set: utf8mb4 (Full Unicode support for Kurdish & Arabic)
--- =========================================================
+-- ==============================================================================
+-- AURA Luxury Store — Complete Single-File MySQL Database Schema & All Example Data
+-- Compatible with: MySQL 5.6+, MySQL 5.7+, MySQL 8.0+, MariaDB & InfinityFree Hosting
+-- Default Charset: utf8mb4 / Collation: utf8mb4_unicode_ci (Kurdish, Arabic, English)
+-- ==============================================================================
 
-CREATE TABLE IF NOT EXISTS `products` (
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ------------------------------------------------------------------------------
+-- 1. Table structure for table `products`
+-- ------------------------------------------------------------------------------
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE `products` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title_en` VARCHAR(255) NOT NULL,
   `title_ar` VARCHAR(255) NOT NULL,
   `title_ku` VARCHAR(255) NOT NULL,
-  `category` ENUM("clothes", "watches", "perfumes", "accessories") NOT NULL DEFAULT "clothes",
+  `category` VARCHAR(100) NOT NULL DEFAULT "clothes",
   `price` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
   `old_price` DECIMAL(12, 2) DEFAULT NULL,
   `rating` DECIMAL(3, 2) NOT NULL DEFAULT 5.00,
@@ -18,10 +26,10 @@ CREATE TABLE IF NOT EXISTS `products` (
   `badge_ku` VARCHAR(100) DEFAULT NULL,
   `stock` INT NOT NULL DEFAULT 10,
   `image` VARCHAR(1000) NOT NULL,
-  `images` JSON DEFAULT NULL,
-  `colors` JSON DEFAULT NULL,
-  `sizes` JSON DEFAULT NULL,
-  `size_measurements` JSON DEFAULT NULL,
+  `images` LONGTEXT DEFAULT NULL,
+  `colors` LONGTEXT DEFAULT NULL,
+  `sizes` LONGTEXT DEFAULT NULL,
+  `size_measurements` LONGTEXT DEFAULT NULL,
   `description_en` TEXT DEFAULT NULL,
   `description_ar` TEXT DEFAULT NULL,
   `description_ku` TEXT DEFAULT NULL,
@@ -33,6 +41,9 @@ CREATE TABLE IF NOT EXISTS `products` (
   KEY `idx_featured` (`featured`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ------------------------------------------------------------------------------
+-- 1.1 Dumping data for table `products` (All 12 Example Products)
+-- ------------------------------------------------------------------------------
 INSERT INTO `products` 
 (`id`, `title_en`, `title_ar`, `title_ku`, `category`, `price`, `old_price`, `rating`, `reviews_count`, `badge_en`, `badge_ar`, `badge_ku`, `stock`, `image`, `images`, `colors`, `sizes`, `size_measurements`, `description_en`, `description_ar`, `description_ku`, `featured`)
 VALUES
@@ -324,3 +335,270 @@ VALUES
   'دوو شێواز د ئێک قایشدا! ژ چەرمێ ئیتالی یێ تایبەت ب قفلا زیڤین یا زڤڕوک دناڤبەرا رەنگێ رەش و قاوەیی دا.',
   0
 );
+
+-- ------------------------------------------------------------------------------
+-- 2. Table structure for table `orders`
+-- ------------------------------------------------------------------------------
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE `orders` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_id` VARCHAR(64) NOT NULL UNIQUE,
+  `customer_name` VARCHAR(255) NOT NULL,
+  `customer_phone` VARCHAR(64) NOT NULL,
+  `customer_email` VARCHAR(255) DEFAULT NULL,
+  `governorate` VARCHAR(100) NOT NULL,
+  `district` VARCHAR(100) DEFAULT NULL,
+  `customer_address` TEXT NOT NULL,
+  `subtotal` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  `shipping_fee` DECIMAL(12, 2) NOT NULL DEFAULT 5000.00,
+  `discount_amount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  `total_amount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  `payment_method` VARCHAR(100) NOT NULL DEFAULT "COD",
+  `payment_status` VARCHAR(50) NOT NULL DEFAULT "Pending",
+  `order_status` VARCHAR(50) NOT NULL DEFAULT "Received",
+  `courier` VARCHAR(100) DEFAULT NULL,
+  `driver_name` VARCHAR(100) DEFAULT NULL,
+  `driver_phone` VARCHAR(64) DEFAULT NULL,
+  `tracking_code` VARCHAR(100) DEFAULT NULL,
+  `dispatch_notes` TEXT DEFAULT NULL,
+  `estimated_delivery` VARCHAR(100) DEFAULT NULL,
+  `items_json` LONGTEXT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_customer_phone` (`customer_phone`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------------------------
+-- 2.1 Dumping data for table `orders`
+-- ------------------------------------------------------------------------------
+INSERT INTO `orders` 
+(`order_id`, `customer_name`, `customer_phone`, `customer_email`, `governorate`, `district`, `customer_address`, `subtotal`, `shipping_fee`, `discount_amount`, `total_amount`, `payment_method`, `payment_status`, `order_status`, `courier`, `driver_name`, `driver_phone`, `tracking_code`, `dispatch_notes`, `estimated_delivery`, `items_json`)
+VALUES
+(
+  'ORD-10942',
+  'Soran Hama',
+  '+964 770 882 1432',
+  'soran.hama@example.com',
+  'Sulaymaniyah',
+  '',
+  'Salim Street, Modern Towers, Apt 4B',
+  380000.00,
+  0.00,
+  0.00,
+  380000.00,
+  'FastPay (فاست باي)',
+  'Pending Verification',
+  'Pending',
+  'Fast Iraq Express Cargo',
+  'Aram Salih',
+  '+964 770 412 8899',
+  'FP-SUL-10942',
+  'Order placed successfully. Waiting for warehouse inventory release and dispatch queue.',
+  'Estimated 2-3 Business Days',
+  '[{"product_id":5,"title":"Minimalist Ceramic Chronograph Watch","price":380000,"quantity":1,"color":"Matte Slate Gray","size":"42mm Case","image":"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80"}]'
+),
+(
+  'ORD-25814',
+  'Lana Barzani',
+  '+964 750 634 7788',
+  'lana.barzani@example.com',
+  'Erbil',
+  '',
+  'Empire World, Diamond Tower 2, Suite 1204',
+  380000.00,
+  0.00,
+  38000.00,
+  342000.00,
+  'First Iraqi Bank (FIB Bank)',
+  'Paid (FIB Verified)',
+  'Processing',
+  'AURA VIP Express Logistics',
+  'Karwan Qadir',
+  '+964 750 112 3344',
+  'AURA-ERB-25814',
+  'Payment verified. Packaging in luxury velvet box with complimentary fragrance sample.',
+  'Tomorrow by 5:00 PM',
+  '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":2,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"}]'
+),
+(
+  'ORD-61028',
+  'Mustafa Al-Mansour',
+  '+964 770 123 9988',
+  'mustafa.baghdad@example.com',
+  'Baghdad',
+  '',
+  'Al-Mansour District, Street 14, Villa 12',
+  275000.00,
+  0.00,
+  0.00,
+  275000.00,
+  'Cash on Delivery (COD)',
+  'Pending (Pay on Arrival)',
+  'Shipped',
+  'Fast Iraq Express Cargo',
+  'Hassan Al-Tamimi',
+  '+964 770 554 3210',
+  'FI-BGD-61028',
+  'Departed regional central hub. In transit to Baghdad Al-Mansour distribution center.',
+  'Tomorrow by 2:00 PM',
+  '[{"product_id":4,"title":"Italian Leather Minimalist Weekender Bag","price":275000,"quantity":1,"color":"Vintage Tan","size":"Standard 45L","image":"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"}]'
+),
+(
+  'ORD-84920',
+  'Alind Duhoki',
+  '+964 750 123 4567',
+  'admin@aurastore.com',
+  'Duhok',
+  '',
+  'KRO Commercial Avenue, Building 4',
+  740000.00,
+  0.00,
+  0.00,
+  740000.00,
+  'First Iraqi Bank (FIB Bank)',
+  'Paid (FIB Verified)',
+  'Out for Delivery',
+  'AURA VIP Express Logistics',
+  'Rebwar Duhoki',
+  '+964 750 998 1234',
+  'AURA-EXP-84920',
+  'Satin package sealed. Courier is en route in Duhok KRO district.',
+  'Today, 4:30 PM - 6:00 PM',
+  '[{"product_id":2,"title":"Onyx Skeleton Automatic Watch","price":550000,"quantity":1,"color":"Black Onyx & Gold","size":"41mm Case","image":"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80"},{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"}]'
+),
+(
+  'ORD-73195',
+  'Dr. Zana',
+  '+964 750 443 2110',
+  'dr.zana@example.com',
+  'Erbil',
+  '',
+  'Dream City, Villa 88',
+  245000.00,
+  0.00,
+  24500.00,
+  220500.00,
+  'ZainCash (زين كاش)',
+  'Paid (ZainCash OTP)',
+  'Delivered',
+  'Lezzoo Express VIP',
+  'Ari Kwestani',
+  '+964 750 332 9901',
+  'LZ-ERB-73195',
+  'Delivered in person to recipient at Dream City Villa 88. Signature confirmed.',
+  'Delivered on Aug 27, 2026',
+  '[{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"L","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
+),
+(
+  'ORD-40291',
+  'Ahmed Al-Basri',
+  '+964 780 912 3456',
+  'ahmed.basra@example.com',
+  'Basra',
+  '',
+  'Al-Ashar Corniche, Palm Residence 5',
+  245000.00,
+  0.00,
+  0.00,
+  245000.00,
+  'ZainCash (زين كاش)',
+  'Refunded',
+  'Cancelled',
+  'Fast Iraq Express Cargo',
+  'N/A',
+  'N/A',
+  'CAN-BSR-40291',
+  'Order cancelled upon customer request for size adjustment. Full payment refunded to ZainCash wallet.',
+  'Cancelled & Refunded',
+  '[{"product_id":1,"title":"Royal Midnight Velvet Blazer","price":245000,"quantity":1,"color":"Midnight Blue","size":"XL","image":"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"}]'
+);
+
+-- ------------------------------------------------------------------------------
+-- 3. Table structure for table `users`
+-- ------------------------------------------------------------------------------
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_code` VARCHAR(64) NOT NULL UNIQUE,
+  `name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `phone` VARCHAR(64) DEFAULT NULL,
+  `city` VARCHAR(100) DEFAULT NULL,
+  `address` TEXT DEFAULT NULL,
+  `role` VARCHAR(50) NOT NULL DEFAULT "customer",
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------------------------
+-- 3.1 Dumping data for table `users`
+-- ------------------------------------------------------------------------------
+INSERT INTO `users` (`user_code`, `name`, `email`, `password_hash`, `phone`, `city`, `address`, `role`)
+VALUES
+(
+  'USR-1001',
+  'Alind Duhoki',
+  'admin@aurastore.com',
+  'admin123',
+  '+964 750 123 4567',
+  'Duhok',
+  'KRO Street, Duhok, Kurdistan Region',
+  'admin'
+),
+(
+  'USR-1002',
+  'Soran Ahmed',
+  'soran@example.com',
+  'customer123',
+  '+964 750 987 6543',
+  'Erbil',
+  'Empire World, Gulan St, Erbil',
+  'customer'
+);
+
+-- ------------------------------------------------------------------------------
+-- 4. Table structure for table `inquiries`
+-- ------------------------------------------------------------------------------
+DROP TABLE IF EXISTS `inquiries`;
+CREATE TABLE `inquiries` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `inquiry_code` VARCHAR(64) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
+  `phone` VARCHAR(64) NOT NULL,
+  `subject` VARCHAR(255) DEFAULT NULL,
+  `message` TEXT NOT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT "Open",
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------------------------
+-- 4.1 Dumping data for table `inquiries`
+-- ------------------------------------------------------------------------------
+INSERT INTO `inquiries` (`inquiry_code`, `name`, `email`, `phone`, `subject`, `message`, `status`)
+VALUES
+(
+  'INQ-901',
+  'Barzan Mustafa',
+  'barzan.m@gmail.com',
+  '+964 750 221 8899',
+  'Custom Swiss Watch Sizing Inquiry',
+  'Hello AURA team, I am interested in the Onyx Skeleton Automatic Watch. Can you adjust the stainless steel link bracelet before shipping to Duhok?',
+  'New'
+),
+(
+  'INQ-902',
+  'Zaid Al-Bayati',
+  'zaid.bayati@baghdad.iq',
+  '+964 780 445 1200',
+  'ZainCash Payment & Express Delivery to Mansour, Baghdad',
+  'Peace be upon you. Can I pay via ZainCash wallet and receive same-day or 24hr express delivery in Mansour, Baghdad?',
+  'Replied'
+);
+
+SET FOREIGN_KEY_CHECKS = 1;
