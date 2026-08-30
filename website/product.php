@@ -168,7 +168,7 @@ if (!empty($product['colors'])) {
                                     <span class="size-spec-val" id="displaySizeHeight"><?php echo htmlspecialchars($initialHeight); ?></span>
                                 </div>
                                 <div class="size-spec-row">
-                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'width:'); ?></span>
+                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'); ?></span>
                                     <span class="size-spec-val" id="displaySizeWidth"><?php echo htmlspecialchars($initialWidth); ?></span>
                                 </div>
                             </div>
@@ -576,20 +576,46 @@ function selectSizeFromModal(sizeName) {
 }
 
 function openSizeGuideModal(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (e && e.stopPropagation) e.stopPropagation();
+    if (e) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+    }
     const modal = document.getElementById('sizeGuideModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+    if (!modal) return;
+
+    // Detach from parent section and append directly to body to avoid clipping or coordinate issues
+    if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+
+    modal.classList.add('open');
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Synchronize diagram and table highlighting
+    const activeBtn = document.querySelector('.size-pill.active');
+    const selectedSize = activeBtn ? activeBtn.getAttribute('data-size') : (window.selectedProductSize || '');
+    if (selectedSize) {
+        document.querySelectorAll('.modal-dim-table tbody tr').forEach(r => r.classList.remove('highlighted'));
+        const safeKey = selectedSize.replace(/[^a-zA-Z0-9]/g, '');
+        const targetRow = document.getElementById('modalMatrixRow_' + safeKey);
+        if (targetRow) {
+            targetRow.classList.add('highlighted');
+            try { targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(err){}
+        }
     }
 }
 
 function closeSizeGuideModal(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (e && e.stopPropagation) e.stopPropagation();
+    if (e) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+    }
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
+        modal.classList.remove('open');
+        modal.classList.remove('active');
         modal.style.display = 'none';
         document.body.style.overflow = '';
     }
@@ -599,6 +625,14 @@ function closeSizeGuideModal(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' || e.key === 'Esc') {
         closeSizeGuideModal();
+    }
+});
+
+// Auto-relocate modal on document ready
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('sizeGuideModal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
     }
 });
 
