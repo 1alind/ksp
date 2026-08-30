@@ -20,6 +20,6 @@ jobs:
         username: if0_41557722
         password: sjBEcko70k
         local-dir: ./website/
-        server-dir: kspstore.rf.gd/htdocs/shop
+        server-dir: kspstore.rf.gd/htdocs/shop/
         
           
