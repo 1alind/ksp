@@ -331,43 +331,45 @@ if (!empty($product['colors'])) {
                             </filter>
                         </defs>
 
-                        <!-- Garment Background Silhouette -->
-                        <path d="M 155 55 L 195 72 Q 230 84 265 72 L 305 55 L 370 115 L 335 150 L 305 125 L 305 285 L 155 285 L 155 125 L 125 150 L 90 115 Z" 
+                        <!-- Realistic T-Shirt Garment Silhouette -->
+                        <path d="M 165 48 C 178 40, 202 36, 230 36 C 258 36, 282 40, 295 48 L 365 82 L 330 135 L 295 115 L 295 285 C 295 292, 290 295, 282 295 L 178 295 C 170 295, 165 292, 165 285 L 165 115 L 130 135 L 95 82 Z" 
                               fill="url(#shirtGrad)" stroke="var(--border-color, #2a2e42)" stroke-width="2.5" stroke-linejoin="round" filter="url(#subtleShadow)" />
                         
-                        <!-- Collar Curved Detail -->
-                        <path d="M 195 72 Q 230 100 265 72" stroke="var(--border-color, #383e58)" stroke-width="2" fill="none" />
+                        <!-- Curved Crew Neckline -->
+                        <path d="M 195 48 Q 230 78 265 48" stroke="var(--border-color, #383e58)" stroke-width="2" fill="none" />
+                        
                         <!-- Left sleeve seam -->
-                        <path d="M 155 125 L 190 70" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+                        <path d="M 165 115 L 192 62" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+                        
                         <!-- Right sleeve seam -->
-                        <path d="M 305 125 L 270 70" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+                        <path d="M 295 115 L 268 62" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
 
                         <!-- Horizontal Width Indicator (Chest: Armpit to Armpit) -->
-                        <line x1="155" y1="135" x2="305" y2="135" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="5 3" />
-                        <circle cx="155" cy="135" r="5" fill="#dcb348" />
-                        <circle cx="305" cy="135" r="5" fill="#dcb348" />
+                        <line x1="165" y1="125" x2="295" y2="125" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="5 3" />
+                        <circle cx="165" cy="125" r="4.5" fill="#dcb348" />
+                        <circle cx="295" cy="125" r="4.5" fill="#dcb348" />
                         <!-- Arrow tips for width -->
-                        <polygon points="163,130 155,135 163,140" fill="#dcb348" />
-                        <polygon points="297,130 305,135 297,140" fill="#dcb348" />
+                        <polygon points="172,120 165,125 172,130" fill="#dcb348" />
+                        <polygon points="288,120 295,125 288,130" fill="#dcb348" />
 
                         <!-- Width Measurement Badge -->
-                        <g transform="translate(180, 115)">
-                            <rect width="100" height="26" rx="13" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
-                            <text id="modalSvgWidthText" x="50" y="17" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
+                        <g transform="translate(180, 108)">
+                            <rect width="100" height="24" rx="12" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
+                            <text id="modalSvgWidthText" x="50" y="16" fill="#dcb348" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
                         </g>
 
                         <!-- Vertical Height Indicator (Length: Shoulder Collar Seam straight to Hem) -->
-                        <line x1="175" y1="65" x2="175" y2="285" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 3" />
-                        <circle cx="175" cy="65" r="5" fill="#ef4444" />
-                        <circle cx="175" cy="285" r="5" fill="#ef4444" />
+                        <line x1="182" y1="55" x2="182" y2="285" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 3" />
+                        <circle cx="182" cy="55" r="4.5" fill="#ef4444" />
+                        <circle cx="182" cy="285" r="4.5" fill="#ef4444" />
                         <!-- Arrow tips for height -->
-                        <polygon points="170,74 175,65 180,74" fill="#ef4444" />
-                        <polygon points="170,276 175,285 180,276" fill="#ef4444" />
+                        <polygon points="177,63 182,55 187,63" fill="#ef4444" />
+                        <polygon points="177,277 182,285 187,277" fill="#ef4444" />
 
                         <!-- Height Measurement Badge -->
-                        <g transform="translate(45, 160)">
-                            <rect width="105" height="26" rx="13" fill="#0d1017" stroke="#ef4444" stroke-width="1.5" />
-                            <text id="modalSvgHeightText" x="52" y="17" fill="#ef4444" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
+                        <g transform="translate(48, 155)">
+                            <rect width="105" height="24" rx="12" fill="#0d1017" stroke="#ef4444" stroke-width="1.5" />
+                            <text id="modalSvgHeightText" x="52" y="16" fill="#ef4444" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
                         </g>
                     </svg>
                 </div>
