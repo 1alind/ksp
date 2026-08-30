@@ -35,23 +35,6 @@ $featuredProducts = array_filter($products, function($p) {
                     <span><?php echo t('hero_explore_perfumes', $lang); ?></span>
                 </a>
             </div>
-
-            <div class="hero-trust-metrics">
-                <div class="metric-item">
-                    <span class="metric-num">100%</span>
-                    <span class="metric-label">Certified Origin</span>
-                </div>
-                <div class="metric-divider"></div>
-                <div class="metric-item">
-                    <span class="metric-num">24h</span>
-                    <span class="metric-label">Express Delivery</span>
-                </div>
-                <div class="metric-divider"></div>
-                <div class="metric-item">
-                    <span class="metric-num">VIP</span>
-                    <span class="metric-label">FIB & ZainCash</span>
-                </div>
-            </div>
         </div>
 
         <div class="hero-visual-card">
@@ -80,7 +63,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <div class="cat-card-info">
                     <span class="cat-badge">24+ Pieces</span>
                     <h3 class="cat-title"><?php echo t('cat_clothes', $lang); ?></h3>
-                    <p class="cat-desc"><?php echo t('cat_clothes_desc', $lang); ?></p>
                     <span class="cat-link-label"><?php echo t('browse_cat', $lang); ?> →</span>
                 </div>
             </a>
@@ -92,7 +74,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <div class="cat-card-info">
                     <span class="cat-badge">18+ Pieces</span>
                     <h3 class="cat-title"><?php echo t('cat_watches', $lang); ?></h3>
-                    <p class="cat-desc"><?php echo t('cat_watches_desc', $lang); ?></p>
                     <span class="cat-link-label"><?php echo t('browse_cat', $lang); ?> →</span>
                 </div>
             </a>
@@ -104,7 +85,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <div class="cat-card-info">
                     <span class="cat-badge">30+ Scents</span>
                     <h3 class="cat-title"><?php echo t('cat_perfumes', $lang); ?></h3>
-                    <p class="cat-desc"><?php echo t('cat_perfumes_desc', $lang); ?></p>
                     <span class="cat-link-label"><?php echo t('browse_cat', $lang); ?> →</span>
                 </div>
             </a>
@@ -116,7 +96,6 @@ $featuredProducts = array_filter($products, function($p) {
                 <div class="cat-card-info">
                     <span class="cat-badge">16+ Essentials</span>
                     <h3 class="cat-title"><?php echo t('cat_accessories', $lang); ?></h3>
-                    <p class="cat-desc"><?php echo t('cat_accessories_desc', $lang); ?></p>
                     <span class="cat-link-label"><?php echo t('browse_cat', $lang); ?> →</span>
                 </div>
             </a>
@@ -140,7 +119,7 @@ $featuredProducts = array_filter($products, function($p) {
 
             <div class="flash-sale-visual">
                 <div class="flash-product-preview">
-                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=700&q=80" alt="Rose Gold Riviera Chronograph" class="sale-img">
+                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=700&q=80" alt="Riviera Chronograph" class="sale-img">
                     <div class="discount-badge-circle">-25%</div>
                 </div>
             </div>

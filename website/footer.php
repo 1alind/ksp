@@ -9,7 +9,6 @@
                     <div class="perk-icon">🚀</div>
                     <div class="perk-text">
                         <h4><?php echo t('features_shipping_title', $lang); ?></h4>
-                        <p><?php echo t('features_shipping_desc', $lang); ?></p>
                     </div>
                 </div>
 
@@ -17,7 +16,6 @@
                     <div class="perk-icon">💎</div>
                     <div class="perk-text">
                         <h4><?php echo t('features_quality_title', $lang); ?></h4>
-                        <p><?php echo t('features_quality_desc', $lang); ?></p>
                     </div>
                 </div>
 
@@ -25,7 +23,6 @@
                     <div class="perk-icon">👑</div>
                     <div class="perk-text">
                         <h4><?php echo t('features_support_title', $lang); ?></h4>
-                        <p><?php echo t('features_support_desc', $lang); ?></p>
                     </div>
                 </div>
 
@@ -33,7 +30,6 @@
                     <div class="perk-icon">🛡️</div>
                     <div class="perk-text">
                         <h4><?php echo t('features_payment_title', $lang); ?></h4>
-                        <p><?php echo t('features_payment_desc', $lang); ?></p>
                     </div>
                 </div>
             </div>
@@ -56,9 +52,6 @@
                     <?php endif; ?>
                 </a>
                 <p class="footer-intro"><?php echo htmlspecialchars($settings['store_description_' . $lang] ?? t('footer_about', $lang)); ?></p>
-                <div class="footer-contact-pills">
-                    <div class="contact-pill">⚡ <?php echo $lang === 'ku' ? 'فروشگەها سەرهێل ١٠٠٪ • گەهاندنا لەزگین بۆ هەمی باژێرێن عیراقێ و کوردستانێ' : ($lang === 'ar' ? 'متجر إلكتروني حصري 100% • توصيل سريع لجميع محافظات العراق وإقليم كوردستان' : '100% Online Store • Express Delivery Across Iraq & Kurdistan'); ?></div>
-                </div>
             </div>
 
             <div class="footer-links-col">
@@ -81,8 +74,7 @@
             </div>
 
             <div class="footer-payment-col">
-                <h4 class="footer-heading"><?php echo $lang === 'ku' ? 'دەرگەهێن پارەدانا فەرمی' : ($lang === 'ar' ? 'بوابات الدفع المعتمدة' : 'Official Payment Gateways'); ?></h4>
-                <p class="footer-intro" style="margin-top:0;"><?php echo $lang === 'ku' ? 'پارەدانا ئێکسەر و باوەرپێکری ب رێکا FIB، فاست پای، و زەین کاش.' : ($lang === 'ar' ? 'دفع إلكتروني فوري وآمن حصرياً عبر FIB وفاسـت بـاي وزين كاش.' : 'Instant, certified Iraqi digital payments exclusively via FIB, FastPay, and ZainCash.'); ?></p>
+                <h4 class="footer-heading"><?php echo $lang === 'ku' ? 'دەرگەهێن پارەدانێ' : ($lang === 'ar' ? 'بوابات الدفع' : 'Payment Gateways'); ?></h4>
                 <div class="payment-methods-icons">
                     <!-- FIB Logo Pill -->
                     <div class="pay-logo-badge pay-logo-fib" title="First Iraqi Bank (FIB)">

@@ -61,7 +61,6 @@ if (!empty($searchOrderId)) {
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Live Logistics Radar &bull; Iraq & Kurdistan</span>
             <h1 class="page-banner-title"><?php echo t('track_title', $lang); ?></h1>
             <p class="page-banner-subtitle"><?php echo t('track_subtitle', $lang); ?></p>
         </div>
@@ -70,20 +69,6 @@ if (!empty($searchOrderId)) {
 
 <section class="track-section">
     <div class="container">
-        
-        <!-- Fully Online Automated Fulfillment Guarantee Banner -->
-        <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
-            <div style="display:flex; align-items:center; gap:14px;">
-                <span style="font-size:28px;">⚡</span>
-                <div>
-                    <strong style="display:block; font-size:14.5px; color:var(--text-primary);"><?php echo t('policy_full_online_badge', $lang); ?></strong>
-                    <span style="font-size:12.5px; color:var(--text-secondary);"><?php echo t('policy_full_online_desc', $lang); ?></span>
-                </div>
-            </div>
-            <span class="badge-tag" style="background:rgba(217,119,6,0.15); color:var(--accent-gold); font-size:11.5px; font-weight:700;">
-                🛡️ <?php echo $lang === 'ku' ? 'زەمانەتا پشکنینا پاکێجێ' : ($lang === 'ar' ? 'ضمان وسلامة الطرد 100%' : '100% Package Guarantee'); ?>
-            </span>
-        </div>
 
         <?php if ($issueSubmitted): ?>
             <div class="alert alert-success mb-24" style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; border-radius:10px; padding:18px; color:var(--text-primary);">
@@ -92,7 +77,7 @@ if (!empty($searchOrderId)) {
                     <h4 style="margin:0; font-size:16px; color:#22c55e;"><?php echo t('issue_success_msg', $lang); ?></h4>
                 </div>
                 <p style="margin:0; font-size:13.5px; color:var(--text-secondary);">
-                    Your Claim Ticket Reference: <strong style="font-family:monospace; color:var(--accent-gold); font-size:15px;"><?php echo htmlspecialchars($issueTicketId); ?></strong>. Our Quality & Replacement Dispatcher will review your case within 2-4 hours.
+                    Your Claim Ticket: <strong style="font-family:monospace; color:var(--accent-gold); font-size:15px;"><?php echo htmlspecialchars($issueTicketId); ?></strong>. We will review your claim shortly.
                 </p>
             </div>
         <?php endif; ?>
@@ -106,27 +91,24 @@ if (!empty($searchOrderId)) {
                 </div>
             </form>
             <div class="sample-ids-hint" style="margin-top:14px;">
-                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px; font-weight:700;">
-                    <?php echo $lang === 'ku' ? 'تاقیکرنا داخوازیێن نموونەیی ل دیڤ قۆناغێن گەهاندنێ:' : ($lang === 'ar' ? 'جرّب تتبع طلبات تجريبية لجميع الحالات:' : 'Quick Test by Status Category:'); ?>
-                </div>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
                     <a href="track.php?order_id=ORD-10942" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        ⏳ <strong>Pending:</strong> ORD-10942
+                        ⏳ Pending: ORD-10942
                     </a>
                     <a href="track.php?order_id=ORD-25814" class="badge-tag" style="background:rgba(59,130,246,0.15); color:#3b82f6; border:1px solid rgba(59,130,246,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        📦 <strong>Processing:</strong> ORD-25814
+                        📦 Processing: ORD-25814
                     </a>
                     <a href="track.php?order_id=ORD-61028" class="badge-tag" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🚚 <strong>Shipped:</strong> ORD-61028
+                        🚚 Shipped: ORD-61028
                     </a>
                     <a href="track.php?order_id=ORD-84920" class="badge-tag" style="background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🛵 <strong>Out for Delivery:</strong> ORD-84920
+                        🛵 Out for Delivery: ORD-84920
                     </a>
                     <a href="track.php?order_id=ORD-73195" class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        ✅ <strong>Delivered:</strong> ORD-73195
+                        ✅ Delivered: ORD-73195
                     </a>
                     <a href="track.php?order_id=ORD-40291" class="badge-tag" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🛑 <strong>Cancelled:</strong> ORD-40291
+                        🛑 Cancelled: ORD-40291
                     </a>
                 </div>
             </div>
@@ -416,17 +398,6 @@ if (!empty($searchOrderId)) {
                 <div class="empty-icon">⚠️</div>
                 <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
                 <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>) or phone number.</p>
-            </div>
-        <?php else: ?>
-            <!-- Pre-search / Default Landing Explanation Box -->
-            <div class="mt-24" style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:12px; padding:22px; text-align:center; max-width:680px; margin-left:auto; margin-right:auto;">
-                <div style="font-size:26px; margin-bottom:8px;">🌐</div>
-                <h4 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0 0 6px;">
-                    <?php echo t('policy_full_online_badge', $lang); ?>
-                </h4>
-                <p style="font-size:13px; color:var(--text-secondary); margin:0; line-height:1.6;">
-                    <?php echo t('online_only_explanation', $lang); ?>
-                </p>
             </div>
         <?php endif; ?>
 
