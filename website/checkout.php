@@ -10,17 +10,25 @@ $rate = $settings['exchange_rate_usd_to_iqd'] ?? 1320;
 $gateways = $settings['gateways'] ?? [];
 
 // Handle Order Submission via PHP POST
+$checkoutError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $name = trim($_POST['customer_name'] ?? '');
     $email = trim($_POST['customer_email'] ?? '');
     $phone = trim($_POST['customer_phone'] ?? '');
+    $phoneConfirm = trim($_POST['customer_phone_confirm'] ?? '');
     $city = trim($_POST['customer_city'] ?? 'Duhok');
     $address = trim($_POST['customer_address'] ?? '');
     $paymentMethod = trim($_POST['payment_method'] ?? 'Cash on Delivery');
     $cartJson = $_POST['cart_items_json'] ?? '[]';
     $cartItems = json_decode($cartJson, true) ?: [];
-    
-    if (!empty($name) && !empty($phone) && !empty($address) && !empty($cartItems)) {
+
+    // Digits-only comparison for phone number validation
+    $cleanPhone = preg_replace('/[^\d+]/', '', $phone);
+    $cleanPhoneConfirm = preg_replace('/[^\d+]/', '', $phoneConfirm);
+
+    if (empty($phone) || empty($phoneConfirm) || $cleanPhone !== $cleanPhoneConfirm) {
+        $checkoutError = t('checkout_phone_mismatch', $lang);
+    } elseif (!empty($name) && !empty($phone) && !empty($address) && !empty($cartItems)) {
         $subtotal = 0;
         foreach ($cartItems as $ci) {
             $subtotal += ($ci['price'] * $ci['quantity']);
@@ -139,22 +147,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                 <span><?php echo t('checkout_shipping_details', $lang); ?></span>
                             </h3>
 
+                            <?php if (!empty($checkoutError)): ?>
+                                <div class="alert alert-danger mb-16" style="background:rgba(239,68,68,0.12); border:1px solid #ef4444; border-radius:8px; padding:12px 16px; color:#ef4444; font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                                    <span>⚠️</span>
+                                    <span><?php echo htmlspecialchars($checkoutError); ?></span>
+                                </div>
+                            <?php endif; ?>
+
                             <div class="form-row-2">
                                 <div class="form-group">
                                     <label><?php echo t('checkout_name', $lang); ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="customer_name" id="coCustomerName" required class="form-control" placeholder="Full Name (الاسم الكامل)">
-                                </div>
-
-                                <div class="form-group">
-                                    <label><?php echo t('checkout_phone', $lang); ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="customer_phone" id="coCustomerPhone" required class="form-control" placeholder="0750 xxx xxxx / 0770 xxx xxxx">
-                                </div>
-                            </div>
-
-                            <div class="form-row-2">
-                                <div class="form-group">
-                                    <label><?php echo t('checkout_email', $lang); ?></label>
-                                    <input type="email" name="customer_email" id="coCustomerEmail" class="form-control" placeholder="client@example.com">
                                 </div>
 
                                 <div class="form-group">
@@ -187,6 +190,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                             <option value="Saladin"><?php echo $lang === 'ku' ? 'سەلاحەدین (تکریت) / Saladin' : ($lang === 'ar' ? 'صلاح الدين (تكريت) / Saladin' : 'Saladin (Tikrit / Samarra) / صلاح الدين'); ?></option>
                                         </optgroup>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label><?php echo t('checkout_phone', $lang); ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="customer_phone" id="coCustomerPhone" required class="form-control" placeholder="0750 xxx xxxx / 0770 xxx xxxx" autocomplete="tel">
+                                </div>
+
+                                <div class="form-group">
+                                    <label><?php echo t('checkout_phone_confirm', $lang); ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="customer_phone_confirm" id="coCustomerPhoneConfirm" required class="form-control" placeholder="Re-enter phone number (تأكيد الرقم)" autocomplete="tel">
+                                    <div id="phoneMatchNotice" class="phone-match-notice" style="display:none; font-size:12px; margin-top:6px; font-weight:600;"></div>
                                 </div>
                             </div>
 
@@ -535,6 +551,48 @@ function highlightPaymentOption(radio) {
     radio.closest('.payment-option-label').classList.add('active');
 }
 
+function checkPhoneMatch() {
+    const p1 = document.getElementById('coCustomerPhone');
+    const p2 = document.getElementById('coCustomerPhoneConfirm');
+    const notice = document.getElementById('phoneMatchNotice');
+    if (!p1 || !p2 || !notice) return true;
+
+    const v1 = p1.value.trim();
+    const v2 = p2.value.trim();
+    const c1 = v1.replace(/[^\d+]/g, '');
+    const c2 = v2.replace(/[^\d+]/g, '');
+
+    if (!v2) {
+        notice.style.display = 'none';
+        p2.style.borderColor = '';
+        return false;
+    }
+
+    if (c1.length > 0 && c2.length > 0 && c1 === c2) {
+        notice.style.display = 'block';
+        notice.style.color = '#22c55e';
+        notice.innerHTML = '✓ ' + (window.AURA_LANG === 'ku' ? 'ژمارا تەلەفۆنێ یا دروستە و وەک ئێکە' : (window.AURA_LANG === 'ar' ? 'تم التحقق من تطابق رقم الهاتف' : 'Phone numbers verified'));
+        p2.style.borderColor = '#22c55e';
+        return true;
+    } else {
+        notice.style.display = 'block';
+        notice.style.color = '#ef4444';
+        notice.innerHTML = '⚠️ ' + (window.AURA_LANG === 'ku' ? 'ژمارێن تەلەفۆنێ وەک ئێک نینن، تکایە پشتڕاست بکەڤە.' : (window.AURA_LANG === 'ar' ? 'رقما الهاتف غير متطابقين، يرجى التأكد من كتابة نفس الرقم.' : 'Phone numbers do not match. Please verify both numbers.'));
+        p2.style.borderColor = '#ef4444';
+        return false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const p1 = document.getElementById('coCustomerPhone');
+    const p2 = document.getElementById('coCustomerPhoneConfirm');
+    if (p1 && p2) {
+        p1.addEventListener('input', () => { if (p2.value) checkPhoneMatch(); });
+        p2.addEventListener('input', () => checkPhoneMatch());
+        p2.addEventListener('blur', () => checkPhoneMatch());
+    }
+});
+
 function validateAndSubmitCheckout(event) {
     const cart = window.AuraStore ? window.AuraStore.getCart() : [];
     if (!cart || cart.length === 0) {
@@ -542,6 +600,32 @@ function validateAndSubmitCheckout(event) {
         event.preventDefault();
         return false;
     }
+
+    // Phone Number 2-Times Verification Validation
+    const p1 = document.getElementById('coCustomerPhone');
+    const p2 = document.getElementById('coCustomerPhoneConfirm');
+    const v1 = p1 ? p1.value.trim() : '';
+    const v2 = p2 ? p2.value.trim() : '';
+    const c1 = v1.replace(/[^\d+]/g, '');
+    const c2 = v2.replace(/[^\d+]/g, '');
+
+    if (!v1 || !v2 || c1 !== c2) {
+        event.preventDefault();
+        const errorMsg = window.AURA_LANG === 'ku' ? 'ژمارێن تەلەفۆنێ وەک ئێک نینن، تکایە هەردوو ژماران پشتڕاست بکەڤە.' : 
+                         (window.AURA_LANG === 'ar' ? 'رقما الهاتف غير متطابقين، يرجى التأكد من كتابة نفس الرقم في الحقلين.' : 
+                         'Phone numbers do not match. Please re-enter phone number twice to verify.');
+        if (window.AuraStore) {
+            window.AuraStore.showToast(errorMsg, 'error');
+        } else {
+            alert(errorMsg);
+        }
+        if (p2) {
+            p2.focus();
+            checkPhoneMatch();
+        }
+        return false;
+    }
+
     document.getElementById('hiddenCartJson').value = JSON.stringify(cart);
 
     const selMethod = document.querySelector('input[name="payment_method"]:checked')?.value || '';
