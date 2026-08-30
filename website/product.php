@@ -305,113 +305,112 @@ if (!empty($product['colors'])) {
     </div>
 </section>
 
-<!-- Size Guide & How to Measure Modal (Clean, Simple, with Visual Illustration) -->
+<!-- Size Guide & How to Measure Modal (Stunning Luxury Redesign) -->
 <div class="modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();">
-    <div class="modal-dialog" style="max-width: 580px;" dir="<?php echo $dir; ?>">
+    <div class="modal-dialog luxury-size-modal" dir="<?php echo $dir; ?>">
         <div class="size-guide-modal-header">
             <div class="modal-title-with-icon">
-                <span class="modal-ruler-icon">📏</span>
+                <span class="modal-ruler-icon">✨</span>
                 <h3><?php echo t('how_to_measure_title', $lang); ?></h3>
             </div>
-            <button type="button" class="btn-modal-close" onclick="closeSizeGuideModal()" aria-label="Close">✕</button>
+            <button type="button" class="btn-modal-close" onclick="closeSizeGuideModal()" aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+            </button>
         </div>
 
         <div class="size-guide-modal-body">
-            <!-- Crisp Vector Diagram Illustration of How Measurements Are Done -->
+            <!-- Premium Garment Vector Illustration -->
             <div class="measure-illustration-box">
                 <div class="measure-svg-wrapper">
-                    <svg class="measure-svg-graphic" viewBox="0 0 460 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="measure-svg-graphic" viewBox="0 0 460 280" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="var(--bg-card, #191c28)" />
-                                <stop offset="100%" stop-color="var(--bg-surface, #12141f)" />
+                            <linearGradient id="luxuryShirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#1e2235" />
+                                <stop offset="100%" stop-color="#12141f" />
                             </linearGradient>
-                            <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
-                                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.3" />
+                            <filter id="luxuryGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.45" />
                             </filter>
                         </defs>
 
-                        <!-- Realistic T-Shirt Garment Silhouette -->
-                        <path d="M 165 48 C 178 40, 202 36, 230 36 C 258 36, 282 40, 295 48 L 365 82 L 330 135 L 295 115 L 295 285 C 295 292, 290 295, 282 295 L 178 295 C 170 295, 165 292, 165 285 L 165 115 L 130 135 L 95 82 Z" 
-                              fill="url(#shirtGrad)" stroke="var(--border-color, #2a2e42)" stroke-width="2.5" stroke-linejoin="round" filter="url(#subtleShadow)" />
+                        <!-- Realistic Luxury T-Shirt / Garment Silhouette -->
+                        <path d="M 160 40 C 175 32, 200 28, 230 28 C 260 28, 285 32, 300 40 L 375 75 L 340 130 L 300 110 L 300 255 C 300 263, 292 270, 282 270 L 178 270 C 168 270, 160 263, 160 255 L 160 110 L 120 130 L 85 75 Z" 
+                              fill="url(#luxuryShirtGrad)" stroke="#3a405a" stroke-width="2" stroke-linejoin="round" filter="url(#luxuryGlow)" />
                         
-                        <!-- Curved Crew Neckline -->
-                        <path d="M 195 48 Q 230 78 265 48" stroke="var(--border-color, #383e58)" stroke-width="2" fill="none" />
+                        <!-- Elegant Curved Collar -->
+                        <path d="M 195 40 Q 230 68 265 40" stroke="#dcb348" stroke-width="2" fill="none" />
                         
-                        <!-- Left sleeve seam -->
-                        <path d="M 165 115 L 192 62" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
-                        
-                        <!-- Right sleeve seam -->
-                        <path d="M 295 115 L 268 62" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+                        <!-- Shoulder Seam Details -->
+                        <path d="M 160 110 L 190 55" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
+                        <path d="M 300 110 L 270 55" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
 
-                        <!-- Horizontal Width Indicator (Chest: Armpit to Armpit) -->
-                        <line x1="165" y1="125" x2="295" y2="125" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="5 3" />
-                        <circle cx="165" cy="125" r="4.5" fill="#dcb348" />
-                        <circle cx="295" cy="125" r="4.5" fill="#dcb348" />
-                        <!-- Arrow tips for width -->
-                        <polygon points="172,120 165,125 172,130" fill="#dcb348" />
-                        <polygon points="288,120 295,125 288,130" fill="#dcb348" />
+                        <!-- Width (Chest) Dimension Line -->
+                        <line x1="160" y1="122" x2="300" y2="122" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="6 4" />
+                        <circle cx="160" cy="122" r="4" fill="#dcb348" />
+                        <circle cx="300" cy="122" r="4" fill="#dcb348" />
+                        <polygon points="168,117 160,122 168,127" fill="#dcb348" />
+                        <polygon points="292,117 300,122 292,127" fill="#dcb348" />
 
-                        <!-- Width Measurement Badge -->
-                        <g transform="translate(180, 108)">
-                            <rect width="100" height="24" rx="12" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
-                            <text id="modalSvgWidthText" x="50" y="16" fill="#dcb348" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
+                        <!-- Width Badge -->
+                        <g transform="translate(175, 105)">
+                            <rect width="110" height="24" rx="12" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
+                            <text id="modalSvgWidthText" x="55" y="16" fill="#dcb348" font-size="11" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
                         </g>
 
-                        <!-- Vertical Height Indicator (Length: Shoulder Collar Seam straight to Hem) -->
-                        <line x1="182" y1="55" x2="182" y2="285" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 3" />
-                        <circle cx="182" cy="55" r="4.5" fill="#ef4444" />
-                        <circle cx="182" cy="285" r="4.5" fill="#ef4444" />
-                        <!-- Arrow tips for height -->
-                        <polygon points="177,63 182,55 187,63" fill="#ef4444" />
-                        <polygon points="177,277 182,285 187,277" fill="#ef4444" />
+                        <!-- Height (Length) Dimension Line -->
+                        <line x1="178" y1="46" x2="178" y2="270" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="6 4" />
+                        <circle cx="178" cy="46" r="4" fill="#f43f5e" />
+                        <circle cx="178" cy="270" r="4" fill="#f43f5e" />
+                        <polygon points="173,54 178,46 183,54" fill="#f43f5e" />
+                        <polygon points="173,262 178,270 183,262" fill="#f43f5e" />
 
-                        <!-- Height Measurement Badge -->
-                        <g transform="translate(48, 155)">
-                            <rect width="105" height="24" rx="12" fill="#0d1017" stroke="#ef4444" stroke-width="1.5" />
-                            <text id="modalSvgHeightText" x="52" y="16" fill="#ef4444" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
+                        <!-- Height Badge -->
+                        <g transform="translate(38, 140)">
+                            <rect width="115" height="24" rx="12" fill="#0d1017" stroke="#f43f5e" stroke-width="1.5" />
+                            <text id="modalSvgHeightText" x="57" y="16" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
                         </g>
                     </svg>
                 </div>
             </div>
 
-            <!-- 3 Clear Measuring Steps -->
+            <!-- Concise Measuring Steps -->
             <div class="measure-steps-list">
                 <div class="measure-step-item">
-                    <div class="step-num-circle">1</div>
-                    <div class="step-text-wrap">
+                    <span class="step-num">1</span>
+                    <div class="step-text">
                         <strong><?php echo t('how_to_measure_step1_title', $lang); ?></strong>
-                        <p><?php echo t('how_to_measure_step1_desc', $lang); ?></p>
+                        <span><?php echo t('how_to_measure_step1_desc', $lang); ?></span>
                     </div>
                 </div>
-
-                <div class="measure-step-item step-width-accent">
-                    <div class="step-num-circle">2</div>
-                    <div class="step-text-wrap">
+                <div class="measure-step-item width-accent">
+                    <span class="step-num">2</span>
+                    <div class="step-text">
                         <strong><?php echo t('how_to_measure_step2_title', $lang); ?></strong>
-                        <p><?php echo t('how_to_measure_step2_desc', $lang); ?></p>
+                        <span><?php echo t('how_to_measure_step2_desc', $lang); ?></span>
                     </div>
                 </div>
-
-                <div class="measure-step-item step-height-accent">
-                    <div class="step-num-circle">3</div>
-                    <div class="step-text-wrap">
+                <div class="measure-step-item height-accent">
+                    <span class="step-num">3</span>
+                    <div class="step-text">
                         <strong><?php echo t('how_to_measure_step3_title', $lang); ?></strong>
-                        <p><?php echo t('how_to_measure_step3_desc', $lang); ?></p>
+                        <span><?php echo t('how_to_measure_step3_desc', $lang); ?></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Complete Dimensions Matrix Reference Table -->
+            <!-- Matrix Reference Table -->
             <?php if (!empty($product['sizes'])): ?>
                 <div class="modal-matrix-container">
-                    <h4 class="modal-matrix-heading">📊 <?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی (کلیک بکە بۆ دەستنیشانکرنێ)' : ($lang === 'ar' ? 'جدول كافة القياسات لهذا المنتج (انقر للتحديد)' : 'Available Sizes for this Product (Click row to select)'); ?></h4>
+                    <div class="matrix-heading-wrap">
+                        <span class="matrix-sparkle">✦</span>
+                        <h4><?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی' : ($lang === 'ar' ? 'جدول مقاسات هذا المنتج' : 'Product Size Matrix'); ?></h4>
+                    </div>
                     <table class="modal-dim-table">
                         <thead>
                             <tr>
                                 <th><?php echo $lang === 'ku' ? 'قیاس' : ($lang === 'ar' ? 'المقاس' : 'Size'); ?></th>
-                                <th><?php echo $lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارتفاع / الطول' : 'Height'); ?></th>
-                                <th><?php echo $lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض / الصدر' : 'Width'); ?></th>
+                                <th><?php echo $lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارتفاع' : 'Height'); ?></th>
+                                <th><?php echo $lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' : 'Width'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -430,7 +429,7 @@ if (!empty($product['colors'])) {
                                 <tr id="modalMatrixRow_<?php echo htmlspecialchars($safeKey); ?>" 
                                     class="clickable-matrix-row"
                                     onclick="selectSizeFromModal('<?php echo htmlspecialchars(addslashes($sz)); ?>')">
-                                    <td><strong class="matrix-sz-pill"><?php echo htmlspecialchars($sz); ?></strong></td>
+                                    <td><span class="matrix-sz-pill"><?php echo htmlspecialchars($sz); ?></span></td>
                                     <td><?php echo htmlspecialchars($hVal); ?></td>
                                     <td><?php echo htmlspecialchars($wVal); ?></td>
                                 </tr>
@@ -443,7 +442,7 @@ if (!empty($product['colors'])) {
 
         <div class="size-guide-modal-footer">
             <button type="button" class="btn-modal-got-it" onclick="closeSizeGuideModal()">
-                ✓ <?php echo $lang === 'ku' ? 'تەمامە / دەستنیشانکرنا قیاسی' : ($lang === 'ar' ? 'حسناً / اختيار المقاس' : 'Got it / Select Size'); ?>
+                <?php echo $lang === 'ku' ? 'تەمامە' : ($lang === 'ar' ? 'تم / اختيار' : 'Confirm & Close'); ?>
             </button>
         </div>
     </div>
