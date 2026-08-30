@@ -306,7 +306,7 @@ if (!empty($product['colors'])) {
 </section>
 
 <!-- Size Guide & How to Measure Modal (Clean, Simple, with Visual Illustration) -->
-<div class="size-guide-modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();" style="display:none;">
+<div class="size-guide-modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();">
     <div class="size-guide-modal-dialog">
         <div class="size-guide-modal-header">
             <div class="modal-title-with-icon">
@@ -583,14 +583,11 @@ function openSizeGuideModal(e) {
     const modal = document.getElementById('sizeGuideModal');
     if (!modal) return;
 
-    // Detach from parent section and append directly to body to avoid clipping or coordinate issues
     if (modal.parentElement !== document.body) {
         document.body.appendChild(modal);
     }
 
     modal.classList.add('open');
-    modal.classList.add('active');
-    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
     // Synchronize diagram and table highlighting
@@ -615,8 +612,6 @@ function closeSizeGuideModal(e) {
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
         modal.classList.remove('open');
-        modal.classList.remove('active');
-        modal.style.display = 'none';
         document.body.style.overflow = '';
     }
 }
