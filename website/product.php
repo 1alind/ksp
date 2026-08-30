@@ -160,8 +160,19 @@ if (!empty($product['colors'])) {
                             <?php endforeach; ?>
                         </div>
 
-                        <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to open slide-over drawer) -->
-                        <div class="size-simple-specs-card" id="sizeSpecsCard" onclick="openSizeGuideDrawer(event)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openSizeGuideDrawer(event); }" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
+<?php
+                        $guideVariant = 'tshirt';
+                        $titleLower = strtolower($titleText . ' ' . ($product['category'] ?? ''));
+                        if (str_contains($titleLower, 'jean') || str_contains($titleLower, 'pant') || str_contains($titleLower, 'trousers')) {
+                            $guideVariant = 'jeans';
+                        } elseif (str_contains($titleLower, 'jacket') || str_contains($titleLower, 'hoodie') || str_contains($titleLower, 'coat') || str_contains($titleLower, 'blazer')) {
+                            $guideVariant = 'jacket';
+                        } elseif (str_contains($titleLower, 'shoe') || str_contains($titleLower, 'sneaker') || str_contains($titleLower, 'boot')) {
+                            $guideVariant = 'shoes';
+                        }
+                        ?>
+                        <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to navigate to standalone size guide page) -->
+                        <a href="size_guide.php?v=<?php echo $guideVariant; ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
                             <div class="size-specs-display">
                                 <div class="size-spec-row">
                                     <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
@@ -178,7 +189,7 @@ if (!empty($product['colors'])) {
                                 <span class="how-text"><?php echo t('how_to_know_size', $lang); ?></span>
                                 <span class="popup-badge-hint" id="sizeGuideChevron">↗</span>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endif; ?>
 

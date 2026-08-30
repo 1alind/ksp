@@ -4569,7 +4569,95 @@ select option {
     gap: 20px;
 }
 
-/* Luxury Slide-Over Size Guide Drawer (Ultimate Boutique Experience with Maximum Breathing Room) */
+
+/* Standalone Size Guide Page Styles */
+.size-guide-tabs-nav {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+}
+
+.size-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: var(--bg-card, #161925);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: var(--text-muted, #9ca3af);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.size-tab-btn:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    color: var(--text-main, #ffffff);
+    transform: translateY(-2px);
+}
+
+.size-tab-btn.active {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+    border-color: #d4af37;
+    color: #d4af37;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.15);
+}
+
+.size-tab-btn .tab-icon {
+    font-size: 18px;
+}
+
+.size-guide-content-card {
+    background: linear-gradient(145deg, #161925 0%, #0d0f18 100%);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 20px;
+    padding: 40px 48px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(212, 175, 55, 0.06);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.guide-variant-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.guide-variant-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-main, #ffffff);
+    margin-bottom: 10px;
+}
+
+.guide-variant-header p {
+    color: var(--text-muted, #9ca3af);
+    font-size: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.guide-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .guide-grid-layout {
+        grid-template-columns: 1fr;
+    }
+    .size-guide-content-card {
+        padding: 24px 20px;
+    }
+}
+
 .size-guide-drawer-overlay {
     position: fixed;
     inset: 0;
