@@ -9,39 +9,6 @@ $featuredProducts = array_filter($products, function($p) {
 });
 ?>
 
-<!-- 1. Hero Showcase Section -->
-<section class="hero-section">
-    <div class="container hero-grid">
-        <div class="hero-text-content">
-            <h1 class="hero-headline">
-                <?php echo htmlspecialchars($settings['hero_headline_' . $lang] ?? t('hero_title', $lang)); ?>
-            </h1>
-            
-            <p class="hero-description">
-                <?php echo htmlspecialchars($settings['hero_subtitle_' . $lang] ?? t('hero_subtitle', $lang)); ?>
-            </p>
-            
-            <div class="hero-cta-buttons">
-                <a href="shop.php" class="btn btn-primary btn-luxury">
-                    <span><?php echo t('hero_shop_now', $lang); ?></span>
-                    <span class="btn-arrow">→</span>
-                </a>
-                <a href="shop.php?cat=perfumes" class="btn btn-secondary">
-                    <span><?php echo t('hero_explore_perfumes', $lang); ?></span>
-                </a>
-            </div>
-        </div>
-
-        <div class="hero-visual-card">
-            <div class="hero-card-inner">
-                <div class="hero-main-image-wrap">
-                    <img src="https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1000&q=80" alt="Luxury Timepiece" class="hero-main-img">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- 2. Categories Showcase Grid -->
 <section class="categories-section">
     <div class="container">
