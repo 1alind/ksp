@@ -922,37 +922,114 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$productDesc\s*;?\s*\?>/g, prodDesc || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$badgeText\)\s*;?\s*\?>/g, prodBadge || "");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['id'\]\s*;?\s*\?>/g, String(prod.id || 1));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(int\)\$product\['id'\]\s*;?\s*\?>/g, String(prod.id || 1));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['category'\]\s*;?\s*\?>/g, prod.category || "clothes");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['category'\]\)\s*;?\s*\?>/g, prod.category || "clothes");
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+ucfirst\(\$product\['category'\]\)\s*;?\s*\?>/g, (prod.category || "Clothes").charAt(0).toUpperCase() + (prod.category || "Clothes").slice(1));
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['price'\],\s*2\)\s*;?\s*\?>/g, prod.price ? prod.price.toFixed(2) : "0.00");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\],\s*2\)\s*;?\s*\?>/g, prod.old_price ? prod.old_price.toFixed(2) : "");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\]\s*-\s*\$product\['price'\],\s*2\)\s*;?\s*\?>/g, prod.old_price && prod.price ? (prod.old_price - prod.price).toFixed(2) : "0.00");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['price'\]\)\s*;?\s*\?>/g, Number(prod.price || 0).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\]\)\s*;?\s*\?>/g, Number(prod.old_price || 0).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\]\s*-\s*\$product\['price'\]\)\s*;?\s*\?>/g, (Number(prod.old_price || 0) - Number(prod.price || 0)).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['price'\],\s*2\)\s*;?\s*\?>/g, Number(prod.price || 0).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\],\s*2\)\s*;?\s*\?>/g, Number(prod.old_price || 0).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$product\['old_price'\]\s*-\s*\$product\['price'\],\s*2\)\s*;?\s*\?>/g, (Number(prod.old_price || 0) - Number(prod.price || 0)).toLocaleString());
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$product\['stock'\]\s*;?\s*\?>/g, String(prod.stock || 25));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['image'\]\)\s*;?\s*\?>/g, prod.image || "");
 
-    const sizes = prod.sizes || ["Standard"];
-    const sizesHtml = sizes.map((sz: string, idx: number) => `
-      <button type="button" class="size-pill ${idx === 0 ? 'active' : ''}" onclick="document.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.getElementById('selectedSizeLabel').innerText = '${sz}';">${sz}</button>
-    `).join("");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['sizes'\]\[0\]\)\s*;?\s*\?>/g, sizes[0] || "");
+    const sizes = prod.sizes || [];
+    let sizeMeasurements = prod.size_measurements || {};
+    if (typeof sizeMeasurements === "string") {
+      try { sizeMeasurements = JSON.parse(sizeMeasurements); } catch (e) { sizeMeasurements = {}; }
+    }
+    if (sizes.length > 0) {
+      sizes.forEach((sz: string) => {
+        if (!sizeMeasurements[sz]) {
+          if (prod.category === "clothes") {
+            if (sz === "S") sizeMeasurements["S"] = "Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm";
+            else if (sz === "M") sizeMeasurements["M"] = "Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm";
+            else if (sz === "L") sizeMeasurements["L"] = "Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm";
+            else if (sz === "XL") sizeMeasurements["XL"] = "Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm";
+            else if (sz === "XXL") sizeMeasurements["XXL"] = "Length: 79 cm • Chest: 120 cm • Shoulder: 52 cm";
+            else sizeMeasurements[sz] = "Length: 72 cm • Chest: 104 cm • Shoulder: 46 cm";
+          } else if (prod.category === "watches") {
+            sizeMeasurements[sz] = `Case Diameter: ${sz} • Thickness: 11.5 mm • Strap Width: 20 mm`;
+          } else {
+            sizeMeasurements[sz] = `Standard edition dimension: ${sz}`;
+          }
+        }
+      });
+    }
+
+    const sizesHtml = sizes.map((sz: string) => {
+      const mText = sizeMeasurements[sz] || "";
+      return `
+        <button type="button" 
+                class="size-pill" 
+                data-size="${sz}"
+                data-measurement="${mText}"
+                onclick="onSizeSelected(this, '${sz}')">
+            ${sz}
+        </button>
+      `;
+    }).join("");
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$i\s*=>\s*\$size\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, sizesHtml);
 
-    const colors = prod.colors || ["Classic"];
-    const colorsHtml = colors.map((col: string, idx: number) => `
-      <button type="button" class="color-badge-pill ${idx === 0 ? 'active' : ''}" onclick="document.querySelectorAll('.color-badge-pill').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.getElementById('selectedColorLabel').innerText = '${col}';">${col}</button>
-    `).join("");
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$product\['colors'\]\[0\]\)\s*;?\s*\?>/g, colors[0] || "");
+    const matrixRowsHtml = sizes.map((sz: string) => {
+      const mRaw = sizeMeasurements[sz] || "";
+      let hVal = "-";
+      let wVal = "-";
+      let otherVal = "-";
+      const mH = mRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^•,]+)/i);
+      const mW = mRaw.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^•,]+)/i);
+      const mO = mRaw.match(/(?:Shoulder|Strap|Sleeve|مل|الكتف):\s*([^•,]+)/i);
+      if (mH) hVal = mH[1].trim();
+      if (mW) wVal = mW[1].trim();
+      if (mO) otherVal = mO[1].trim();
+      if (hVal === "-" && wVal === "-") hVal = mRaw || "Standard fit";
+
+      const safeKey = sz.replace(/[^a-zA-Z0-9]/g, "");
+      return `
+        <tr id="matrixRow_${safeKey}">
+            <td><strong class="matrix-sz-badge">${sz}</strong></td>
+            <td>${hVal}</td>
+            <td>${wVal}</td>
+            <td>${otherVal}</td>
+        </tr>
+      `;
+    }).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$sz\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, matrixRowsHtml);
+
+    const colors = prod.colors || [];
+    const colorImagesMap: Record<string, string> = {};
+    colors.forEach((col: string, i: number) => {
+      colorImagesMap[col] = (prod.images && prod.images[i]) || prod.image || "";
+    });
+
+    const colorsHtml = colors.map((col: string, idx: number) => {
+      const colImg = colorImagesMap[col] || prod.image || "";
+      return `
+        <button type="button" 
+                class="color-badge-pill" 
+                data-color="${col}"
+                data-image="${colImg}"
+                onclick="onColorSelected(this, '${col}', '${colImg}')">
+            <span class="color-dot-indicator"></span>
+            <span class="color-name-text">${col}</span>
+        </button>
+      `;
+    }).join("");
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['colors'\]\s+as\s+\$i\s*=>\s*\$color\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, colorsHtml);
 
     // Gallery Thumbs
     const images = prod.images || [prod.image];
     const thumbsHtml = images.map((img: string, idx: number) => `
-      <button class="thumb-btn ${idx === 0 ? 'active' : ''}" onclick="document.getElementById('mainProductImage').src = '${img}'; document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">
+      <button type="button" class="thumb-btn ${idx === 0 ? 'active' : ''}" data-img="${img}" onclick="switchMainImage('${img}', this)">
         <img src="${img}" alt="Thumbnail">
       </button>
     `).join("");
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['images'\]\s+as\s+\$idx\s*=>\s*\$imgUrl\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, thumbsHtml);
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+json_encode\(\$sizeMeasurements\)\s*;?\s*\?>/g, JSON.stringify(sizeMeasurements));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+json_encode\(\$colorImages\)\s*;?\s*\?>/g, JSON.stringify(colorImagesMap));
 
     // Related Products Loop
     const related = productsList.filter((p: any) => p.category === prod.category && p.id !== prod.id).slice(0, 4);
@@ -968,7 +1045,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
           <div class="product-details">
             <h3 class="product-title"><a href="product.php?id=${item.id}">${tTitle}</a></h3>
             <div class="product-price-row">
-              <span class="current-price">$${Number(item.price).toFixed(2)}</span>
+              <span class="current-price">${Number(item.price || 0).toLocaleString()} IQD</span>
               <button class="btn-add-cart-mini" onclick="window.AuraStore.addToCart(${item.id})">+ ${t('add_to_cart', lang)}</button>
             </div>
           </div>

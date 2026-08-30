@@ -45,8 +45,8 @@
                     image: product.image,
                     category: product.category,
                     quantity: quantity,
-                    size: size || (product.sizes ? product.sizes[0] : ''),
-                    color: color || (product.colors ? product.colors[0] : '')
+                    size: size || '',
+                    color: color || ''
                 });
             }
 
