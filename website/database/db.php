@@ -9,7 +9,7 @@ define('DB_DIR', __DIR__);
 
 // --- MySQL Configuration ---
 // Set these parameters or define environment variables to connect to your MySQL database:
-define('MYSQL_ENABLED', getenv('MYSQL_ENABLED') === 'true' || false);
+define('MYSQL_ENABLED', true);
 define('MYSQL_HOST', getenv('MYSQL_HOST') ?: 'sql104.infinityfree.com');
 define('MYSQL_PORT', getenv('MYSQL_PORT') ?: '3306');
 define('MYSQL_DBNAME', getenv('MYSQL_DBNAME') ?: 'if0_41557722_shop');
@@ -35,13 +35,19 @@ function get_mysql_pdo() {
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_TIMEOUT            => 3,
         ];
         $pdo = new PDO($dsn, MYSQL_USER, MYSQL_PASSWORD, $options);
         return $pdo;
     } catch (Exception $e) {
-        // Fallback to JSON mode if MySQL is unreachable
+        // Fallback to JSON mode if MySQL is unreachable or offline
         return null;
     }
+}
+
+// Auto-run single-file database preparation & table verification
+if (file_exists(__DIR__ . '/init_db.php')) {
+    require_once __DIR__ . '/init_db.php';
 }
 
 // --- JSON File Helpers ---
