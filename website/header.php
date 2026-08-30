@@ -177,7 +177,6 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
                     <a href="shop.php?cat=perfumes" class="mob-link"><?php echo t('nav_perfumes', $lang); ?></a>
                     <a href="shop.php?cat=accessories" class="mob-link"><?php echo t('nav_accessories', $lang); ?></a>
                     <a href="track.php" class="mob-link"><?php echo t('nav_track', $lang); ?></a>
-                    <a href="contact.php" class="mob-link"><?php echo t('nav_contact', $lang); ?></a>
                     <a href="admin.php" class="mob-link admin-highlight"><?php echo t('nav_admin', $lang); ?></a>
                 </nav>
 

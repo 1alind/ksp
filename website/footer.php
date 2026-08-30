@@ -57,9 +57,7 @@
                 </a>
                 <p class="footer-intro"><?php echo htmlspecialchars($settings['store_description_' . $lang] ?? t('footer_about', $lang)); ?></p>
                 <div class="footer-contact-pills">
-                    <div class="contact-pill">📍 <?php echo htmlspecialchars($settings['boutique_location_' . $lang] ?? 'Duhok / Erbil / International'); ?></div>
-                    <div class="contact-pill">📞 <?php echo htmlspecialchars($settings['contact_phone'] ?? '+964 750 123 4567'); ?></div>
-                    <div class="contact-pill">✉️ <?php echo htmlspecialchars($settings['contact_email'] ?? 'concierge@aurastudio.co'); ?></div>
+                    <div class="contact-pill">⚡ <?php echo $lang === 'ku' ? 'فروشگەها سەرهێل ١٠٠٪ • گەهاندنا لەزگین بۆ هەمی باژێرێن عیراقێ و کوردستانێ' : ($lang === 'ar' ? 'متجر إلكتروني حصري 100% • توصيل سريع لجميع محافظات العراق وإقليم كوردستان' : '100% Online Store • Express Delivery Across Iraq & Kurdistan'); ?></div>
                 </div>
             </div>
 
@@ -78,7 +76,6 @@
                 <ul class="footer-nav">
                     <li><a href="shop.php"><?php echo t('nav_shop', $lang); ?></a></li>
                     <li><a href="track.php"><?php echo t('nav_track', $lang); ?></a></li>
-                    <li><a href="contact.php"><?php echo t('nav_contact', $lang); ?></a></li>
                     <li><a href="admin.php"><?php echo t('nav_admin', $lang); ?></a></li>
                 </ul>
             </div>
@@ -131,7 +128,7 @@
             <div class="container footer-bottom-flex">
                 <p>&copy; <?php echo date('Y'); ?> AURA STUDIO. <?php echo t('rights_reserved', $lang); ?></p>
                 <div class="footer-legal-links">
-                    <a href="contact.php">VIP Concierge</a>
+                    <a href="shop.php"><?php echo t('nav_shop', $lang); ?></a>
                     <a href="track.php"><?php echo t('nav_track', $lang); ?></a>
                     <a href="admin.php"><?php echo t('nav_admin', $lang); ?></a>
                 </div>

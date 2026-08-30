@@ -206,7 +206,12 @@ $translations = [
         'issue_cat_courier' => 'Courier / Delivery location discrepancy',
         'issue_details' => 'Detailed Problem Description',
         'issue_submit' => 'Submit Priority Package Claim',
-        'issue_success_msg' => 'Your package claim has been logged under priority review. Our claims officer will resolve this immediately.'
+        'issue_success_msg' => 'Your package claim has been logged under priority review. Our claims officer will resolve this immediately.',
+        'contact_delivered_only_title' => 'VIP Post-Delivery Concierge & Support Desk',
+        'contact_delivered_only_desc' => 'Direct VIP phone, WhatsApp, and claim channels are unlocked because your order is officially marked as Delivered.',
+        'contact_transit_notice_title' => 'Automated Fulfillment in Transit',
+        'contact_transit_notice_desc' => 'Our boutique operates 100% online with automated courier tracking. Contact details and post-delivery claims activate automatically once your shipment status reaches Delivered.',
+        'online_only_explanation' => 'AURA is a 100% digital luxury house with direct express delivery across Iraq and Kurdistan. There is no physical showroom or walk-in branch.'
     ],
     'ar' => [
         'site_title' => 'أورا — متجر الأزياء الفاخرة والساعات والعطور',
@@ -409,7 +414,12 @@ $translations = [
         'issue_cat_courier' => 'مشكلة في التوصيل أو موقع الاستلام',
         'issue_details' => 'شرح تفاصيل المشكلة',
         'issue_submit' => 'إرسال بلاغ مشكلة الطرد',
-        'issue_success_msg' => 'تم استلام بلاغ مشكلة الطرد بنجاح وسيتولى مسؤول الجودة معالجة طلبك فوراً.'
+        'issue_success_msg' => 'تم استلام بلاغ مشكلة الطرد بنجاح وسيتولى مسؤول الجودة معالجة طلبك فوراً.',
+        'contact_delivered_only_title' => 'خدمة الزبائن والدعم المباشر لما بعد الاستلام',
+        'contact_delivered_only_desc' => 'تم تفعيل قنوات التواصل الهاتفي والواتساب وتقديم البلاغات خصيصاً لأن طلبك تم تسليمه بنجاح.',
+        'contact_transit_notice_title' => 'طلبك قيد التجهيز والشحن الآلي',
+        'contact_transit_notice_desc' => 'يعمل متجرنا إلكترونياً بنسبة 100% بنظام شحن ذكي وتتبع فوري. يتم فتح قنوات التواصل وبلاغات الضمان تلقائياً بمجرد وصول الطرد وتسليمه.',
+        'online_only_explanation' => 'أورا هو متجر رقمي متكامل 100% مع توصيل VIP مباشر إلى باب المنزل في جميع محافظات العراق وإقليم كوردستان، بدون فروع أو معارض مادية.'
     ],
     'ku' => [
         'site_title' => 'ئۆرا (AURA) — جلوبەرگێن لوکس، دەمژمێر و بێهنێن شاهانە',
@@ -612,7 +622,12 @@ $translations = [
         'issue_cat_courier' => 'ئاریشە د جهێ وەرگرتنێ یان کۆریەری دا',
         'issue_details' => 'شروڤەکرنا هویرکاریێن ئاریشەیێ',
         'issue_submit' => 'هنارتنا سکالایا بلەز یا پاکێجێ',
-        'issue_success_msg' => 'سکالایا تە ب سەرکەفتیانە گەهشتە بەشێ پشکنینا بلەز و دێ ب زووترین دەم هێتە چارەسەرکرن.'
+        'issue_success_msg' => 'سکالایا تە ب سەرکەفتیانە گەهشتە بەشێ پشکنینا بلەز و دێ ب زووترین دەم هێتە چارەسەرکرن.',
+        'contact_delivered_only_title' => 'بەشێ پشتگیری و پەیوەندیا راستەوخۆ پشتی وەرگرتنێ',
+        'contact_delivered_only_desc' => 'رێکێن پەیوەندیا تەلەفۆن، واتسئەپ و تۆمارکرنا سکالایێ هاتنە ڤەکرن ژبەرکو داخازییا تە ب فەرمی گەهشت.',
+        'contact_transit_notice_title' => 'داخازیا تە د قۆناغا ڤەگوهاستنا ئۆتۆماتیکیدایە',
+        'contact_transit_notice_desc' => 'فرۆشگەها مە ١٠٠٪ ل سەر ئینتەرنێتێ یە ب گەهاندنا بلەز. رێکێن پەیوەندیێ دێ ل ڤێرە چالاک بن هەر دەمێ داخازیا تە بگەهیتە دەستێن تە.',
+        'online_only_explanation' => 'ئۆرا فرۆشگەهەکا لوکس یا ١٠٠٪ سەرهێلە ب گەهاندنا ئێکسەر بۆ بەر دەرگەهێ تە ل هەمی باژێرێن کوردستانێ و عیراقێ، بێ هەبوونا چو پێشانگەه یان لقی فیزیکی.'
     ]
 ];
 

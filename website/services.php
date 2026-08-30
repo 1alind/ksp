@@ -107,7 +107,7 @@ include 'header.php';
     <div class="container cta-container">
         <h2 class="cta-title">Let's create something great together.</h2>
         <p class="cta-desc">Reach out to start designing or developing your next high-performance digital product with Aura Studio.</p>
-        <a href="contact.php" class="btn btn-primary-light">Get in Touch</a>
+        <a href="shop.php" class="btn btn-primary-light">Explore Luxury Collection</a>
     </div>
 </section>
 
