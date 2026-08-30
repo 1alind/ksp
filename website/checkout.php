@@ -364,6 +364,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
             <div style="background:var(--bg-subtle); padding:12px; border-radius:8px; font-size:12px; color:var(--text-muted); margin-bottom:20px;">
                 ⏱️ Waiting for FIB confirmation on your mobile app... (Session active)
+                <div style="margin-top:6px;">
+                    <a href="payment/fake.php?gateway=fib" target="_blank" style="color:var(--accent-gold); text-decoration:underline;">⚡ Open Simulated FIB Banking Server (fake.php)</a>
+                </div>
             </div>
 
             <div style="display:flex; gap:10px;">
@@ -410,6 +413,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
             <div style="font-size:14px; color:var(--text-secondary); margin:12px 0;">
                 Payable: <strong class="text-primary font-bold" id="fpAmountDisplay">0 IQD</strong>
+                <div style="margin-top:4px;">
+                    <a href="payment/fake.php?gateway=fastpay" target="_blank" style="font-size:12px; color:#eab308; text-decoration:underline;">⚡ Open FastPay Simulator (fake.php)</a>
+                </div>
             </div>
 
             <div style="display:flex; gap:10px;">
@@ -452,6 +458,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
             <div style="font-size:14px; color:var(--text-secondary); margin:12px 0;">
                 Payable: <strong class="text-primary font-bold" id="zcAmountDisplay">0 IQD</strong>
+                <div style="margin-top:4px;">
+                    <a href="payment/fake.php?gateway=zaincash" target="_blank" style="font-size:12px; color:#f472b6; text-decoration:underline;">⚡ Open ZainCash Simulator (fake.php)</a>
+                </div>
             </div>
 
             <div style="display:flex; gap:10px;">

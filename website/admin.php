@@ -658,6 +658,24 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
 
         <!-- TAB 3: PAYMENT GATEWAYS & API TOKENS (FIB & ZAINCASH) -->
         <div class="admin-tab-pane" id="adm-gateways">
+            
+            <!-- Universal Simulator & Payment Folder Status Banner -->
+            <div style="background:linear-gradient(135deg, rgba(212,175,55,0.12), rgba(15,23,42,0.9)); border:1px solid rgba(212,175,55,0.35); border-radius:12px; padding:18px 22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                <div>
+                    <span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:11px; font-weight:800; padding:2px 8px; border-radius:4px; text-transform:uppercase;">⚡ Native PHP SDK Architecture</span>
+                    <h3 style="color:#ffffff; font-size:17px; font-weight:800; margin:6px 0 4px;">Modular Payment Folder: <code>/payment/</code> & Universal Bank Simulator</h3>
+                    <p class="text-muted" style="margin:0; font-size:12.5px;">All banking SDKs are organized in <code>/payment/fib/</code>, <code>/payment/zaincash/</code>, <code>/payment/fastpay/</code>, <code>/payment/cod/</code>, and simulated via <code>/payment/fake.php</code>.</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <a href="payment/fake.php?gateway=fib&amount=750000" target="_blank" class="btn btn-primary btn-luxury btn-sm">
+                        ⚡ Launch fake.php Simulator
+                    </a>
+                    <a href="payment/index.php" target="_blank" class="btn btn-outline btn-sm">
+                        📁 View Payment Directory
+                    </a>
+                </div>
+            </div>
+
             <form action="admin.php" method="POST" id="gatewaySettingsForm">
                 <input type="hidden" name="save_gateway_settings" value="1">
 

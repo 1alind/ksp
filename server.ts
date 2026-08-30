@@ -13,24 +13,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const websiteDir = path.join(__dirname, "website");
-const rootDbDir = path.join(__dirname, "database");
 const websiteDbDir = path.join(websiteDir, "database");
 
-// Ensure database directories exist
-if (!fs.existsSync(rootDbDir)) fs.mkdirSync(rootDbDir, { recursive: true });
+// Ensure website database directory exists
 if (!fs.existsSync(websiteDbDir)) fs.mkdirSync(websiteDbDir, { recursive: true });
 
 function getDbFile(filename: string): any {
-  const filePath1 = path.join(websiteDbDir, filename);
-  const filePath2 = path.join(rootDbDir, filename);
-  if (fs.existsSync(filePath1)) {
+  const filePath = path.join(websiteDbDir, filename);
+  if (fs.existsSync(filePath)) {
     try {
-      return JSON.parse(fs.readFileSync(filePath1, "utf-8"));
-    } catch (e) {}
-  }
-  if (fs.existsSync(filePath2)) {
-    try {
-      return JSON.parse(fs.readFileSync(filePath2, "utf-8"));
+      return JSON.parse(fs.readFileSync(filePath, "utf-8"));
     } catch (e) {}
   }
   return {};
@@ -39,7 +31,6 @@ function getDbFile(filename: string): any {
 function saveDbFile(filename: string, data: any) {
   const jsonStr = JSON.stringify(data, null, 4);
   fs.writeFileSync(path.join(websiteDbDir, filename), jsonStr, "utf-8");
-  fs.writeFileSync(path.join(rootDbDir, filename), jsonStr, "utf-8");
 }
 
 // Load translations from translations.php
@@ -1484,6 +1475,171 @@ app.get("/api/store/config", (req, res) => {
       cod: true
     }
   });
+});
+
+// Dedicated Universal Payment Simulator & SDK Routing (/payment/fake.php)
+app.all(["/payment/fake.php", "/website/payment/fake.php", "/payment/fake", "/website/payment/fake"], (req, res) => {
+  const gateway = (req.query.gateway || req.body.gateway || "fib").toString().toLowerCase();
+  const action = (req.query.action || req.body.action || "ui").toString().toLowerCase();
+  const amount = parseFloat((req.query.amount || req.body.amount || 750000).toString());
+  const currency = (req.query.currency || req.body.currency || "IQD").toString().toUpperCase();
+  const orderId = (req.query.order_id || req.body.order_id || "ORD-" + Math.floor(10000 + Math.random() * 90000)).toString();
+  const paymentId = (req.query.payment_id || req.body.payment_id || (gateway.toUpperCase() + "-" + Math.floor(10000 + Math.random() * 90000))).toString();
+
+  const isJson = req.headers.accept?.includes("application/json") || req.headers["content-type"]?.includes("application/json") || req.query.format === "json" || req.body.format === "json" || action !== "ui";
+
+  if (isJson && action !== "ui") {
+    if (action === "fib_token" || action === "token") {
+      return res.json({
+        access_token: "fib_sim_token_" + Math.random().toString(36).substring(2),
+        token_type: "Bearer",
+        expires_in: 86400,
+        scope: "payments:write payments:read accounts:read",
+        status: "success",
+        gateway: "First Iraqi Bank (Simulated Server via fake.php)"
+      });
+    }
+
+    if (action === "fib_create" || action === "create_payment") {
+      const pid = "FIB-" + Math.floor(10000 + Math.random() * 90000);
+      const qrData = `fib://pay?pid=${pid}&amt=${amount}&cur=${currency}&ref=${encodeURIComponent(orderId)}`;
+      return res.json({
+        success: true,
+        payment_id: pid,
+        qr_code: qrData,
+        readable_code: pid,
+        amount: amount,
+        currency: currency,
+        status: "UNPAID",
+        simulator_url: `payment/fake.php?gateway=fib&payment_id=${pid}&amount=${amount}&order_id=${orderId}`
+      });
+    }
+
+    if (action === "zaincash_init" || action === "init") {
+      const txId = "ZC-" + Math.floor(10000000 + Math.random() * 90000000);
+      return res.json({
+        success: true,
+        id: txId,
+        token: "zc_sim_jwt_" + Math.random().toString(36).substring(2),
+        redirect_url: `payment/fake.php?gateway=zaincash&payment_id=${txId}&amount=${amount}&order_id=${orderId}`,
+        status: "pending"
+      });
+    }
+
+    if (action === "fastpay_init") {
+      const txId = "FP-" + Math.floor(100000 + Math.random() * 900000);
+      return res.json({
+        success: true,
+        transaction_id: txId,
+        qr_token: `fastpay://merchant_pay?store=AURA_LUXURY&amount=${amount}&order=${orderId}&tx=${txId}`,
+        simulator_url: `payment/fake.php?gateway=fastpay&payment_id=${txId}&amount=${amount}&order_id=${orderId}`,
+        status: "pending"
+      });
+    }
+
+    return res.json({
+      success: true,
+      payment_id: paymentId,
+      status: "PAID",
+      gateway: gateway,
+      receipt_code: "SIM-REC-" + Math.floor(100000 + Math.random() * 900000)
+    });
+  }
+
+  // Render Interactive Simulator Web UI
+  const themeColors: Record<string, { bg: string; accent: string; title: string }> = {
+    fib: { bg: "#0a192f", accent: "#d4af37", title: "First Iraqi Bank (FIB) — Bank Mobile Authorization" },
+    zaincash: { bg: "#1f132b", accent: "#ec4899", title: "ZainCash (زين كاش) — Electronic Wallet Gateway" },
+    fastpay: { bg: "#111827", accent: "#ffc800", title: "FastPay (فاست باي) — Instant Mobile Wallet Pay" }
+  };
+  const theme = themeColors[gateway] || themeColors.fib;
+
+  const decision = req.body.sim_decision;
+  let resultBanner = "";
+  if (decision === "accept") {
+    resultBanner = `<div style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:14px; border-radius:8px; margin-bottom:18px; text-align:center;">
+      <strong>✓ Payment Approved & Verified (200 OK)</strong>
+      <p style="margin:4px 0 0; font-size:12.5px;">Simulated banking transaction ${paymentId} for ${amount.toLocaleString()} IQD was accepted.</p>
+    </div>`;
+  } else if (decision === "decline") {
+    resultBanner = `<div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:14px; border-radius:8px; margin-bottom:18px; text-align:center;">
+      <strong>✕ Payment Declined (402 Error)</strong>
+      <p style="margin:4px 0 0; font-size:12.5px;">Transaction was cancelled or declined by client PIN authorization.</p>
+    </div>`;
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${theme.title} | Universal Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { background:#0b0d14; color:#f8fafc; font-family:'Plus Jakarta Sans',sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:20px; box-sizing:border-box; }
+    .card { width:100%; max-width:480px; background:#141824; border:1px solid rgba(255,255,255,0.12); border-radius:16px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.6); }
+    .header { background:${theme.bg}; padding:24px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .body { padding:24px; }
+    .tabs { display:flex; gap:6px; margin-bottom:16px; background:rgba(255,255,255,0.04); padding:4px; border-radius:8px; }
+    .tab { flex:1; text-align:center; padding:8px; font-size:12px; font-weight:700; color:#94a3b8; text-decoration:none; border-radius:6px; }
+    .tab.active { background:${theme.bg}; color:#fff; border:1px solid rgba(255,255,255,0.15); }
+    .btn { display:block; width:100%; padding:14px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; border:none; margin-bottom:10px; text-align:center; text-decoration:none; }
+    .btn-green { background:#10b981; color:#fff; }
+    .btn-red { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+    .meta-table { width:100%; font-size:13px; margin:16px 0; }
+    .meta-table td { padding:6px 0; border-bottom:1px dashed rgba(255,255,255,0.08); }
+    .meta-table td:last-child { text-align:right; font-weight:600; color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <span style="font-size:11px; font-weight:800; color:#38bdf8; background:rgba(56,189,248,0.15); padding:3px 8px; border-radius:20px; text-transform:uppercase;">⚡ Decoupled Bank Simulator (fake.php)</span>
+      <h2 style="font-size:18px; margin:10px 0 4px; color:#fff;">${theme.title}</h2>
+      <p style="margin:0; font-size:12px; color:#94a3b8;">Simulating real bank API response and webhook callback</p>
+    </div>
+    <div class="body">
+      <div class="tabs">
+        <a href="fake.php?gateway=fib&amount=${amount}&order_id=${orderId}" class="tab ${gateway === "fib" ? "active" : ""}">FIB</a>
+        <a href="fake.php?gateway=zaincash&amount=${amount}&order_id=${orderId}" class="tab ${gateway === "zaincash" ? "active" : ""}">ZainCash</a>
+        <a href="fake.php?gateway=fastpay&amount=${amount}&order_id=${orderId}" class="tab ${gateway === "fastpay" ? "active" : ""}">FastPay</a>
+      </div>
+
+      ${resultBanner}
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:16px; text-align:center; margin-bottom:16px;">
+        <span style="font-size:12px; color:#94a3b8;">Payable Amount</span>
+        <div style="font-size:26px; font-weight:800; color:${theme.accent}; margin-top:2px;">${amount.toLocaleString()} ${currency}</div>
+      </div>
+
+      <table class="meta-table">
+        <tr><td style="color:#94a3b8;">Order Ref</td><td><code>${orderId}</code></td></tr>
+        <tr><td style="color:#94a3b8;">Simulated ID</td><td><code>${paymentId}</code></td></tr>
+        <tr><td style="color:#94a3b8;">Bank Gateway</td><td>${gateway.toUpperCase()} Gateway</td></tr>
+        <tr><td style="color:#94a3b8;">Protocol</td><td>${gateway === "zaincash" ? "HS256 JWT Token" : (gateway === "fib" ? "OAuth2 Bearer" : "FastPay QR IPN")}</td></tr>
+      </table>
+
+      <form method="POST" action="fake.php?gateway=${gateway}&amount=${amount}&order_id=${orderId}">
+        <button type="submit" name="sim_decision" value="accept" class="btn btn-green">✓ Accept & Authorize Payment (200 OK)</button>
+        <button type="submit" name="sim_decision" value="decline" class="btn btn-red">✕ Decline Payment (402 Failed)</button>
+        <a href="/checkout.php" class="btn" style="background:transparent; color:#94a3b8; font-size:12.5px;">← Back to Checkout</a>
+      </form>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  res.send(html);
+});
+
+// Dedicated Payment Hub page routing
+app.get(["/payment", "/payment/", "/payment/index.php", "/website/payment/index.php"], (req, res) => {
+  const filePath = path.join(websiteDir, "payment", "index.php");
+  if (fs.existsSync(filePath)) {
+    res.send(fs.readFileSync(filePath, "utf-8"));
+  } else {
+    res.send("Payment SDK Directory Active");
+  }
 });
 
 // Route handlers for PHP template pages
