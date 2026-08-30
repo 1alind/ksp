@@ -944,20 +944,32 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       sizes.forEach((sz: string) => {
         if (!sizeMeasurements[sz]) {
           if (prod.category === "clothes") {
-            if (sz === "S") sizeMeasurements["S"] = "Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm";
-            else if (sz === "M") sizeMeasurements["M"] = "Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm";
-            else if (sz === "L") sizeMeasurements["L"] = "Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm";
-            else if (sz === "XL") sizeMeasurements["XL"] = "Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm";
-            else if (sz === "XXL") sizeMeasurements["XXL"] = "Length: 79 cm • Chest: 120 cm • Shoulder: 52 cm";
-            else sizeMeasurements[sz] = "Length: 72 cm • Chest: 104 cm • Shoulder: 46 cm";
+            if (sz === "S") sizeMeasurements["S"] = "Length: 65 cm • Chest: 45 cm • Shoulder: 42 cm";
+            else if (sz === "M") sizeMeasurements["M"] = "Length: 70 cm • Chest: 50 cm • Shoulder: 45 cm";
+            else if (sz === "L") sizeMeasurements["L"] = "Length: 73 cm • Chest: 54 cm • Shoulder: 48 cm";
+            else if (sz === "XL") sizeMeasurements["XL"] = "Length: 76 cm • Chest: 58 cm • Shoulder: 51 cm";
+            else if (sz === "XXL") sizeMeasurements["XXL"] = "Length: 79 cm • Chest: 62 cm • Shoulder: 54 cm";
+            else sizeMeasurements[sz] = "Length: 68 cm • Chest: 48 cm • Shoulder: 44 cm";
           } else if (prod.category === "watches") {
-            sizeMeasurements[sz] = `Case Diameter: ${sz} • Thickness: 11.5 mm • Strap Width: 20 mm`;
+            sizeMeasurements[sz] = `Height: ${sz} • Width: 20 mm`;
           } else {
-            sizeMeasurements[sz] = `Standard edition dimension: ${sz}`;
+            sizeMeasurements[sz] = `Height: 65 cm • Width: 45 cm`;
           }
         }
       });
     }
+
+    const firstSize = sizes[0] || "Standard";
+    const firstSizeRaw = sizeMeasurements[firstSize] || "";
+    let initialHeight = "65cm";
+    let initialWidth = "45cm";
+    const initHMatch = firstSizeRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^•,]+)/i);
+    const initWMatch = firstSizeRaw.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^•,]+)/i);
+    if (initHMatch) initialHeight = initHMatch[1].trim();
+    if (initWMatch) initialWidth = initWMatch[1].trim();
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$initialHeight\)\s*;?\s*\?>/g, initialHeight);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$initialWidth\)\s*;?\s*\?>/g, initialWidth);
 
     const sizesHtml = sizes.map((sz: string) => {
       const mText = sizeMeasurements[sz] || "";
@@ -973,30 +985,24 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     }).join("");
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$i\s*=>\s*\$size\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, sizesHtml);
 
-    const matrixRowsHtml = sizes.map((sz: string) => {
+    const modalMatrixRowsHtml = sizes.map((sz: string) => {
       const mRaw = sizeMeasurements[sz] || "";
-      let hVal = "-";
-      let wVal = "-";
-      let otherVal = "-";
+      let hVal = "65cm";
+      let wVal = "45cm";
       const mH = mRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^•,]+)/i);
       const mW = mRaw.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^•,]+)/i);
-      const mO = mRaw.match(/(?:Shoulder|Strap|Sleeve|مل|الكتف):\s*([^•,]+)/i);
       if (mH) hVal = mH[1].trim();
       if (mW) wVal = mW[1].trim();
-      if (mO) otherVal = mO[1].trim();
-      if (hVal === "-" && wVal === "-") hVal = mRaw || "Standard fit";
-
       const safeKey = sz.replace(/[^a-zA-Z0-9]/g, "");
       return `
-        <tr id="matrixRow_${safeKey}">
-            <td><strong class="matrix-sz-badge">${sz}</strong></td>
+        <tr id="modalMatrixRow_${safeKey}">
+            <td><strong class="matrix-sz-pill">${sz}</strong></td>
             <td>${hVal}</td>
             <td>${wVal}</td>
-            <td>${otherVal}</td>
         </tr>
       `;
     }).join("");
-    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$sz\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, matrixRowsHtml);
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$product\['sizes'\]\s+as\s+\$sz\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, modalMatrixRowsHtml);
 
     const colors = prod.colors || [];
     const colorImagesMap: Record<string, string> = {};

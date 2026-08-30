@@ -34,19 +34,30 @@ if (!empty($product['sizes'])) {
     foreach ($product['sizes'] as $sz) {
         if (!isset($sizeMeasurements[$sz])) {
             if ($product['category'] === 'clothes') {
-                if ($sz === 'S') $sizeMeasurements['S'] = 'Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm';
-                elseif ($sz === 'M') $sizeMeasurements['M'] = 'Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm';
-                elseif ($sz === 'L') $sizeMeasurements['L'] = 'Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm';
-                elseif ($sz === 'XL') $sizeMeasurements['XL'] = 'Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm';
-                elseif ($sz === 'XXL') $sizeMeasurements['XXL'] = 'Length: 79 cm • Chest: 120 cm • Shoulder: 52 cm';
-                else $sizeMeasurements[$sz] = 'Length: 72 cm • Chest: 104 cm • Shoulder: 46 cm';
+                if ($sz === 'S') $sizeMeasurements['S'] = 'Length: 65 cm • Chest: 45 cm • Shoulder: 42 cm';
+                elseif ($sz === 'M') $sizeMeasurements['M'] = 'Length: 70 cm • Chest: 50 cm • Shoulder: 45 cm';
+                elseif ($sz === 'L') $sizeMeasurements['L'] = 'Length: 73 cm • Chest: 54 cm • Shoulder: 48 cm';
+                elseif ($sz === 'XL') $sizeMeasurements['XL'] = 'Length: 76 cm • Chest: 58 cm • Shoulder: 51 cm';
+                elseif ($sz === 'XXL') $sizeMeasurements['XXL'] = 'Length: 79 cm • Chest: 62 cm • Shoulder: 54 cm';
+                else $sizeMeasurements[$sz] = 'Length: 68 cm • Chest: 48 cm • Shoulder: 44 cm';
             } elseif ($product['category'] === 'watches') {
-                $sizeMeasurements[$sz] = 'Case Diameter: ' . $sz . ' • Height/Thickness: 11.5 mm • Width/Strap: 20 mm';
+                $sizeMeasurements[$sz] = 'Height: ' . $sz . ' • Width: 20 mm';
             } else {
-                $sizeMeasurements[$sz] = 'Standard edition dimension: ' . $sz;
+                $sizeMeasurements[$sz] = 'Height: 65 cm • Width: 45 cm';
             }
         }
     }
+}
+
+$firstSize = !empty($product['sizes']) ? $product['sizes'][0] : 'Standard';
+$firstSizeRaw = $sizeMeasurements[$firstSize] ?? '';
+$initialHeight = '65cm';
+$initialWidth = '45cm';
+if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i', $firstSizeRaw, $mH)) {
+    $initialHeight = trim($mH[1]);
+}
+if (preg_match('/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i', $firstSizeRaw, $mW)) {
+    $initialWidth = trim($mW[1]);
 }
 
 // Map each color to its corresponding image
@@ -147,68 +158,23 @@ if (!empty($product['colors'])) {
                             <?php endforeach; ?>
                         </div>
 
-                        <!-- Height & Width Measurements Display Box Directly Under Size -->
-                        <div class="dimension-guide-card" id="sizeMeasurementCard">
-                            <div class="dim-card-header">
-                                <div class="dim-header-title">
-                                    <span class="dim-icon">📐</span>
-                                    <span class="dim-title-text" id="dimensionBoxTitle"><?php echo $lang === 'ku' ? 'پیڤانێن بلندی و پانی یێن قیاسی (سم)' : ($lang === 'ar' ? 'أبعاد الطول والعرض للقطعة (سم)' : 'Dimensions Guide (Height & Width)'); ?></span>
+                        <!-- Simple & Clean Height & Width Display Directly Under Size -->
+                        <div class="size-simple-specs-card" id="sizeSpecsCard">
+                            <div class="size-specs-display">
+                                <div class="size-spec-row">
+                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
+                                    <span class="size-spec-val" id="displaySizeHeight"><?php echo htmlspecialchars($initialHeight); ?></span>
                                 </div>
-                                <button type="button" class="btn-toggle-size-chart" id="toggleSizeChartBtn" onclick="toggleSizeMatrixTable()">
-                                    <?php echo $lang === 'ku' ? '📊 خشتێ هەمی قیاسان' : ($lang === 'ar' ? '📊 جدول كافة القياسات' : '📊 View All Sizes Matrix'); ?>
-                                </button>
-                            </div>
-
-                            <div class="dim-active-display" id="dimActiveDisplay">
-                                <p class="dim-placeholder-notice" id="dimPlaceholderNotice">
-                                    👉 <?php echo $lang === 'ku' ? 'تکایە قیاسەکێ ل سەر ڤە هەلبژێرە دا کو بلندی و پانی و پیڤانێن دروست ببینی.' : ($lang === 'ar' ? 'انقر على أي مقاس أعلاه لعرض أبعاد الطول والعرض والتفاصيل بدقة.' : 'Select a size above to view its specific Height (Length) & Width (Chest) measurements.'); ?>
-                                </p>
-                                <div class="dim-chips-grid" id="dimChipsGrid" style="display:none;">
-                                    <!-- Populated dynamically on size click -->
+                                <div class="size-spec-row">
+                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'width:'); ?></span>
+                                    <span class="size-spec-val" id="displaySizeWidth"><?php echo htmlspecialchars($initialWidth); ?></span>
                                 </div>
                             </div>
-
-                            <!-- Expandable Full Sizing Matrix Table -->
-                            <div class="all-sizes-matrix-wrap" id="allSizesMatrixWrap" style="display:none;">
-                                <table class="dim-matrix-table">
-                                    <thead>
-                                        <tr>
-                                            <th><?php echo $lang === 'ku' ? 'قیاس' : ($lang === 'ar' ? 'المقاس' : 'Size'); ?></th>
-                                            <th><?php echo $lang === 'ku' ? 'بلندی / درێژی' : ($lang === 'ar' ? 'الارتفاع / الطول' : 'Height / Length'); ?></th>
-                                            <th><?php echo $lang === 'ku' ? 'پانی / دەورێ سینگی' : ($lang === 'ar' ? 'العرض / الصدر' : 'Width / Chest'); ?></th>
-                                            <th><?php echo $lang === 'ku' ? 'هویرکاریێن دی' : ($lang === 'ar' ? 'تفاصيل إضافية' : 'Details / Shoulders'); ?></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($product['sizes'] as $sz): 
-                                            $mRaw = $sizeMeasurements[$sz] ?? '';
-                                            $hVal = '-';
-                                            $wVal = '-';
-                                            $otherVal = '-';
-                                            
-                                            if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i', $mRaw, $mH)) {
-                                                $hVal = trim($mH[1]);
-                                            }
-                                            if (preg_match('/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i', $mRaw, $mW)) {
-                                                $wVal = trim($mW[1]);
-                                            }
-                                            if (preg_match('/(?:Shoulder|Strap|Sleeve|مل|الكتف):\s*([^\•,]+)/i', $mRaw, $mO)) {
-                                                $otherVal = trim($mO[1]);
-                                            }
-                                            if ($hVal === '-' && $wVal === '-') {
-                                                $hVal = $mRaw ?: 'Standard fit';
-                                            }
-                                        ?>
-                                            <tr id="matrixRow_<?php echo htmlspecialchars(preg_replace('/[^a-zA-Z0-9]/', '', $sz)); ?>">
-                                                <td><strong class="matrix-sz-badge"><?php echo htmlspecialchars($sz); ?></strong></td>
-                                                <td><?php echo htmlspecialchars($hVal); ?></td>
-                                                <td><?php echo htmlspecialchars($wVal); ?></td>
-                                                <td><?php echo htmlspecialchars($otherVal); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            
+                            <button type="button" class="btn-how-to-know-size" id="btnHowToKnowSize" onclick="openSizeGuideModal()">
+                                <span class="how-icon">📏</span>
+                                <span class="how-text"><?php echo t('how_to_know_size', $lang); ?></span>
+                            </button>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -336,6 +302,146 @@ if (!empty($product['colors'])) {
     </div>
 </section>
 
+<!-- Size Guide & How to Measure Modal (Clean, Simple, with Visual Illustration) -->
+<div class="size-guide-modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();" style="display:none;">
+    <div class="size-guide-modal-dialog">
+        <div class="size-guide-modal-header">
+            <div class="modal-title-with-icon">
+                <span class="modal-ruler-icon">📏</span>
+                <h3><?php echo t('how_to_measure_title', $lang); ?></h3>
+            </div>
+            <button type="button" class="btn-modal-close" onclick="closeSizeGuideModal()" aria-label="Close">✕</button>
+        </div>
+
+        <div class="size-guide-modal-body">
+            <!-- Crisp Vector Diagram Illustration of How Measurements Are Done -->
+            <div class="measure-illustration-box">
+                <div class="measure-svg-wrapper">
+                    <svg class="measure-svg-graphic" viewBox="0 0 460 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--bg-card, #191c28)" />
+                                <stop offset="100%" stop-color="var(--bg-surface, #12141f)" />
+                            </linearGradient>
+                            <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.3" />
+                            </filter>
+                        </defs>
+
+                        <!-- Garment Background Silhouette -->
+                        <path d="M 155 55 L 195 72 Q 230 84 265 72 L 305 55 L 370 115 L 335 150 L 305 125 L 305 285 L 155 285 L 155 125 L 125 150 L 90 115 Z" 
+                              fill="url(#shirtGrad)" stroke="var(--border-color, #2a2e42)" stroke-width="2.5" stroke-linejoin="round" filter="url(#subtleShadow)" />
+                        
+                        <!-- Collar Curved Detail -->
+                        <path d="M 195 72 Q 230 100 265 72" stroke="var(--border-color, #383e58)" stroke-width="2" fill="none" />
+                        <!-- Left sleeve seam -->
+                        <path d="M 155 125 L 190 70" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+                        <!-- Right sleeve seam -->
+                        <path d="M 305 125 L 270 70" stroke="var(--border-color, #2a2e42)" stroke-width="1.5" stroke-dasharray="3 3" />
+
+                        <!-- Horizontal Width Indicator (Chest: Armpit to Armpit) -->
+                        <line x1="155" y1="135" x2="305" y2="135" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="5 3" />
+                        <circle cx="155" cy="135" r="5" fill="#dcb348" />
+                        <circle cx="305" cy="135" r="5" fill="#dcb348" />
+                        <!-- Arrow tips for width -->
+                        <polygon points="163,130 155,135 163,140" fill="#dcb348" />
+                        <polygon points="297,130 305,135 297,140" fill="#dcb348" />
+
+                        <!-- Width Measurement Badge -->
+                        <g transform="translate(180, 115)">
+                            <rect width="100" height="26" rx="13" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
+                            <text x="50" y="17" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: 45cm</text>
+                        </g>
+
+                        <!-- Vertical Height Indicator (Length: Shoulder Collar Seam straight to Hem) -->
+                        <line x1="175" y1="65" x2="175" y2="285" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 3" />
+                        <circle cx="175" cy="65" r="5" fill="#ef4444" />
+                        <circle cx="175" cy="285" r="5" fill="#ef4444" />
+                        <!-- Arrow tips for height -->
+                        <polygon points="170,74 175,65 180,74" fill="#ef4444" />
+                        <polygon points="170,276 175,285 180,276" fill="#ef4444" />
+
+                        <!-- Height Measurement Badge -->
+                        <g transform="translate(45, 160)">
+                            <rect width="105" height="26" rx="13" fill="#0d1017" stroke="#ef4444" stroke-width="1.5" />
+                            <text x="52" y="17" fill="#ef4444" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: 65cm</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3 Clear Measuring Steps -->
+            <div class="measure-steps-list">
+                <div class="measure-step-item">
+                    <div class="step-num-circle">1</div>
+                    <div class="step-text-wrap">
+                        <strong><?php echo t('how_to_measure_step1_title', $lang); ?></strong>
+                        <p><?php echo t('how_to_measure_step1_desc', $lang); ?></p>
+                    </div>
+                </div>
+
+                <div class="measure-step-item step-width-accent">
+                    <div class="step-num-circle">2</div>
+                    <div class="step-text-wrap">
+                        <strong><?php echo t('how_to_measure_step2_title', $lang); ?></strong>
+                        <p><?php echo t('how_to_measure_step2_desc', $lang); ?></p>
+                    </div>
+                </div>
+
+                <div class="measure-step-item step-height-accent">
+                    <div class="step-num-circle">3</div>
+                    <div class="step-text-wrap">
+                        <strong><?php echo t('how_to_measure_step3_title', $lang); ?></strong>
+                        <p><?php echo t('how_to_measure_step3_desc', $lang); ?></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Dimensions Matrix Reference Table -->
+            <?php if (!empty($product['sizes'])): ?>
+                <div class="modal-matrix-container">
+                    <h4 class="modal-matrix-heading">📊 <?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی' : ($lang === 'ar' ? 'جدول كافة القياسات لهذا المنتج' : 'Available Sizes for this Product'); ?></h4>
+                    <table class="modal-dim-table">
+                        <thead>
+                            <tr>
+                                <th><?php echo $lang === 'ku' ? 'قیاس' : ($lang === 'ar' ? 'المقاس' : 'Size'); ?></th>
+                                <th><?php echo $lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارتفاع / الطول' : 'Height'); ?></th>
+                                <th><?php echo $lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض / الصدر' : 'Width'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($product['sizes'] as $sz): 
+                                $mRaw = $sizeMeasurements[$sz] ?? '';
+                                $hVal = '65cm';
+                                $wVal = '45cm';
+                                if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i', $mRaw, $mH)) {
+                                    $hVal = trim($mH[1]);
+                                }
+                                if (preg_match('/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i', $mRaw, $mW)) {
+                                    $wVal = trim($mW[1]);
+                                }
+                                $safeKey = preg_replace('/[^a-zA-Z0-9]/', '', $sz);
+                            ?>
+                                <tr id="modalMatrixRow_<?php echo htmlspecialchars($safeKey); ?>">
+                                    <td><strong class="matrix-sz-pill"><?php echo htmlspecialchars($sz); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($hVal); ?></td>
+                                    <td><?php echo htmlspecialchars($wVal); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="size-guide-modal-footer">
+            <button type="button" class="btn-modal-got-it" onclick="closeSizeGuideModal()">
+                ✓ <?php echo $lang === 'ku' ? 'تەمامە / دەستنیشانکرنا قیاسی' : ($lang === 'ar' ? 'حسناً / اختيار المقاس' : 'Got it / Select Size'); ?>
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 window.selectedProductSize = null;
 window.selectedProductColor = null;
@@ -389,102 +495,49 @@ function onSizeSelected(btn, sizeName) {
         sizeGroup.classList.remove('option-error-shake');
     }
 
-    // 4. Update Height & Width Measurement box dynamically
-    updateDimensionDisplay(sizeName, btn.getAttribute('data-measurement') || '');
+    // 4. Update simple Height: ... Width: ... lines
+    const mStr = btn.getAttribute('data-measurement') || '';
+    let height = '65cm';
+    let width = '45cm';
 
-    // Highlight row in matrix table if open
-    document.querySelectorAll('.dim-matrix-table tbody tr').forEach(r => r.classList.remove('highlighted'));
+    const lenMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i);
+    const widthMatch = mStr.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i);
+    if (lenMatch) height = lenMatch[1].trim();
+    if (widthMatch) width = widthMatch[1].trim();
+
+    const hEl = document.getElementById('displaySizeHeight');
+    const wEl = document.getElementById('displaySizeWidth');
+    if (hEl) {
+        hEl.innerText = height;
+        hEl.classList.add('spec-highlight-flash');
+        setTimeout(() => hEl.classList.remove('spec-highlight-flash'), 400);
+    }
+    if (wEl) {
+        wEl.innerText = width;
+        wEl.classList.add('spec-highlight-flash');
+        setTimeout(() => wEl.classList.remove('spec-highlight-flash'), 400);
+    }
+
+    // Highlight row in modal matrix table
+    document.querySelectorAll('.modal-dim-table tbody tr').forEach(r => r.classList.remove('highlighted'));
     const safeKey = sizeName.replace(/[^a-zA-Z0-9]/g, '');
-    const targetRow = document.getElementById('matrixRow_' + safeKey);
+    const targetRow = document.getElementById('modalMatrixRow_' + safeKey);
     if (targetRow) targetRow.classList.add('highlighted');
 }
 
-function updateDimensionDisplay(sizeName, measurementStr) {
-    const placeholder = document.getElementById('dimPlaceholderNotice');
-    const chipsGrid = document.getElementById('dimChipsGrid');
-    if (!chipsGrid) return;
-
-    if (placeholder) placeholder.style.display = 'none';
-    chipsGrid.style.display = 'grid';
-
-    let height = '';
-    let width = '';
-    let extra = '';
-
-    // RegEx patterns to extract height / length / width / chest
-    const lenMatch = measurementStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i);
-    const widthMatch = measurementStr.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i);
-    const extraMatch = measurementStr.match(/(?:Shoulder|Strap|Sleeve|مل|الكتف):\s*([^\•,]+)/i);
-
-    if (lenMatch) height = lenMatch[1].trim();
-    if (widthMatch) width = widthMatch[1].trim();
-    if (extraMatch) extra = extraMatch[1].trim();
-
-    if (!height && !width) {
-        height = measurementStr || 'Tailored luxury fit';
+function openSizeGuideModal() {
+    const modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
-
-    const isKu = window.AURA_LANG === 'ku';
-    const isAr = window.AURA_LANG === 'ar';
-
-    const lblHeight = isKu ? 'بلندی / درێژی' : (isAr ? 'الارتفاع / الطول' : 'Height / Length');
-    const lblWidth = isKu ? 'پانی / دەورێ سینگی' : (isAr ? 'العرض / الصدر' : 'Width / Chest');
-    const lblExtra = isKu ? 'مل / هویرکاری' : (isAr ? 'الكتف / التفاصيل' : 'Shoulders / Details');
-    const lblActiveSz = isKu ? 'قیاسێ هەلبژارتی:' : (isAr ? 'المقاس المختار:' : 'Selected Size:');
-
-    let html = `
-        <div class="dim-chip dim-chip-size">
-            <span class="dim-chip-lbl">${lblActiveSz}</span>
-            <span class="dim-chip-val font-bold highlight">${sizeName}</span>
-        </div>
-    `;
-
-    if (height) {
-        html += `
-            <div class="dim-chip">
-                <span class="dim-chip-lbl">📐 ${lblHeight}</span>
-                <span class="dim-chip-val font-bold">${height}</span>
-            </div>
-        `;
-    }
-
-    if (width) {
-        html += `
-            <div class="dim-chip">
-                <span class="dim-chip-lbl">↔️ ${lblWidth}</span>
-                <span class="dim-chip-val font-bold">${width}</span>
-            </div>
-        `;
-    }
-
-    if (extra) {
-        html += `
-            <div class="dim-chip">
-                <span class="dim-chip-lbl">📏 ${lblExtra}</span>
-                <span class="dim-chip-val font-bold">${extra}</span>
-            </div>
-        `;
-    }
-
-    chipsGrid.innerHTML = html;
 }
 
-function toggleSizeMatrixTable() {
-    const wrap = document.getElementById('allSizesMatrixWrap');
-    const btn = document.getElementById('toggleSizeChartBtn');
-    if (!wrap) return;
-
-    const isHidden = wrap.style.display === 'none' || wrap.style.display === '';
-    wrap.style.display = isHidden ? 'block' : 'none';
-    
-    if (btn) {
-        const isKu = window.AURA_LANG === 'ku';
-        const isAr = window.AURA_LANG === 'ar';
-        if (isHidden) {
-            btn.innerText = isKu ? '✕ ڤەشارتنا خشتەی' : (isAr ? '✕ إخفاء الجدول' : '✕ Hide Sizing Matrix');
-        } else {
-            btn.innerText = isKu ? '📊 خشتێ هەمی قیاسان' : (isAr ? '📊 جدول كافة القياسات' : '📊 View All Sizes Matrix');
-        }
+function closeSizeGuideModal() {
+    const modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
     }
 }
 
