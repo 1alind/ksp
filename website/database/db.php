@@ -10,11 +10,11 @@ define('DB_DIR', __DIR__);
 // --- MySQL Configuration ---
 // Set these parameters or define environment variables to connect to your MySQL database:
 define('MYSQL_ENABLED', getenv('MYSQL_ENABLED') === 'true' || false);
-define('MYSQL_HOST', getenv('MYSQL_HOST') ?: '127.0.0.1');
+define('MYSQL_HOST', getenv('MYSQL_HOST') ?: 'sql104.infinityfree.com');
 define('MYSQL_PORT', getenv('MYSQL_PORT') ?: '3306');
-define('MYSQL_DBNAME', getenv('MYSQL_DBNAME') ?: 'aura_store');
-define('MYSQL_USER', getenv('MYSQL_USER') ?: 'root');
-define('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: '');
+define('MYSQL_DBNAME', getenv('MYSQL_DBNAME') ?: 'if0_41557722_shop');
+define('MYSQL_USER', getenv('MYSQL_USER') ?: 'if0_41557722');
+define('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: 'sjBEcko70k');
 
 /**
  * Get MySQL PDO Connection
