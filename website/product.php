@@ -306,8 +306,8 @@ if (!empty($product['colors'])) {
 </section>
 
 <!-- Size Guide & How to Measure Modal (Clean, Simple, with Visual Illustration) -->
-<div class="size-guide-modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();">
-    <div class="size-guide-modal-dialog">
+<div class="modal-overlay" id="sizeGuideModal" onclick="if(event.target === this) closeSizeGuideModal();">
+    <div class="modal-dialog" style="max-width: 580px;">
         <div class="size-guide-modal-header">
             <div class="modal-title-with-icon">
                 <span class="modal-ruler-icon">📏</span>
