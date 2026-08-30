@@ -1,5 +1,5 @@
 <?php
-// Session and Language Initialization
+// Session and Langkkuage Initialization
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
