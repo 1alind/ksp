@@ -33,39 +33,31 @@ function saveDbFile(filename: string, data: any) {
   fs.writeFileSync(path.join(websiteDbDir, filename), jsonStr, "utf-8");
 }
 
-// Load translations from translations.php
+// Load translations from database/translations.json
 function loadTranslations(): Record<string, Record<string, string>> {
-  const trFile = path.join(websiteDir, "translations.php");
-  const dict: Record<string, Record<string, string>> = { en: {}, ar: {}, ku: {} };
+  const trFile = path.join(websiteDbDir, "translations.json");
   if (fs.existsSync(trFile)) {
-    const raw = fs.readFileSync(trFile, "utf-8");
-    let currentLang = "";
-    const lines = raw.split("\n");
-    for (const line of lines) {
-      const langMatch = line.match(/'(en|ar|ku)'\s*=>\s*\[/);
-      if (langMatch) {
-        currentLang = langMatch[1];
-        continue;
-      }
-      if (currentLang) {
-        const itemMatch = line.match(/'([a-zA-Z0-9_]+)'\s*=>\s*'([^']*)'/);
-        if (itemMatch) {
-          dict[currentLang][itemMatch[1]] = itemMatch[2];
-        }
-      }
+    try {
+      const data = JSON.parse(fs.readFileSync(trFile, "utf-8"));
+      return {
+        en: data.en || {},
+        ar: data.ar || {},
+        ku: data.ku || {}
+      };
+    } catch (e) {
+      console.error("Error reading translations.json:", e);
     }
   }
-  return dict;
+  return { en: {}, ar: {}, ku: {} };
 }
 
-const translations = loadTranslations();
-
 function t(key: string, lang: string): string {
-  if (translations[lang] && translations[lang][key]) {
-    return translations[lang][key];
+  const dict = loadTranslations();
+  if (dict[lang] && dict[lang][key]) {
+    return dict[lang][key];
   }
-  if (translations["en"] && translations["en"][key]) {
-    return translations["en"][key];
+  if (dict["en"] && dict["en"][key]) {
+    return dict["en"][key];
   }
   return key;
 }
@@ -283,7 +275,12 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
 `;
 }
 
-function renderFooter(lang: string): string {
+function renderFooter(lang: string, theme: string = "dark"): string {
+  const trDict = loadTranslations();
+  const langTranslations = trDict[lang] || trDict["en"] || {};
+  const productsDb = getDbFile("products.json");
+  const allProducts = productsDb.products || [];
+
   return `
     </main>
 
@@ -406,6 +403,14 @@ function renderFooter(lang: string): string {
             </div>
         </div>
     </div>
+
+    <!-- Pass JSON Data to Client Scripts for Instant Filtering & Cart Operations -->
+    <script>
+        window.AURA_LANG = ${JSON.stringify(lang)};
+        window.AURA_THEME = ${JSON.stringify(theme)};
+        window.AURA_TRANSLATIONS = ${JSON.stringify(langTranslations)};
+        window.AURA_PRODUCTS = ${JSON.stringify(allProducts)};
+    </script>
 
     <!-- Application Core Script -->
     <script src="script.js"></script>
@@ -1216,7 +1221,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   bodyContent = bodyContent.replace(/^\s*\?>/g, "");
 
   const headerHtml = renderHeader(lang, theme, activePage, pageTitle);
-  const footerHtml = renderFooter(lang);
+  const footerHtml = renderFooter(lang, theme);
 
   return headerHtml + "\n" + bodyContent + "\n" + footerHtml;
 }
