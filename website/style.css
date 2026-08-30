@@ -4283,23 +4283,23 @@ select option {
 .luxury-size-modal .size-guide-modal-header {
     background: rgba(18, 21, 31, 0.95);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 20px 24px;
+    padding: 24px 28px;
 }
 
 .luxury-size-modal .modal-title-with-icon h3 {
-    font-size: 16.5px;
+    font-size: 17px;
     letter-spacing: 0.3px;
     font-weight: 700;
     color: #f3f4f6;
 }
 
 .luxury-size-modal .modal-ruler-icon {
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .luxury-size-modal .btn-modal-close {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: #9ca3af;
@@ -4319,31 +4319,31 @@ select option {
 }
 
 .luxury-size-modal .size-guide-modal-body {
-    padding: 24px 26px;
-    gap: 20px;
+    padding: 28px 32px;
+    gap: 24px;
 }
 
 .luxury-size-modal .measure-illustration-box {
     background: rgba(13, 15, 24, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 16px;
+    padding: 20px;
 }
 
 .measure-steps-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
 }
 
 .measure-step-item {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
-    padding: 12px 16px;
-    border-radius: 10px;
+    padding: 16px 20px;
+    border-radius: 12px;
     transition: all 0.2s ease;
 }
 
@@ -4361,13 +4361,13 @@ select option {
 }
 
 .step-num {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     background: rgba(212, 175, 55, 0.15);
     color: #dcb348;
     font-weight: 800;
-    font-size: 11.5px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4378,42 +4378,42 @@ select option {
 .step-text {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
 }
 
 .step-text strong {
-    font-size: 13.5px;
+    font-size: 14px;
     color: #f3f4f6;
     font-weight: 600;
 }
 
 .step-text span {
-    font-size: 12px;
+    font-size: 12.5px;
     color: #9ca3af;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .modal-matrix-container {
     background: rgba(13, 15, 24, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 16px 18px;
+    padding: 20px 24px;
 }
 
 .matrix-heading-wrap {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 14px;
 }
 
 .matrix-sparkle {
     color: #dcb348;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .matrix-heading-wrap h4 {
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 700;
     color: #f3f4f6;
     margin: 0;
@@ -4433,7 +4433,7 @@ select option {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -4443,7 +4443,7 @@ select option {
 }
 
 .luxury-size-modal .modal-dim-table td {
-    padding: 11px 14px;
+    padding: 13px 16px;
     font-size: 13px;
     color: #e5e7eb;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -4472,7 +4472,7 @@ select option {
 .luxury-size-modal .size-guide-modal-footer {
     background: rgba(18, 21, 31, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 16px 24px;
+    padding: 20px 28px;
 }
 
 .luxury-size-modal .btn-modal-got-it {
