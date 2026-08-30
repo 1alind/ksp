@@ -4272,4 +4272,24 @@ select option {
     box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
 }
 
+/* RTL Adjustments for Size Guide Modal */
+[dir="rtl"] .size-guide-modal-dialog {
+    text-align: right;
+}
+
+[dir="rtl"] .modal-dim-table {
+    text-align: right;
+}
+
+[dir="rtl"] .measure-step-item.step-width-accent {
+    border-inline-start: none;
+    border-inline-end: 3px solid #dcb348;
+}
+
+[dir="rtl"] .measure-step-item.step-height-accent {
+    border-inline-start: none;
+    border-inline-end: 3px solid #ef4444;
+}
+
+
 
