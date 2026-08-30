@@ -32,19 +32,19 @@ if (!is_array($sizeMeasurements)) {
 }
 if (!empty($product['sizes'])) {
     foreach ($product['sizes'] as $sz) {
-        if (!isset($sizeMeasurements[$sz])) {
-            if ($product['category'] === 'clothes') {
-                if ($sz === 'S') $sizeMeasurements['S'] = 'Length: 65 cm • Chest: 45 cm • Shoulder: 42 cm';
-                elseif ($sz === 'M') $sizeMeasurements['M'] = 'Length: 70 cm • Chest: 50 cm • Shoulder: 45 cm';
-                elseif ($sz === 'L') $sizeMeasurements['L'] = 'Length: 73 cm • Chest: 54 cm • Shoulder: 48 cm';
-                elseif ($sz === 'XL') $sizeMeasurements['XL'] = 'Length: 76 cm • Chest: 58 cm • Shoulder: 51 cm';
-                elseif ($sz === 'XXL') $sizeMeasurements['XXL'] = 'Length: 79 cm • Chest: 62 cm • Shoulder: 54 cm';
-                else $sizeMeasurements[$sz] = 'Length: 68 cm • Chest: 48 cm • Shoulder: 44 cm';
-            } elseif ($product['category'] === 'watches') {
-                $sizeMeasurements[$sz] = 'Height: ' . $sz . ' • Width: 20 mm';
-            } else {
-                $sizeMeasurements[$sz] = 'Height: 65 cm • Width: 45 cm';
-            }
+        $cleanSz = strtoupper(trim($sz));
+        if ($product['category'] === 'clothes') {
+            if ($cleanSz === 'S') $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
+            elseif ($cleanSz === 'M') $sizeMeasurements[$sz] = 'Height: 70cm • Width: 50cm';
+            elseif ($cleanSz === 'L') $sizeMeasurements[$sz] = 'Height: 73cm • Width: 54cm';
+            elseif ($cleanSz === 'XL') $sizeMeasurements[$sz] = 'Height: 76cm • Width: 58cm';
+            elseif ($cleanSz === 'XXL' || $cleanSz === '2XL') $sizeMeasurements[$sz] = 'Height: 79cm • Width: 62cm';
+            elseif ($cleanSz === 'XS') $sizeMeasurements[$sz] = 'Height: 62cm • Width: 42cm';
+            else $sizeMeasurements[$sz] = 'Height: 68cm • Width: 48cm';
+        } elseif ($product['category'] === 'watches') {
+            $sizeMeasurements[$sz] = 'Height: ' . $sz . ' • Width: 20mm';
+        } else {
+            $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
         }
     }
 }
@@ -53,11 +53,13 @@ $firstSize = !empty($product['sizes']) ? $product['sizes'][0] : 'Standard';
 $firstSizeRaw = $sizeMeasurements[$firstSize] ?? '';
 $initialHeight = '65cm';
 $initialWidth = '45cm';
-if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i', $firstSizeRaw, $mH)) {
-    $initialHeight = trim($mH[1]);
+if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i', $firstSizeRaw, $mH)) {
+    $initialHeight = str_replace(' ', '', strtolower(trim($mH[1])));
+    if (!str_ends_with($initialHeight, 'cm') && !str_ends_with($initialHeight, 'mm')) $initialHeight .= 'cm';
 }
-if (preg_match('/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i', $firstSizeRaw, $mW)) {
-    $initialWidth = trim($mW[1]);
+if (preg_match('/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i', $firstSizeRaw, $mW)) {
+    $initialWidth = str_replace(' ', '', strtolower(trim($mW[1])));
+    if (!str_ends_with($initialWidth, 'cm') && !str_ends_with($initialWidth, 'mm')) $initialWidth .= 'cm';
 }
 
 // Map each color to its corresponding image
@@ -473,6 +475,38 @@ function switchMainImage(imgUrl, thumbBtn) {
     }
 }
 
+function extractDimensionValues(mStr, sizeName) {
+    let height = '65cm';
+    let width = '45cm';
+
+    if (mStr) {
+        const hMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+        if (hMatch) {
+            height = hMatch[1].replace(/\s+/g, '').toLowerCase();
+            if (!height.endsWith('cm') && !height.endsWith('mm')) height += 'cm';
+        }
+
+        const wMatch = mStr.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+        if (wMatch) {
+            width = wMatch[1].replace(/\s+/g, '').toLowerCase();
+            if (!width.endsWith('cm') && !width.endsWith('mm')) width += 'cm';
+        }
+    }
+
+    if (sizeName) {
+        const sz = String(sizeName).toUpperCase().trim();
+        if (sz === 'S') { height = '65cm'; width = '45cm'; }
+        else if (sz === 'M') { height = '70cm'; width = '50cm'; }
+        else if (sz === 'L') { height = '73cm'; width = '54cm'; }
+        else if (sz === 'XL') { height = '76cm'; width = '58cm'; }
+        else if (sz === 'XXL' || sz === '2XL') { height = '79cm'; width = '62cm'; }
+        else if (sz === 'XS') { height = '62cm'; width = '42cm'; }
+        else if (sz.includes('MM')) { height = sz.toLowerCase(); width = '20mm'; }
+    }
+
+    return { height, width };
+}
+
 function onSizeSelected(btn, sizeName) {
     // 1. Remove active state from all size buttons
     document.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
@@ -497,23 +531,17 @@ function onSizeSelected(btn, sizeName) {
 
     // 4. Update simple Height: ... Width: ... lines
     const mStr = btn.getAttribute('data-measurement') || '';
-    let height = '65cm';
-    let width = '45cm';
-
-    const lenMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i);
-    const widthMatch = mStr.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i);
-    if (lenMatch) height = lenMatch[1].trim();
-    if (widthMatch) width = widthMatch[1].trim();
+    const dims = extractDimensionValues(mStr, sizeName);
 
     const hEl = document.getElementById('displaySizeHeight');
     const wEl = document.getElementById('displaySizeWidth');
     if (hEl) {
-        hEl.innerText = height;
+        hEl.innerText = dims.height;
         hEl.classList.add('spec-highlight-flash');
         setTimeout(() => hEl.classList.remove('spec-highlight-flash'), 400);
     }
     if (wEl) {
-        wEl.innerText = width;
+        wEl.innerText = dims.width;
         wEl.classList.add('spec-highlight-flash');
         setTimeout(() => wEl.classList.remove('spec-highlight-flash'), 400);
     }
@@ -525,7 +553,8 @@ function onSizeSelected(btn, sizeName) {
     if (targetRow) targetRow.classList.add('highlighted');
 }
 
-function openSizeGuideModal() {
+function openSizeGuideModal(e) {
+    if (e && e.preventDefault) e.preventDefault();
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
         modal.style.display = 'flex';
@@ -533,7 +562,8 @@ function openSizeGuideModal() {
     }
 }
 
-function closeSizeGuideModal() {
+function closeSizeGuideModal(e) {
+    if (e && e.preventDefault) e.preventDefault();
     const modal = document.getElementById('sizeGuideModal');
     if (modal) {
         modal.style.display = 'none';

@@ -942,19 +942,19 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     }
     if (sizes.length > 0) {
       sizes.forEach((sz: string) => {
-        if (!sizeMeasurements[sz]) {
-          if (prod.category === "clothes") {
-            if (sz === "S") sizeMeasurements["S"] = "Length: 65 cm • Chest: 45 cm • Shoulder: 42 cm";
-            else if (sz === "M") sizeMeasurements["M"] = "Length: 70 cm • Chest: 50 cm • Shoulder: 45 cm";
-            else if (sz === "L") sizeMeasurements["L"] = "Length: 73 cm • Chest: 54 cm • Shoulder: 48 cm";
-            else if (sz === "XL") sizeMeasurements["XL"] = "Length: 76 cm • Chest: 58 cm • Shoulder: 51 cm";
-            else if (sz === "XXL") sizeMeasurements["XXL"] = "Length: 79 cm • Chest: 62 cm • Shoulder: 54 cm";
-            else sizeMeasurements[sz] = "Length: 68 cm • Chest: 48 cm • Shoulder: 44 cm";
-          } else if (prod.category === "watches") {
-            sizeMeasurements[sz] = `Height: ${sz} • Width: 20 mm`;
-          } else {
-            sizeMeasurements[sz] = `Height: 65 cm • Width: 45 cm`;
-          }
+        const cleanSz = sz.toUpperCase().trim();
+        if (prod.category === "clothes") {
+          if (cleanSz === "S") sizeMeasurements[sz] = "Height: 65cm • Width: 45cm";
+          else if (cleanSz === "M") sizeMeasurements[sz] = "Height: 70cm • Width: 50cm";
+          else if (cleanSz === "L") sizeMeasurements[sz] = "Height: 73cm • Width: 54cm";
+          else if (cleanSz === "XL") sizeMeasurements[sz] = "Height: 76cm • Width: 58cm";
+          else if (cleanSz === "XXL" || cleanSz === "2XL") sizeMeasurements[sz] = "Height: 79cm • Width: 62cm";
+          else if (cleanSz === "XS") sizeMeasurements[sz] = "Height: 62cm • Width: 42cm";
+          else sizeMeasurements[sz] = "Height: 68cm • Width: 48cm";
+        } else if (prod.category === "watches") {
+          sizeMeasurements[sz] = `Height: ${sz} • Width: 20mm`;
+        } else {
+          sizeMeasurements[sz] = `Height: 65cm • Width: 45cm`;
         }
       });
     }
@@ -963,10 +963,16 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     const firstSizeRaw = sizeMeasurements[firstSize] || "";
     let initialHeight = "65cm";
     let initialWidth = "45cm";
-    const initHMatch = firstSizeRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^•,]+)/i);
-    const initWMatch = firstSizeRaw.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^•,]+)/i);
-    if (initHMatch) initialHeight = initHMatch[1].trim();
-    if (initWMatch) initialWidth = initWMatch[1].trim();
+    const initHMatch = firstSizeRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+    const initWMatch = firstSizeRaw.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+    if (initHMatch) {
+      initialHeight = initHMatch[1].replace(/\s+/g, "").toLowerCase();
+      if (!initialHeight.endsWith("cm") && !initialHeight.endsWith("mm")) initialHeight += "cm";
+    }
+    if (initWMatch) {
+      initialWidth = initWMatch[1].replace(/\s+/g, "").toLowerCase();
+      if (!initialWidth.endsWith("cm") && !initialWidth.endsWith("mm")) initialWidth += "cm";
+    }
 
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$initialHeight\)\s*;?\s*\?>/g, initialHeight);
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$initialWidth\)\s*;?\s*\?>/g, initialWidth);
@@ -989,10 +995,16 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       const mRaw = sizeMeasurements[sz] || "";
       let hVal = "65cm";
       let wVal = "45cm";
-      const mH = mRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^•,]+)/i);
-      const mW = mRaw.match(/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^•,]+)/i);
-      if (mH) hVal = mH[1].trim();
-      if (mW) wVal = mW[1].trim();
+      const mH = mRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+      const mW = mRaw.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+      if (mH) {
+        hVal = mH[1].replace(/\s+/g, "").toLowerCase();
+        if (!hVal.endsWith("cm") && !hVal.endsWith("mm")) hVal += "cm";
+      }
+      if (mW) {
+        wVal = mW[1].replace(/\s+/g, "").toLowerCase();
+        if (!wVal.endsWith("cm") && !wVal.endsWith("mm")) wVal += "cm";
+      }
       const safeKey = sz.replace(/[^a-zA-Z0-9]/g, "");
       return `
         <tr id="modalMatrixRow_${safeKey}">

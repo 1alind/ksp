@@ -33,10 +33,10 @@ function get_seed_products_catalog() {
             'colors' => ['Midnight Blue', 'Obsidian Black', 'Burgundy'],
             'sizes' => ['S', 'M', 'L', 'XL'],
             'size_measurements' => [
-                'S' => 'Length: 68 cm • Chest: 96 cm • Shoulder: 44 cm • Sleeve: 62 cm',
-                'M' => 'Length: 70 cm • Chest: 102 cm • Shoulder: 46 cm • Sleeve: 63 cm',
-                'L' => 'Length: 73 cm • Chest: 108 cm • Shoulder: 48 cm • Sleeve: 65 cm',
-                'XL' => 'Length: 76 cm • Chest: 114 cm • Shoulder: 50 cm • Sleeve: 66 cm'
+                'S' => 'Height: 65cm • Width: 45cm',
+                'M' => 'Height: 70cm • Width: 50cm',
+                'L' => 'Height: 73cm • Width: 54cm',
+                'XL' => 'Height: 76cm • Width: 58cm'
             ],
             'description' => [
                 'en' => 'Impeccably tailored luxury velvet blazer designed with silk lapels and custom metal buttons. Perfect for evening galas, high-profile events, and formal dinners.',
