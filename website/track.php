@@ -105,8 +105,30 @@ if (!empty($searchOrderId)) {
                     <button type="submit" class="btn btn-primary btn-luxury btn-lg"><?php echo t('track_button', $lang); ?></button>
                 </div>
             </form>
-            <div class="sample-ids-hint">
-                <small>Try testing with sample orders: <code>ORD-84920</code> (FIB / Out for Delivery) or <code>ORD-73195</code> (ZainCash / Delivered) or <code>ORD-61028</code> (Baghdad / In Transit)</small>
+            <div class="sample-ids-hint" style="margin-top:14px;">
+                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px; font-weight:700;">
+                    <?php echo $lang === 'ku' ? 'تاقیکرنا داخوازیێن نموونەیی ل دیڤ قۆناغێن گەهاندنێ:' : ($lang === 'ar' ? 'جرّب تتبع طلبات تجريبية لجميع الحالات:' : 'Quick Test by Status Category:'); ?>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+                    <a href="track.php?order_id=ORD-10942" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        ⏳ <strong>Pending:</strong> ORD-10942
+                    </a>
+                    <a href="track.php?order_id=ORD-25814" class="badge-tag" style="background:rgba(59,130,246,0.15); color:#3b82f6; border:1px solid rgba(59,130,246,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        📦 <strong>Processing:</strong> ORD-25814
+                    </a>
+                    <a href="track.php?order_id=ORD-61028" class="badge-tag" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        🚚 <strong>Shipped:</strong> ORD-61028
+                    </a>
+                    <a href="track.php?order_id=ORD-84920" class="badge-tag" style="background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        🛵 <strong>Out for Delivery:</strong> ORD-84920
+                    </a>
+                    <a href="track.php?order_id=ORD-73195" class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        ✅ <strong>Delivered:</strong> ORD-73195
+                    </a>
+                    <a href="track.php?order_id=ORD-40291" class="badge-tag" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        🛑 <strong>Cancelled:</strong> ORD-40291
+                    </a>
+                </div>
             </div>
         </div>
 
