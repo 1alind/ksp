@@ -345,16 +345,16 @@ if (!empty($product['colors'])) {
                         <path d="M 300 110 L 270 55" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
 
                         <!-- Width (Chest) Dimension Line -->
-                        <line x1="160" y1="122" x2="300" y2="122" stroke="#dcb348" stroke-width="2.5" stroke-dasharray="6 4" />
-                        <circle cx="160" cy="122" r="4" fill="#dcb348" />
-                        <circle cx="300" cy="122" r="4" fill="#dcb348" />
-                        <polygon points="168,117 160,122 168,127" fill="#dcb348" />
-                        <polygon points="292,117 300,122 292,127" fill="#dcb348" />
+                        <line x1="160" y1="135" x2="300" y2="135" stroke="#dcb348" stroke-width="3.5" />
+                        <circle cx="160" cy="135" r="5" fill="#dcb348" />
+                        <circle cx="300" cy="135" r="5" fill="#dcb348" />
+                        <polygon points="168,130 160,135 168,140" fill="#dcb348" />
+                        <polygon points="292,130 300,135 292,140" fill="#dcb348" />
 
                         <!-- Width Badge -->
-                        <g transform="translate(175, 105)">
-                            <rect width="110" height="24" rx="12" fill="#0d1017" stroke="#dcb348" stroke-width="1.5" />
-                            <text id="modalSvgWidthText" x="55" y="16" fill="#dcb348" font-size="11" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
+                        <g transform="translate(175, 100)">
+                            <rect width="110" height="26" rx="13" fill="#0d1017" stroke="#dcb348" stroke-width="2" />
+                            <text id="modalSvgWidthText" x="55" y="17" fill="#dcb348" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
                         </g>
 
                         <!-- Height (Length) Dimension Line -->

@@ -4282,12 +4282,12 @@ select option {
 
 .luxury-size-modal .size-guide-modal-header {
     background: rgba(18, 21, 31, 0.95);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 16px 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px;
 }
 
 .luxury-size-modal .modal-title-with-icon h3 {
-    font-size: 16px;
+    font-size: 16.5px;
     letter-spacing: 0.3px;
     font-weight: 700;
     color: #f3f4f6;
@@ -4298,10 +4298,10 @@ select option {
 }
 
 .luxury-size-modal .btn-modal-close {
-    width: 30px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: #9ca3af;
     border-radius: 50%;
     display: flex;
@@ -4319,92 +4319,92 @@ select option {
 }
 
 .luxury-size-modal .size-guide-modal-body {
-    padding: 20px 22px;
-    gap: 16px;
+    padding: 24px 26px;
+    gap: 20px;
 }
 
 .luxury-size-modal .measure-illustration-box {
     background: rgba(13, 15, 24, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 14px;
+    padding: 16px;
 }
 
 .measure-steps-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 10px;
 }
 
 .measure-step-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 10px 14px;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 12px 16px;
     border-radius: 10px;
     transition: all 0.2s ease;
 }
 
 .measure-step-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(212, 175, 55, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(212, 175, 55, 0.25);
 }
 
 .measure-step-item.width-accent {
-    border-inline-start: 3px solid #dcb348;
+    border-inline-start: 3.5px solid #dcb348;
 }
 
 .measure-step-item.height-accent {
-    border-inline-start: 3px solid #f43f5e;
+    border-inline-start: 3.5px solid #f43f5e;
 }
 
 .step-num {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: rgba(212, 175, 55, 0.15);
     color: #dcb348;
     font-weight: 800;
-    font-size: 11px;
+    font-size: 11.5px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(212, 175, 55, 0.35);
 }
 
 .step-text {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 
 .step-text strong {
-    font-size: 13px;
+    font-size: 13.5px;
     color: #f3f4f6;
     font-weight: 600;
 }
 
 .step-text span {
-    font-size: 11.5px;
+    font-size: 12px;
     color: #9ca3af;
-    line-height: 1.35;
+    line-height: 1.4;
 }
 
 .modal-matrix-container {
     background: rgba(13, 15, 24, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 14px 16px;
+    padding: 16px 18px;
 }
 
 .matrix-heading-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .matrix-sparkle {
@@ -4413,34 +4413,56 @@ select option {
 }
 
 .matrix-heading-wrap h4 {
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
     color: #f3f4f6;
     margin: 0;
 }
 
+.luxury-size-modal .modal-dim-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
 .luxury-size-modal .modal-dim-table th {
-    background: rgba(255, 255, 255, 0.03);
-    color: #9ca3af;
-    font-size: 11.5px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #d1d5db;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.luxury-size-modal .modal-dim-table th:last-child {
+    border-inline-end: none;
 }
 
 .luxury-size-modal .modal-dim-table td {
-    padding: 9px 10px;
-    font-size: 12.5px;
-    color: #d1d5db;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 11px 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.luxury-size-modal .modal-dim-table td:last-child {
+    border-inline-end: none;
+}
+
+.luxury-size-modal .modal-dim-table tr:last-child td {
+    border-bottom: none;
 }
 
 .matrix-sz-pill {
     display: inline-block;
-    padding: 2px 8px;
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 3px 10px;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
     border-radius: 6px;
     color: #dcb348;
     font-weight: 700;
@@ -4449,8 +4471,8 @@ select option {
 
 .luxury-size-modal .size-guide-modal-footer {
     background: rgba(18, 21, 31, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 14px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 24px;
 }
 
 .luxury-size-modal .btn-modal-got-it {
@@ -4458,8 +4480,8 @@ select option {
     background: linear-gradient(135deg, #dcb348 0%, #b8932d 100%);
     color: #0c0e14;
     font-weight: 700;
-    font-size: 13.5px;
-    padding: 11px;
+    font-size: 14px;
+    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
     transition: all 0.2s ease;
