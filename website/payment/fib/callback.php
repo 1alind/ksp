@@ -1,6 +1,7 @@
 <?php
 /**
  * First Iraqi Bank (FIB) Webhook & Callback Receiver
+ * Direct MySQL database updates (No JSON reliance)
  */
 
 require_once __DIR__ . '/../../database/db.php';
@@ -19,17 +20,27 @@ $paymentId = $data['id'] ?? $data['paymentId'] ?? '';
 $status = strtoupper($data['status'] ?? '');
 
 if ($paymentId && $status === 'PAID') {
-    // Look up orders matching payment gateway tx
-    $orders = get_orders();
-    foreach ($orders as &$ord) {
-        if (isset($ord['payment_gateway_tx']) && strpos($ord['payment_gateway_tx'], $paymentId) !== false) {
-            $ord['payment_status'] = 'Paid (FIB Verified)';
-            $ord['order_status'] = 'Processing';
-            break;
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            // Update order status in MySQL database
+            $stmt = $pdo->prepare("
+                UPDATE orders 
+                SET payment_status = 'Paid (FIB Verified)', 
+                    order_status = 'Processing' 
+                WHERE dispatch_notes LIKE :pid OR tracking_code LIKE :pid2 OR order_id LIKE :pid3
+            ");
+            $stmt->execute([
+                ':pid' => "%$paymentId%",
+                ':pid2' => "%$paymentId%",
+                ':pid3' => "%$paymentId%"
+            ]);
+        } catch (Exception $e) {
+            // Log error silently
         }
     }
-    file_put_contents(__DIR__ . '/../../database/orders.json', json_encode($orders, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
 http_response_code(200);
 echo json_encode(['received' => true, 'status' => 'acknowledged']);
+?>

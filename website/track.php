@@ -20,25 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_package_issue'
     $claimDetails = trim($_POST['claim_details'] ?? '');
 
     if (!empty($claimOrderId) && !empty($claimDetails)) {
-        $inqData = read_json_db('inquiries.json');
-        $inqList = $inqData['inquiries'] ?? [];
         $issueTicketId = 'CLAIM-' . rand(10000, 99999);
         $newClaim = [
             'id' => $issueTicketId,
-            'is_package_claim' => true,
-            'order_id' => htmlspecialchars($claimOrderId),
-            'category' => htmlspecialchars($claimCategory),
             'name' => htmlspecialchars($claimName),
             'email' => htmlspecialchars($_POST['claim_email'] ?? ''),
             'phone' => htmlspecialchars($claimPhone),
             'subject' => '🚨 DELIVERED PACKAGE CLAIM (' . htmlspecialchars($claimOrderId) . '): ' . htmlspecialchars($claimCategory),
             'message' => htmlspecialchars($claimDetails),
-            'status' => 'Pending Inspection',
-            'date' => date('Y-m-d H:i:s')
+            'status' => 'Pending Inspection'
         ];
-        array_unshift($inqList, $newClaim);
-        $inqData['inquiries'] = $inqList;
-        write_json_db('inquiries.json', $inqData);
+        create_inquiry($newClaim);
         $issueSubmitted = true;
     }
 }

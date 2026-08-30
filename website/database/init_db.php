@@ -1,29 +1,12 @@
 <?php
 /**
  * Aura Store - Automated Database Provisioner & Initializer
- * Checks database connectivity, creates required tables if not present,
- * and seeds 12 rich default luxury products, settings, and sample data.
+ * Automatically creates all tables and seeds 12 default luxury products directly via MySQL PDO.
  */
-
-// Enable error reporting if called directly with ?debug=1 or via browser
-if (isset($_GET['debug']) || isset($_GET['run'])) {
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
-}
 
 require_once __DIR__ . '/db.php';
 
 function get_seed_products_catalog() {
-    $jsonFile = __DIR__ . '/products.json';
-    if (file_exists($jsonFile)) {
-        $raw = file_get_contents($jsonFile);
-        $decoded = json_decode($raw, true);
-        if (!empty($decoded['products'])) {
-            return $decoded['products'];
-        }
-    }
-    
-    // Hardcoded fallback catalog if products.json cannot be read
     return [
         [
             'id' => 1,
@@ -176,13 +159,13 @@ function auto_init_database($forceSeed = false) {
     $pdo = get_mysql_pdo();
     if (!$pdo) {
         return [
-            'status' => 'json_mode',
-            'message' => 'MySQL connection offline or invalid credentials. Using JSON database engine.'
+            'status' => 'error',
+            'message' => 'MySQL database offline or cannot connect to host.'
         ];
     }
 
     try {
-        // 1. Create products table (using TEXT/LONGTEXT for universal MySQL 5.5 - 8.0 & MariaDB compatibility)
+        // 1. Create products table
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `products` (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -231,6 +214,12 @@ function auto_init_database($forceSeed = false) {
               `payment_method` VARCHAR(100) NOT NULL DEFAULT 'COD',
               `payment_status` VARCHAR(50) NOT NULL DEFAULT 'Pending',
               `order_status` VARCHAR(50) NOT NULL DEFAULT 'Received',
+              `courier` VARCHAR(100) DEFAULT NULL,
+              `driver_name` VARCHAR(100) DEFAULT NULL,
+              `driver_phone` VARCHAR(64) DEFAULT NULL,
+              `tracking_code` VARCHAR(100) DEFAULT NULL,
+              `dispatch_notes` TEXT DEFAULT NULL,
+              `estimated_delivery` VARCHAR(100) DEFAULT NULL,
               `items_json` LONGTEXT NOT NULL,
               `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
               `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -242,10 +231,11 @@ function auto_init_database($forceSeed = false) {
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `inquiries` (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-              `order_id` VARCHAR(64) DEFAULT NULL,
-              `customer_name` VARCHAR(255) NOT NULL,
-              `customer_phone` VARCHAR(64) NOT NULL,
-              `issue_category` VARCHAR(100) NOT NULL,
+              `inquiry_code` VARCHAR(64) NOT NULL,
+              `name` VARCHAR(255) NOT NULL,
+              `email` VARCHAR(255) DEFAULT NULL,
+              `phone` VARCHAR(64) NOT NULL,
+              `subject` VARCHAR(255) DEFAULT NULL,
               `message` TEXT NOT NULL,
               `status` VARCHAR(50) NOT NULL DEFAULT 'Open',
               `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -257,17 +247,43 @@ function auto_init_database($forceSeed = false) {
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `users` (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `user_code` VARCHAR(64) NOT NULL UNIQUE,
               `name` VARCHAR(255) NOT NULL,
               `email` VARCHAR(255) NOT NULL UNIQUE,
               `password_hash` VARCHAR(255) NOT NULL,
               `phone` VARCHAR(64) DEFAULT NULL,
+              `city` VARCHAR(100) DEFAULT NULL,
+              `address` TEXT DEFAULT NULL,
               `role` VARCHAR(50) NOT NULL DEFAULT 'customer',
               `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
 
-        // 5. Check if products are empty, then insert seed catalog
+        // 5. Create settings table
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `settings` (
+              `setting_key` VARCHAR(100) NOT NULL,
+              `setting_value` LONGTEXT NOT NULL,
+              PRIMARY KEY (`setting_key`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        // 6. Create reviews table
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `reviews` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `product_id` INT UNSIGNED NOT NULL,
+              `user_name` VARCHAR(255) NOT NULL,
+              `rating` INT NOT NULL DEFAULT 5,
+              `comment` TEXT NOT NULL,
+              `date` VARCHAR(50) NOT NULL,
+              `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        // Check if products exist in database
         $countStmt = $pdo->query("SELECT COUNT(*) as total FROM `products`");
         $totalProducts = (int)$countStmt->fetch()['total'];
 
@@ -314,7 +330,7 @@ function auto_init_database($forceSeed = false) {
             'status' => 'success',
             'total_products' => $totalProducts + $insertedCount,
             'seeded_count' => $insertedCount,
-            'message' => "MySQL database verified successfully. {$insertedCount} products seeded."
+            'message' => "Database verified. {$insertedCount} products seeded."
         ];
 
     } catch (Exception $e) {
@@ -323,15 +339,6 @@ function auto_init_database($forceSeed = false) {
             'message' => $e->getMessage()
         ];
     }
-}
-
-// If accessed directly in the browser (e.g., yourdomain.com/database/init_db.php or yourdomain.com/init_db.php)
-if (basename($_SERVER['PHP_SELF'] ?? '') === basename(__FILE__)) {
-    $force = isset($_GET['force']) && $_GET['force'] === '1';
-    $result = auto_init_database($force);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
 }
 
 // Auto-run verification on load

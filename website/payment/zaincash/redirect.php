@@ -1,6 +1,7 @@
 <?php
 /**
  * ZainCash Return / Redirect Handler
+ * Direct MySQL database updates (No JSON reliance)
  */
 
 require_once __DIR__ . '/../../database/db.php';
@@ -20,17 +21,25 @@ if ($result['success'] && ($result['status'] === 'success' || $result['status'] 
     $orderId = $result['order_id'];
     $txId = $result['transaction_id'];
 
-    // Update order status in orders.json
-    $orders = get_orders();
-    foreach ($orders as &$ord) {
-        if ($ord['order_id'] === $orderId) {
-            $ord['payment_status'] = 'Paid (ZainCash Verified)';
-            $ord['payment_gateway_tx'] = $txId;
-            $ord['order_status'] = 'Processing';
-            break;
+    // Update order status in MySQL database
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE orders 
+                SET payment_status = 'Paid (ZainCash Verified)', 
+                    order_status = 'Processing',
+                    tracking_code = IF(tracking_code IS NULL OR tracking_code = '', :tx, tracking_code)
+                WHERE order_id = :oid
+            ");
+            $stmt->execute([
+                ':tx' => $txId,
+                ':oid' => $orderId
+            ]);
+        } catch (Exception $e) {
+            // Log error silently
         }
     }
-    file_put_contents(__DIR__ . '/../../database/orders.json', json_encode($orders, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
     header("Location: ../../track.php?order_id=" . urlencode($orderId) . "&paid=1");
     exit;
@@ -38,3 +47,4 @@ if ($result['success'] && ($result['status'] === 'success' || $result['status'] 
     header("Location: ../../checkout.php?error=payment_failed&status=" . urlencode($result['status'] ?? 'failed'));
     exit;
 }
+?>
