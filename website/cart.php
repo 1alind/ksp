@@ -60,7 +60,7 @@ require_once __DIR__ . '/header.php';
 
                     <div class="summary-row">
                         <span><?php echo t('cart_shipping', $lang); ?></span>
-                        <span class="text-success font-bold"><?php echo t('cart_free_shipping', $lang); ?></span>
+                        <span class="font-bold" style="color:var(--accent-gold); font-size:13px;"><?php echo t('cart_shipping_rates_preview', $lang); ?></span>
                     </div>
 
                     <div class="delivery-badge-chip">

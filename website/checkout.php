@@ -16,7 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $email = trim($_POST['customer_email'] ?? '');
     $phone = trim($_POST['customer_phone'] ?? '');
     $phoneConfirm = trim($_POST['customer_phone_confirm'] ?? '');
-    $city = trim($_POST['customer_city'] ?? 'Duhok');
+    $governorate = trim($_POST['customer_governorate'] ?? 'Duhok');
+    $district = trim($_POST['customer_city'] ?? '');
+    $fullCityLocation = !empty($district) ? ($governorate . ' (' . $district . ')') : $governorate;
     $address = trim($_POST['customer_address'] ?? '');
     $paymentMethod = trim($_POST['payment_method'] ?? 'Cash on Delivery');
     $cartJson = $_POST['cart_items_json'] ?? '[]';
@@ -28,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
     if (empty($phone) || empty($phoneConfirm) || $cleanPhone !== $cleanPhoneConfirm) {
         $checkoutError = t('checkout_phone_mismatch', $lang);
+    } elseif (empty($district)) {
+        $checkoutError = $lang === 'ku' ? 'تکایە باژێر یان قەزایێ د ناڤ پارێزگەهێ دا هەلبژێرە.' : ($lang === 'ar' ? 'يرجى اختيار المدينة أو القضاء داخل المحافظة.' : 'Please select the city/district inside the selected governorate.');
     } elseif (!empty($name) && !empty($phone) && !empty($address) && !empty($cartItems)) {
         $subtotal = 0;
         foreach ($cartItems as $ci) {
@@ -35,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         }
         $discountRate = floatval($_POST['applied_discount_rate'] ?? 0);
         $discount = round($subtotal * $discountRate);
-        $total = max(0, $subtotal - $discount);
+        $shippingFee = ($governorate === 'Duhok') ? 4000 : 5000;
+        $total = max(0, $subtotal - $discount + $shippingFee);
         $totalIqd = $total;
 
         $isOnlinePaid = strpos($paymentMethod, 'FIB') !== false || strpos($paymentMethod, 'ZainCash') !== false || strpos($paymentMethod, 'FastPay') !== false;
@@ -45,7 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             'customer_name' => htmlspecialchars($name),
             'email' => htmlspecialchars($email),
             'phone' => htmlspecialchars($phone),
-            'city' => htmlspecialchars($city),
+            'governorate' => htmlspecialchars($governorate),
+            'district' => htmlspecialchars($district),
+            'city' => htmlspecialchars($fullCityLocation),
             'address' => htmlspecialchars($address),
             'payment_method' => htmlspecialchars($paymentMethod),
             'payment_status' => $isOnlinePaid ? 'Paid (Verified Online)' : 'Pending (Pay on Delivery)',
@@ -54,10 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             'courier' => 'AURA VIP Express Logistics',
             'tracking_code' => 'AURA-EXP-' . rand(10000, 99999),
             'dispatch_notes' => 'Order verified. Satin wrap and quality inspection underway at central hub.',
-            'estimated_delivery' => 'Within 24-48 Hours across ' . htmlspecialchars($city),
+            'estimated_delivery' => 'Within 24-48 Hours across ' . htmlspecialchars($fullCityLocation),
             'items' => $cartItems,
             'subtotal' => $subtotal,
-            'shipping' => 0,
+            'shipping' => $shippingFee,
             'discount' => $discount,
             'total' => $total,
             'total_iqd' => $totalIqd,
@@ -76,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             <span class="section-kicker">Aura Secure Gateway • Iraq & Kurdistan</span>
             <h1 class="page-banner-title"><?php echo t('checkout_title', $lang); ?></h1>
             <p class="page-banner-subtitle">
-                Exclusive complimentary express delivery across Kurdistan Region and all Federal Iraq governorates.
+                <?php echo $lang === 'ku' ? 'خزمەتگوزاریا گەهاندنێ: ٤,٠٠٠ دینار بۆ دهۆک • ٥,٠٠٠ دینار بۆ هەمی باژێر و پارێزگەهێن دی.' : 
+                              ($lang === 'ar' ? 'رسوم التوصيل السريع: 4,000 د.ع لدهوك • 5,000 د.ع لكافة المحافظات الأخرى.' : 
+                              'Express Delivery: 4,000 IQD for Duhok • 5,000 IQD for all other Governorates.'); ?>
             </p>
         </div>
     </div>
@@ -154,23 +163,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                 </div>
                             <?php endif; ?>
 
+                            <div class="form-group mb-16">
+                                <label><?php echo t('checkout_name', $lang); ?> <span class="text-danger">*</span></label>
+                                <input type="text" name="customer_name" id="coCustomerName" required class="form-control" placeholder="Full Name (الاسم الكامل)">
+                            </div>
+
                             <div class="form-row-2">
                                 <div class="form-group">
-                                    <label><?php echo t('checkout_name', $lang); ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="customer_name" id="coCustomerName" required class="form-control" placeholder="Full Name (الاسم الكامل)">
-                                </div>
-
-                                <div class="form-group">
-                                    <label><?php echo t('checkout_city', $lang); ?> <span class="text-danger">*</span></label>
-                                    <select name="customer_city" id="coCustomerCity" required class="form-control">
+                                    <label><?php echo t('checkout_governorate', $lang); ?> <span class="text-danger">*</span></label>
+                                    <select name="customer_governorate" id="coCustomerGovernorate" required class="form-control" onchange="onGovernorateSelectChange(this.value)">
                                         <optgroup label="<?php echo $lang === 'ku' ? 'هەرێما کوردستانێ (Kurdistan Region)' : ($lang === 'ar' ? 'إقليم كوردستان (Kurdistan Region)' : 'Kurdistan Region (إقليم كوردستان)'); ?>">
                                             <option value="Duhok" selected><?php echo $lang === 'ku' ? 'دهۆک / Duhok' : ($lang === 'ar' ? 'دهوك / Duhok' : 'Duhok / دهۆک'); ?></option>
                                             <option value="Erbil"><?php echo $lang === 'ku' ? 'هەولێر / Erbil' : ($lang === 'ar' ? 'أربيل / Erbil' : 'Erbil (Hewlêr) / هەولێر'); ?></option>
                                             <option value="Sulaymaniyah"><?php echo $lang === 'ku' ? 'سلێمانی / Sulaymaniyah' : ($lang === 'ar' ? 'السليمانية / Sulaymaniyah' : 'Sulaymaniyah / سلێمانی'); ?></option>
-                                            <option value="Zakho"><?php echo $lang === 'ku' ? 'زاخۆ / Zakho' : ($lang === 'ar' ? 'زاخو / Zakho' : 'Zakho / زاخۆ'); ?></option>
                                             <option value="Halabja"><?php echo $lang === 'ku' ? 'هەڵەبجە / Halabja' : ($lang === 'ar' ? 'حلبجة / Halabja' : 'Halabja / هەڵەبجە'); ?></option>
-                                            <option value="Soran"><?php echo $lang === 'ku' ? 'سۆران / Soran' : ($lang === 'ar' ? 'سوران / Soran' : 'Soran / سۆران'); ?></option>
-                                            <option value="Akre"><?php echo $lang === 'ku' ? 'ئاکرێ / Akre' : ($lang === 'ar' ? 'عقرة / Akre' : 'Akre / ئاکرێ'); ?></option>
                                         </optgroup>
                                         <optgroup label="<?php echo $lang === 'ku' ? 'پارێزگەهێن عیراقێ (Federal Iraq)' : ($lang === 'ar' ? 'محافظات العراق (Federal Iraq)' : 'Federal Iraq Governorates (باقي العراق)'); ?>">
                                             <option value="Baghdad"><?php echo $lang === 'ku' ? 'بەغدا / Baghdad' : ($lang === 'ar' ? 'بغداد / Baghdad' : 'Baghdad / بغداد'); ?></option>
@@ -189,6 +195,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                                             <option value="Qadisiyyah"><?php echo $lang === 'ku' ? 'قادسیە (دیوانیە) / Qadisiyyah' : ($lang === 'ar' ? 'القادسية (الديوانية) / Qadisiyyah' : 'Qadisiyyah (Diwaniyah) / القادسية'); ?></option>
                                             <option value="Saladin"><?php echo $lang === 'ku' ? 'سەلاحەدین (تکریت) / Saladin' : ($lang === 'ar' ? 'صلاح الدين (تكريت) / Saladin' : 'Saladin (Tikrit / Samarra) / صلاح الدين'); ?></option>
                                         </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label><?php echo t('checkout_district', $lang); ?> <span class="text-danger">*</span></label>
+                                    <select name="customer_city" id="coCustomerCity" required class="form-control">
+                                        <option value="Duhok City Center" selected><?php echo $lang === 'ku' ? 'ناڤەندا باژێرێ دهۆکێ / Duhok Center' : ($lang === 'ar' ? 'مركز مدينة دهوك / Duhok Center' : 'Duhok City Center / ناڤەندا دهۆکێ'); ?></option>
+                                        <option value="Zakho"><?php echo $lang === 'ku' ? 'زاخۆ / Zakho' : ($lang === 'ar' ? 'زاخو / Zakho' : 'Zakho / زاخۆ'); ?></option>
+                                        <option value="Semel"><?php echo $lang === 'ku' ? 'سێمێل / Semel' : ($lang === 'ar' ? 'سميل / Semel' : 'Semel / سێمێل'); ?></option>
+                                        <option value="Amedi"><?php echo $lang === 'ku' ? 'ئامێدیێ / Amedi' : ($lang === 'ar' ? 'العمادية / Amedi' : 'Amedi (Amadiya) / ئامێدیێ'); ?></option>
+                                        <option value="Akre"><?php echo $lang === 'ku' ? 'ئاکرێ / Akre' : ($lang === 'ar' ? 'عقرة / Akre' : 'Akre (Aqrah) / ئاکرێ'); ?></option>
+                                        <option value="Shekhan"><?php echo $lang === 'ku' ? 'شێخان / Shekhan' : ($lang === 'ar' ? 'الشيخان (عين سفني) / Shekhan' : 'Shekhan (Ain Sifni) / شێخان'); ?></option>
+                                        <option value="Bardarash"><?php echo $lang === 'ku' ? 'بەردەڕەش / Bardarash' : ($lang === 'ar' ? 'بردرش / Bardarash' : 'Bardarash / بەردەڕەش'); ?></option>
+                                        <option value="Deraluk & Shiladze"><?php echo $lang === 'ku' ? 'دێرەلووک و شێلادزێ / Deraluk & Shiladze' : ($lang === 'ar' ? 'ديرلوك وشيلادزي / Deraluk' : 'Deraluk & Shiladze'); ?></option>
+                                        <option value="Batifa"><?php echo $lang === 'ku' ? 'باتێفا / Batifa' : ($lang === 'ar' ? 'باتيفا / Batifa' : 'Batifa / باتێفا'); ?></option>
+                                        <option value="Kani Masi"><?php echo $lang === 'ku' ? 'کانی ماسی / Kani Masi' : ($lang === 'ar' ? 'كاني ماسي / Kani Masi' : 'Kani Masi / کانی ماسی'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -318,7 +340,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                             <div class="summary-row">
                                 <span><?php echo t('cart_shipping', $lang); ?></span>
-                                <span class="free-shipping-badge">✓ <?php echo t('cart_shipping_free', $lang); ?></span>
+                                <strong id="coShipping" style="color:var(--accent-gold);">4,000 IQD</strong>
+                            </div>
+
+                            <div class="delivery-rate-subnote" id="coShippingNote" style="font-size:12px; color:var(--text-muted); margin-top:-4px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <span>📍 <span id="coShippingGovText"><?php echo $lang === 'ku' ? 'دهۆک (٤,٠٠٠ دینار)' : ($lang === 'ar' ? 'دهوك (4,000 د.ع)' : 'Duhok (4,000 IQD)'); ?></span></span>
+                                <span class="badge-tag" id="coShippingBadge" style="font-size:10.5px; padding:2px 8px; background:rgba(34,197,94,0.12); color:#22c55e; border-color:#22c55e;">
+                                    <?php echo $lang === 'ku' ? 'نرخێ دهۆکێ: ٤,٠٠٠' : ($lang === 'ar' ? 'سعر دهوك: 4,000' : 'Duhok: 4,000 IQD'); ?>
+                                </span>
                             </div>
 
                             <div class="summary-divider"></div>
@@ -499,6 +528,25 @@ function selectPaymentMethod(gateway) {
     activePaymentGateway = gateway;
 }
 
+function getDeliveryFee(gov) {
+    return (gov === 'Duhok') ? 4000 : 5000;
+}
+
+function calculateCheckoutTotals() {
+    const cart = window.AuraStore ? window.AuraStore.getCart() : [];
+    let subtotal = 0;
+    cart.forEach(item => {
+        subtotal += (item.price * item.quantity);
+    });
+    const activeDiscountRate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
+    const discount = Math.round(subtotal * activeDiscountRate);
+    const gov = document.getElementById('coCustomerGovernorate')?.value || 'Duhok';
+    const shippingFee = getDeliveryFee(gov);
+    const finalTotal = Math.max(0, Math.round(subtotal - discount + shippingFee));
+
+    return { subtotal, discount, activeDiscountRate, gov, shippingFee, finalTotal };
+}
+
 function renderCheckoutCart() {
     const container = document.getElementById('checkoutItemsList');
     if (!container) return;
@@ -531,19 +579,266 @@ function renderCheckoutCart() {
 
     container.innerHTML = html;
 
-    const activeDiscountRate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const discount = Math.round(subtotal * activeDiscountRate);
-    const finalTotal = Math.max(0, Math.round(subtotal - discount));
+    const totals = calculateCheckoutTotals();
 
-    document.getElementById('coSubtotal').innerText = Math.round(subtotal).toLocaleString() + ' IQD';
-    if (activeDiscountRate > 0) {
+    document.getElementById('coSubtotal').innerText = Math.round(totals.subtotal).toLocaleString() + ' IQD';
+    if (totals.activeDiscountRate > 0) {
         document.getElementById('coDiscountRow').style.display = 'flex';
-        document.getElementById('coDiscount').innerText = '-' + discount.toLocaleString() + ' IQD';
+        document.getElementById('coDiscount').innerText = '-' + totals.discount.toLocaleString() + ' IQD';
+    } else {
+        document.getElementById('coDiscountRow').style.display = 'none';
     }
-    document.getElementById('coTotal').innerText = finalTotal.toLocaleString() + ' IQD';
+
+    const coShipping = document.getElementById('coShipping');
+    if (coShipping) {
+        coShipping.innerText = totals.shippingFee.toLocaleString() + ' IQD';
+    }
+
+    const coShippingGovText = document.getElementById('coShippingGovText');
+    const coShippingBadge = document.getElementById('coShippingBadge');
+    if (coShippingGovText && coShippingBadge) {
+        if (totals.gov === 'Duhok') {
+            coShippingGovText.innerText = window.AURA_LANG === 'ku' ? 'دهۆک (٤,٠٠٠ دینار)' : (window.AURA_LANG === 'ar' ? 'دهوك (4,000 د.ع)' : 'Duhok (4,000 IQD)');
+            coShippingBadge.innerText = window.AURA_LANG === 'ku' ? 'نرخێ دهۆکێ: ٤,٠٠٠' : (window.AURA_LANG === 'ar' ? 'سعر دهوك: 4,000' : 'Duhok: 4,000 IQD');
+            coShippingBadge.style.color = '#22c55e';
+            coShippingBadge.style.borderColor = '#22c55e';
+            coShippingBadge.style.background = 'rgba(34, 197, 94, 0.12)';
+        } else {
+            const govName = totals.gov;
+            coShippingGovText.innerText = window.AURA_LANG === 'ku' ? `${govName} (٥,٠٠٠ دینار)` : (window.AURA_LANG === 'ar' ? `${govName} (5,000 د.ع)` : `${govName} (5,000 IQD)`);
+            coShippingBadge.innerText = window.AURA_LANG === 'ku' ? 'پارێزگەهێن دی: ٥,٠٠٠' : (window.AURA_LANG === 'ar' ? 'باقي المحافظات: 5,000' : 'Express: 5,000 IQD');
+            coShippingBadge.style.color = 'var(--accent-gold)';
+            coShippingBadge.style.borderColor = 'var(--accent-gold)';
+            coShippingBadge.style.background = 'rgba(212, 175, 55, 0.12)';
+        }
+    }
+
+    document.getElementById('coTotal').innerText = totals.finalTotal.toLocaleString() + ' IQD';
 
     document.getElementById('hiddenCartJson').value = JSON.stringify(cart);
-    document.getElementById('hiddenDiscountRate').value = activeDiscountRate.toString();
+    document.getElementById('hiddenDiscountRate').value = totals.activeDiscountRate.toString();
+}
+
+// IRAQ & KURDISTAN REGION GOVERNORATE TO CITY/DISTRICT MAPPING
+const IRAQ_LOCATIONS = {
+    'Duhok': [
+        { en: 'Duhok City Center', ar: 'مركز مدينة دهوك', ku: 'ناڤەندا باژێرێ دهۆکێ' },
+        { en: 'Zakho', ar: 'زاخو', ku: 'زاخۆ' },
+        { en: 'Semel', ar: 'سميل', ku: 'سێمێل' },
+        { en: 'Amedi (Amadiya)', ar: 'العمادية', ku: 'ئامێدیێ' },
+        { en: 'Akre (Aqrah)', ar: 'عقرة', ku: 'ئاکرێ' },
+        { en: 'Shekhan (Ain Sifni)', ar: 'الشيخان (عين سفني)', ku: 'شێخان' },
+        { en: 'Bardarash', ar: 'بردرش', ku: 'بەردەڕەش' },
+        { en: 'Deraluk & Shiladze', ar: 'ديرلوك وشيلادزي', ku: 'دێرەلووک و شێلادزێ' },
+        { en: 'Batifa', ar: 'باتيفا', ku: 'باتێفا' },
+        { en: 'Kani Masi', ar: 'كاني ماسي', ku: 'کانی ماسی' }
+    ],
+    'Erbil': [
+        { en: 'Erbil City Center (100m / Bakhtiyari / Dream City)', ar: 'مركز أربيل (دريم سيتي / بختياري)', ku: 'ناڤەندا هەولێرێ (بەختیاری / دریم ستی)' },
+        { en: 'Ankawa', ar: 'عنكاوا', ku: 'عەنکاوە' },
+        { en: 'Soran', ar: 'سوران', ku: 'سۆران' },
+        { en: 'Shaqlawa', ar: 'شقلاوة', ku: 'شەقڵاوە' },
+        { en: 'Rawanduz', ar: 'رواندوز', ku: 'ڕەواندز' },
+        { en: 'Choman', ar: 'جومان', ku: 'چۆمان' },
+        { en: 'Koya', ar: 'كويه', ku: 'کۆیە' },
+        { en: 'Khabat', ar: 'خبات', ku: 'خەبات' },
+        { en: 'Mergasor', ar: 'ميركه سور', ku: 'مێرگەسۆر' },
+        { en: 'Baharka', ar: 'بحركة', ku: 'بەحرکە' },
+        { en: 'Kasnazan', ar: 'كسنزان', ku: 'کەسنەزان' },
+        { en: 'Harir', ar: 'حرير', ku: 'هەریر' }
+    ],
+    'Sulaymaniyah': [
+        { en: 'Sulaymaniyah City Center (Salim St / Sarchinar)', ar: 'مركز السليمانية (شارع سالم / سرجنار)', ku: 'ناڤەندا سلێمانیێ (شەقاما سالم / سەرچنار)' },
+        { en: 'Bakrajo', ar: 'بكرجو', ku: 'باکراجۆ' },
+        { en: 'Bazian', ar: 'بازيان', ku: 'بازیان' },
+        { en: 'Chamchamal', ar: 'جمجمال', ku: 'چەمچەماڵ' },
+        { en: 'Dokan', ar: 'دوكان', ku: 'دۆکان' },
+        { en: 'Ranya', ar: 'رانية', ku: 'ڕانیە' },
+        { en: 'Qaladiza', ar: 'قلعة دزة', ku: 'قەڵادزێ' },
+        { en: 'Kalar (Garmian)', ar: 'كلار (كرميان)', ku: 'کەلار (گەرمیان)' },
+        { en: 'Kifri', ar: 'كفري', ku: 'کفری' },
+        { en: 'Penjwen', ar: 'بنجوين', ku: 'پێنجوێن' },
+        { en: 'Said Sadiq', ar: 'سيد صادق', ku: 'سەید سادق' },
+        { en: 'Darbandikhan', ar: 'دربندخان', ku: 'دەربەندیخان' },
+        { en: 'Qaradagh', ar: 'قره داغ', ku: 'قەرەداغ' }
+    ],
+    'Halabja': [
+        { en: 'Halabja City Center', ar: 'مركز مدينة حلبجة', ku: 'ناڤەندا باژێرێ هەڵەبجە' },
+        { en: 'Sharazoor', ar: 'شهرزور', ku: 'شارەزوور' },
+        { en: 'Khurmal', ar: 'خورمال', ku: 'خورماڵ' },
+        { en: 'Byara', ar: 'بيارة', ku: 'بیارە' },
+        { en: 'Sirwan', ar: 'سيروان', ku: 'سیروان' },
+        { en: 'Tawella', ar: 'طويلة', ku: 'تەوێڵە' }
+    ],
+    'Baghdad': [
+        { en: 'Karkh (Mansour / Yarmouk / Dawoodi)', ar: 'الكرخ (المنصور واليرموك والداودي)', ku: 'کەرخ (مەنسوور و یەرمووک)' },
+        { en: 'Rusafa (Karada / Jadriya / Masbah)', ar: 'الرصافة (الكرادة والجادرية والمسبح)', ku: 'ڕەسافە (کەرادە و جادریە)' },
+        { en: 'Zayouna & Palestine Street', ar: 'زيونة وشارع فلسطين', ku: 'زەیونە و شەقاما فەلەستین' },
+        { en: 'Adhamiya & Maghrib', ar: 'الأعظمية والمغرب', ku: 'ئەعزەمیە و مەغریب' },
+        { en: 'Kadhimiya & Hurriya', ar: 'الكاظمية والحرية', ku: 'کازمیە و حوریە' },
+        { en: 'Ghazaliya & University District', ar: 'الغزالية وحي الجامعة', ku: 'غەزالیە و حەی جامعە' },
+        { en: 'Doura & Saydiyah', ar: 'الدورة والسيدية', ku: 'دورە و سەیدیە' },
+        { en: 'Bayaa & Amil', ar: 'البياع والعامل', ku: 'بەییاع و عامیل' },
+        { en: 'New Baghdad & Mashtal', ar: 'بغداد الجديدة والمشتل', ku: 'بەغدایا نوی و مەشتەل' },
+        { en: 'Sadr City & Sha\'ab', ar: 'مدينة الصدر والشعب', ku: 'باژێرێ سەدر و شەعب' },
+        { en: 'Mahmoudiyah', ar: 'المحمودية', ku: 'مەحمودیە' },
+        { en: 'Abu Ghraib', ar: 'أبو غريب', ku: 'ئەبوو غرێب' },
+        { en: 'Taji', ar: 'التاجي', ku: 'تاجی' }
+    ],
+    'Basra': [
+        { en: 'Basra Center (Ashar / Bradheya / Manawi Pasha)', ar: 'مركز البصرة (العشار / البراضعية / مناوي باشا)', ku: 'ناڤەندا بەسرە (عەشار / برازعیە)' },
+        { en: 'Zubair', ar: 'الزبير', ku: 'زوبێر' },
+        { en: 'Abu Al-Khaseeb', ar: 'أبو الخصيب', ku: 'ئەبولخەسیب' },
+        { en: 'Qurna', ar: 'القرنة', ku: 'قورنە' },
+        { en: 'Shatt Al-Arab (Tannumah)', ar: 'شط العرب (التنومة)', ku: 'شەتولعەرەب (تەنۆمە)' },
+        { en: 'Fao', ar: 'الفاو', ku: 'فاو' },
+        { en: 'Umm Qasr', ar: 'أم قصر', ku: 'ئوم قەسر' },
+        { en: 'Al-Midaina', ar: 'المدينة', ku: 'مەدینە' },
+        { en: 'Hartha', ar: 'الهارتة', ku: 'هارتە' }
+    ],
+    'Mosul': [
+        { en: 'Mosul Left Coast (East Mosul - Zuhur / Masarif)', ar: 'الموصل - الساحل الأيسر (الزهور، المصارف)', ku: 'مووسڵ - لایێ چەپێ (زەهوور، مەسارف)' },
+        { en: 'Mosul Right Coast (West Mosul)', ar: 'الموصل - الساحل الأيمن', ku: 'مووسڵ - لایێ راستێ' },
+        { en: 'Tel Keppe', ar: 'تلكيف', ku: 'تلکێف' },
+        { en: 'Hamdaniya / Qaraqosh (Bakhdida)', ar: 'الحمدانية (بغديدا / قره قوش)', ku: 'حەمدانیە (بەغدیدا)' },
+        { en: 'Sinjar (Shingal)', ar: 'سنجار (شنكال)', ku: 'شنگال' },
+        { en: 'Tal Afar', ar: 'تلعفر', ku: 'تەلەعفەر' },
+        { en: 'Bartella', ar: 'برطلة', ku: 'بەرتلە' },
+        { en: 'Bashiqa', ar: 'بعشيقة', ku: 'بەعشیقە' },
+        { en: 'Shekhan', ar: 'الشيخان', ku: 'شێخان' },
+        { en: 'Makhmur', ar: 'مخمور', ku: 'مەخموور' },
+        { en: 'Al-Ba\'aj', ar: 'البعاج', ku: 'بەعاج' }
+    ],
+    'Kirkuk': [
+        { en: 'Kirkuk Center (Rahimawa / Shorija / Baghdad Rd)', ar: 'مركز كركوك (رحيماوا / الشورجة / طريق بغداد)', ku: 'ناڤەندا کەرکووک (ڕەحیماوا / شۆڕیجە)' },
+        { en: 'Dubiz', ar: 'الدبس', ku: 'دوبز' },
+        { en: 'Daquq', ar: 'داقوق', ku: 'داقووق' },
+        { en: 'Hawija', ar: 'الحويجة', ku: 'حەویجە' },
+        { en: 'Tazakhurmatu', ar: 'تازة خورماتو', ku: 'تازەخورماتوو' },
+        { en: 'Laylan', ar: 'ليلان', ku: 'لەیلان' }
+    ],
+    'Najaf': [
+        { en: 'Najaf Center (Al-Adala / Al-Ghadir / Al-Askari)', ar: 'مركز النجف (العدالة والغدير والإسكان)', ku: 'ناڤەندا باژێرێ نەجەفێ' },
+        { en: 'Kufa', ar: 'الكوفة', ku: 'کووفە' },
+        { en: 'Manathera', ar: 'المناذرة', ku: 'مەنازیرە' },
+        { en: 'Mishkhab', ar: 'المشخاب', ku: 'مشخاب' },
+        { en: 'Abbasiya', ar: 'العباسية', ku: 'عەباسیە' },
+        { en: 'Haidariya', ar: 'الحيدرية', ku: 'حەیدەریە' }
+    ],
+    'Karbala': [
+        { en: 'Karbala Center (Al-Baladiyah / Al-Iskan)', ar: 'مركز كربلاء (البلدية والإسكان والحر)', ku: 'ناڤەندا باژێرێ کەربەلا' },
+        { en: 'Hindiya (Tuwaireej)', ar: 'الهندية (طويريج)', ku: 'هیندیە (طویریج)' },
+        { en: 'Ain Al-Tamur', ar: 'عين التمر', ku: 'عەین تەمر' },
+        { en: 'Husseiniya', ar: 'الحسينية', ku: 'حوسێنیە' },
+        { en: 'Hurr', ar: 'الحر', ku: 'حور' }
+    ],
+    'Anbar': [
+        { en: 'Ramadi', ar: 'الرمادي', ku: 'ڕەمادی' },
+        { en: 'Fallujah', ar: 'الفلوجة', ku: 'فەلووجە' },
+        { en: 'Hit', ar: 'هيت', ku: 'هیت' },
+        { en: 'Haditha', ar: 'حديثة', ku: 'حەدیسە' },
+        { en: 'Al-Qaim', ar: 'القائم', ku: 'قائیم' },
+        { en: 'Rutba', ar: 'الرطبة', ku: 'ڕوتبە' },
+        { en: 'Garma', ar: 'الكرمة', ku: 'کەرمە' },
+        { en: 'Anah & Rawa', ar: 'عنه وراوه', ku: 'عانە و ڕاوە' },
+        { en: 'Saqlawiyah', ar: 'الصقلاوية', ku: 'سەقلاویە' }
+    ],
+    'Babil': [
+        { en: 'Hillah (City Center)', ar: 'مركز الحلة', ku: 'ناڤەندا باژێرێ حلە' },
+        { en: 'Musayyib', ar: 'المسيب', ku: 'موسەیب' },
+        { en: 'Iskandariya', ar: 'الإسكندرية', ku: 'ئەسکەندەریە' },
+        { en: 'Mahawil', ar: 'المحاويل', ku: 'مەحاویل' },
+        { en: 'Hashimiya', ar: 'الهاشمية', ku: 'هاشمیە' },
+        { en: 'Qasim', ar: 'القاسم', ku: 'قاسم' },
+        { en: 'Saddat Al-Hindiyah', ar: 'سدة الهندية', ku: 'سەدەیا هیندی' }
+    ],
+    'Diyala': [
+        { en: 'Baqubah (City Center)', ar: 'مركز بعقوبة', ku: 'ناڤەندا بەعقوبە' },
+        { en: 'Khanaqin', ar: 'خانقين', ku: 'خانەقین' },
+        { en: 'Muqdadiya', ar: 'المقدادية', ku: 'مەقدادیە' },
+        { en: 'Khalis', ar: 'الخالص', ku: 'خالس' },
+        { en: 'Balad Ruz', ar: 'بلدروز', ku: 'بەلەدرۆز' },
+        { en: 'Jalawla', ar: 'جلولاء', ku: 'جەلەولا' },
+        { en: 'Mandali', ar: 'مندلي', ku: 'مەندەلی' }
+    ],
+    'Wasit': [
+        { en: 'Kut (City Center)', ar: 'مركز الكوت', ku: 'ناڤەندا کووتێ' },
+        { en: 'Numaniyah', ar: 'النعمانية', ku: 'نوعمانیە' },
+        { en: 'Suwaira', ar: 'الصويرة', ku: 'سوێرە' },
+        { en: 'Hai', ar: 'الحي', ku: 'حەی' },
+        { en: 'Aziziyah', ar: 'العزيزية', ku: 'عەزیزیە' },
+        { en: 'Badra & Jassan', ar: 'بدرة وجصان', ku: 'بەدرە و جەسان' }
+    ],
+    'Maysan': [
+        { en: 'Amarah (City Center)', ar: 'مركز العمارة', ku: 'ناڤەندا عەمارە' },
+        { en: 'Ali Al-Gharbi', ar: 'علي الغربي', ku: 'عەلی غەربی' },
+        { en: 'Majar Al-Kabir', ar: 'المجر الكبير', ku: 'مەجەر کەبیر' },
+        { en: 'Qal\'at Saleh', ar: 'قلعة صالح', ku: 'قەڵای ساڵح' },
+        { en: 'Kahla', ar: 'الكحلاء', ku: 'کەحلا' },
+        { en: 'Maimouna', ar: 'الميمونة', ku: 'مەیموونا' }
+    ],
+    'DhiQar': [
+        { en: 'Nasiriyah (City Center)', ar: 'مركز الناصرية', ku: 'ناڤەندا ناصریە' },
+        { en: 'Shatrah', ar: 'الشطرة', ku: 'شەترە' },
+        { en: 'Rifa\'i', ar: 'الرفاعي', ku: 'ڕیفاعی' },
+        { en: 'Suq Al-Shuyukh', ar: 'سوق الشيوخ', ku: 'سۆقولشویووخ' },
+        { en: 'Chibayish (Marshlands)', ar: 'الجبايش (الأهوار)', ku: 'چبایش (زەلکاو)' },
+        { en: 'Qal\'at Sukkar', ar: 'قلعة سكر', ku: 'قەڵای سوکەر' }
+    ],
+    'Muthanna': [
+        { en: 'Samawah (City Center)', ar: 'مركز السماوة', ku: 'ناڤەندا سەماوە' },
+        { en: 'Rumaitha', ar: 'الرميثة', ku: 'ڕومەیسە' },
+        { en: 'Khidhir', ar: 'الخضر', ku: 'خزر' },
+        { en: 'Salman', ar: 'السلمان', ku: 'سەلمان' },
+        { en: 'Warkaa', ar: 'الوركاء', ku: 'وەرکا' }
+    ],
+    'Qadisiyyah': [
+        { en: 'Diwaniyah (City Center)', ar: 'مركز الديوانية', ku: 'ناڤەندا دیوانیە' },
+        { en: 'Shamiya', ar: 'الشامية', ku: 'شامیە' },
+        { en: 'Afak', ar: 'عفك', ku: 'عەفەک' },
+        { en: 'Hamzah', ar: 'الحمزة', ku: 'حەمزە' },
+        { en: 'Ghammas', ar: 'غماس', ku: 'غەماس' }
+    ],
+    'Saladin': [
+        { en: 'Tikrit', ar: 'تكريت', ku: 'تکریت' },
+        { en: 'Samarra', ar: 'سامراء', ku: 'سامەڕا' },
+        { en: 'Balad', ar: 'بلد', ku: 'بەلەد' },
+        { en: 'Dujail', ar: 'الدجيل', ku: 'دوجەیل' },
+        { en: 'Baiji', ar: 'بيجي', ku: 'بێجی' },
+        { en: 'Tooz Khurmatoo', ar: 'طوزخورماتو', ku: 'تووزخورماتوو' },
+        { en: 'Shirqat', ar: 'الشرقاط', ku: 'شەرگات' },
+        { en: 'Ishaqi', ar: 'الإسحاقي', ku: 'ئیسحاقی' }
+    ]
+};
+
+function onGovernorateSelectChange(govKey) {
+    const citySelect = document.getElementById('coCustomerCity');
+    if (!citySelect) return;
+
+    const cities = IRAQ_LOCATIONS[govKey] || [];
+    const currentLang = window.AURA_LANG || 'en';
+
+    let optionsHtml = '';
+    cities.forEach((c, idx) => {
+        let label = '';
+        if (currentLang === 'ku') {
+            label = c.ku + (c.en !== c.ku ? ' / ' + c.en : '');
+        } else if (currentLang === 'ar') {
+            label = c.ar + (c.en !== c.ar ? ' / ' + c.en : '');
+        } else {
+            label = c.en + (c.ku ? ' / ' + c.ku : (c.ar ? ' / ' + c.ar : ''));
+        }
+        const isSelected = idx === 0 ? 'selected' : '';
+        optionsHtml += `<option value="${c.en}" ${isSelected}>${label}</option>`;
+    });
+
+    citySelect.innerHTML = optionsHtml;
+    citySelect.style.transition = 'border-color 0.3s ease';
+    citySelect.style.borderColor = 'var(--accent-gold, #d4af37)';
+    setTimeout(() => { citySelect.style.borderColor = ''; }, 600);
+
+    // Update totals and delivery fee dynamically
+    renderCheckoutCart();
 }
 
 function highlightPaymentOption(radio) {
@@ -626,6 +921,21 @@ function validateAndSubmitCheckout(event) {
         return false;
     }
 
+    const gov = document.getElementById('coCustomerGovernorate')?.value;
+    const city = document.getElementById('coCustomerCity')?.value;
+    if (!gov || !city) {
+        event.preventDefault();
+        const errorMsg = window.AURA_LANG === 'ku' ? 'تکایە پارێزگەهـ و باژێر/قەزایێ دیار بکە.' : 
+                         (window.AURA_LANG === 'ar' ? 'يرجى اختيار المحافظة والمدينة/القضاء.' : 
+                         'Please select both your Governorate and City/District.');
+        if (window.AuraStore) {
+            window.AuraStore.showToast(errorMsg, 'error');
+        } else {
+            alert(errorMsg);
+        }
+        return false;
+    }
+
     document.getElementById('hiddenCartJson').value = JSON.stringify(cart);
 
     const selMethod = document.querySelector('input[name="payment_method"]:checked')?.value || '';
@@ -655,11 +965,8 @@ function validateAndSubmitCheckout(event) {
 }
 
 function showFibModal() {
-    const cart = window.AuraStore.getCart();
-    let total = 0;
-    cart.forEach(it => total += it.price * it.quantity);
-    const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
+    const totals = calculateCheckoutTotals();
+    const finalTotal = totals.finalTotal;
 
     document.getElementById('fibAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
     document.getElementById('fibCodeDisplay').innerText = 'FIB-' + Math.floor(10000 + Math.random() * 90000);
@@ -718,11 +1025,8 @@ function confirmFibPayment() {
 }
 
 function showFastPayModal() {
-    const cart = window.AuraStore.getCart();
-    let total = 0;
-    cart.forEach(it => total += it.price * it.quantity);
-    const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
+    const totals = calculateCheckoutTotals();
+    const finalTotal = totals.finalTotal;
 
     document.getElementById('fpAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
 
@@ -778,11 +1082,8 @@ function confirmFastPayPayment() {
 }
 
 function showZainModal() {
-    const cart = window.AuraStore.getCart();
-    let total = 0;
-    cart.forEach(it => total += it.price * it.quantity);
-    const rate = parseFloat(sessionStorage.getItem('aura_discount_rate') || 0);
-    const finalTotal = Math.max(0, Math.round(total - (total * rate)));
+    const totals = calculateCheckoutTotals();
+    const finalTotal = totals.finalTotal;
 
     document.getElementById('zcAmountDisplay').innerText = finalTotal.toLocaleString() + ' IQD';
     document.getElementById('zainPaymentModalOverlay').classList.add('open');
