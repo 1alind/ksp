@@ -13,11 +13,6 @@ $featuredProducts = array_filter($products, function($p) {
 <section class="hero-section">
     <div class="container hero-grid">
         <div class="hero-text-content">
-            <div class="hero-tag-badge">
-                <span class="pulse-dot"></span>
-                <span><?php echo t('hero_badge', $lang); ?></span>
-            </div>
-            
             <h1 class="hero-headline">
                 <?php echo htmlspecialchars($settings['hero_headline_' . $lang] ?? t('hero_title', $lang)); ?>
             </h1>
