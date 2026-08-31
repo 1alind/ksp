@@ -172,7 +172,7 @@ if (!empty($product['colors'])) {
                         }
                         ?>
                         <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to navigate to standalone size guide page) -->
-                        <a href="size_guide.php?v=<?php echo $guideVariant; ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
+                        <a href="size_guide.php?v=<?php echo $guideVariant; ?>&from=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
                             <div class="size-specs-display">
                                 <div class="size-spec-row">
                                     <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
