@@ -80,8 +80,8 @@ $featuredProducts = array_filter($products, function($p) {
             <?php endforeach; ?>
         </div>
 
-        <div class="showcase-catalog-btn-wrap text-center">
-            <a href="shop.php" class="btn btn-secondary btn-lg">
+        <div class="showcase-catalog-btn-wrap text-center" style="margin-top: 64px !important; padding-top: 20px !important; display: block; width: 100%;">
+            <a href="shop.php" class="btn btn-secondary btn-lg" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px;">
                 <span><?php echo t('shop_title', $lang); ?></span>
                 <span>→</span>
             </a>
