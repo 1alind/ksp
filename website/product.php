@@ -172,7 +172,7 @@ if (!empty($product['colors'])) {
                         }
                         ?>
                         <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to navigate to standalone size guide page) -->
-                        <a href="size_guide.php?v=<?php echo $guideVariant; ?>&from=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
+                        <a href="size_guide.php?v=<?php echo $guideVariant; ?>&pid=<?php echo (int)$productId; ?>&size=<?php echo urlencode($firstSize); ?>&h=<?php echo urlencode($initialHeight); ?>&w=<?php echo urlencode($initialWidth); ?>&from=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
                             <div class="size-specs-display">
                                 <div class="size-spec-row">
                                     <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
@@ -420,84 +420,23 @@ function onSizeSelected(btn, sizeName) {
         setTimeout(() => wEl.classList.remove('spec-highlight-flash'), 400);
     }
 
-    // Update diagram SVG badges inside drawer
-    const svgW = document.getElementById('drawerSvgWidthText');
-    const svgH = document.getElementById('drawerSvgHeightText');
-    if (svgW) svgW.textContent = 'Width: ' + dims.width;
-    if (svgH) svgH.textContent = 'Height: ' + dims.height;
-
-    // Highlight row in drawer matrix table
-    document.querySelectorAll('#drawerDimTable tbody tr').forEach(r => r.classList.remove('highlighted'));
-    const safeKey = sizeName.replace(/[^a-zA-Z0-9]/g, '');
-    const targetRow = document.getElementById('drawerMatrixRow_' + safeKey);
-    if (targetRow) {
-        targetRow.classList.add('highlighted');
-        try { targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e){}
+    // Update size specs card link with chosen size, dimensions, and current URI
+    const specsCard = document.getElementById('sizeSpecsCard');
+    if (specsCard) {
+        const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        const pid = '<?php echo (int)$productId; ?>';
+        const variant = '<?php echo $guideVariant; ?>';
+        specsCard.href = `size_guide.php?v=${variant}&pid=${pid}&size=${encodeURIComponent(sizeName)}&h=${encodeURIComponent(dims.height)}&w=${encodeURIComponent(dims.width)}&from=${currentUrl}`;
     }
 }
 
-function selectSizeFromDrawer(sizeName) {
-    const btn = document.querySelector(`.size-pill[data-size="${sizeName}"]`);
-    if (btn) {
-        onSizeSelected(btn, sizeName);
-    } else {
-        window.selectedProductSize = sizeName;
-    }
-    closeSizeGuideDrawer();
-}
-
-function openSizeGuideDrawer(e) {
-    if (e) {
-        if (e.preventDefault) e.preventDefault();
-        if (e.stopPropagation) e.stopPropagation();
-    }
-    const overlay = document.getElementById('sizeGuideDrawerOverlay');
-    if (!overlay) return;
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-
-    // Synchronize table highlighting
-    const activeBtn = document.querySelector('.size-pill.active');
-    const selectedSize = activeBtn ? activeBtn.getAttribute('data-size') : (window.selectedProductSize || '');
-    if (selectedSize) {
-        document.querySelectorAll('#drawerDimTable tbody tr').forEach(r => r.classList.remove('highlighted'));
-        const safeKey = selectedSize.replace(/[^a-zA-Z0-9]/g, '');
-        const targetRow = document.getElementById('drawerMatrixRow_' + safeKey);
-        if (targetRow) {
-            targetRow.classList.add('highlighted');
-            try { targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(err){}
-        }
+function selectColor(colorName, btn) {
+    const colorBtn = document.querySelector(`.color-badge-pill[data-color="${colorName}"]`);
+    if (colorBtn) {
+        const img = colorBtn.getAttribute('data-image') || '';
+        onColorSelected(colorBtn, colorName, img);
     }
 }
-
-function closeSizeGuideDrawer(e) {
-    if (e) {
-        if (e.preventDefault) e.preventDefault();
-        if (e.stopPropagation) e.stopPropagation();
-    }
-    const overlay = document.getElementById('sizeGuideDrawerOverlay');
-    if (overlay) {
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-    }
-}
-
-// Close drawer on Escape key press
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' || e.key === 'Esc') {
-        closeSizeGuideDrawer();
-    }
-});
-
-// Auto-relocate modal on document ready
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('sizeGuideModal');
-    if (modal && modal.parentElement !== document.body) {
-        document.body.appendChild(modal);
-    }
-});
-
-function onColorSelected(btn, colorName, imageUrl) {
     // 1. Remove active state from all color buttons
     document.querySelectorAll('.color-badge-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -600,136 +539,5 @@ function handleProductAction(buyNow = false) {
     }
 }
 </script>
-
-<!-- Luxury Slide-Over Size Guide Drawer -->
-<div class="size-guide-drawer-overlay" id="sizeGuideDrawerOverlay" onclick="if(event.target === this) closeSizeGuideDrawer();">
-    <div class="size-guide-drawer-panel" dir="<?php echo $dir; ?>">
-        <div class="size-guide-drawer-header">
-            <div class="modal-title-with-icon">
-                <span class="modal-ruler-icon">✨</span>
-                <h3><?php echo t('how_to_measure_title', $lang); ?></h3>
-            </div>
-            <button type="button" class="btn-drawer-close" onclick="closeSizeGuideDrawer(event)" aria-label="Close">
-                ✕
-            </button>
-        </div>
-
-        <div class="size-guide-drawer-body">
-            <!-- Vector Garment Illustration -->
-            <div class="measure-illustration-box">
-                <div class="measure-svg-wrapper">
-                    <svg class="measure-svg-graphic" viewBox="0 0 460 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="luxuryShirtGradDrawer" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#1e2235" />
-                                <stop offset="100%" stop-color="#12141f" />
-                            </linearGradient>
-                            <filter id="luxuryGlowDrawer" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.45" />
-                            </filter>
-                        </defs>
-                        <path d="M 160 40 C 175 32, 200 28, 230 28 C 260 28, 285 32, 300 40 L 375 75 L 340 130 L 300 110 L 300 255 C 300 263, 292 270, 282 270 L 178 270 C 168 270, 160 263, 160 255 L 160 110 L 120 130 L 85 75 Z" 
-                              fill="url(#luxuryShirtGradDrawer)" stroke="#3a405a" stroke-width="2" stroke-linejoin="round" filter="url(#luxuryGlowDrawer)" />
-                        <path d="M 195 40 Q 230 68 265 40" stroke="#dcb348" stroke-width="2" fill="none" />
-                        <path d="M 160 110 L 190 55" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
-                        <path d="M 300 110 L 270 55" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
-                        <!-- Width Line -->
-                        <line x1="160" y1="135" x2="300" y2="135" stroke="#dcb348" stroke-width="3.5" />
-                        <circle cx="160" cy="135" r="5" fill="#dcb348" />
-                        <circle cx="300" cy="135" r="5" fill="#dcb348" />
-                        <polygon points="168,130 160,135 168,140" fill="#dcb348" />
-                        <polygon points="292,130 300,135 292,140" fill="#dcb348" />
-                        <g transform="translate(175, 100)">
-                            <rect width="110" height="26" rx="13" fill="#0d1017" stroke="#dcb348" stroke-width="2" />
-                            <text id="drawerSvgWidthText" x="55" y="17" fill="#dcb348" font-size="11.5" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Width: <?php echo htmlspecialchars($initialWidth); ?></text>
-                        </g>
-                        <!-- Height Line -->
-                        <line x1="178" y1="46" x2="178" y2="270" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="6 4" />
-                        <circle cx="178" cy="46" r="4" fill="#f43f5e" />
-                        <circle cx="178" cy="270" r="4" fill="#f43f5e" />
-                        <polygon points="173,54 178,46 183,54" fill="#f43f5e" />
-                        <polygon points="173,262 178,270 183,262" fill="#f43f5e" />
-                        <g transform="translate(38, 140)">
-                            <rect width="115" height="24" rx="12" fill="#0d1017" stroke="#f43f5e" stroke-width="1.5" />
-                            <text id="drawerSvgHeightText" x="57" y="16" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">Height: <?php echo htmlspecialchars($initialHeight); ?></text>
-                        </g>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Steps -->
-            <div class="measure-steps-list">
-                <div class="measure-step-item">
-                    <span class="step-num">1</span>
-                    <div class="step-text">
-                        <strong><?php echo t('how_to_measure_step1_title', $lang); ?></strong>
-                        <span><?php echo t('how_to_measure_step1_desc', $lang); ?></span>
-                    </div>
-                </div>
-                <div class="measure-step-item width-accent">
-                    <span class="step-num">2</span>
-                    <div class="step-text">
-                        <strong><?php echo t('how_to_measure_step2_title', $lang); ?></strong>
-                        <span><?php echo t('how_to_measure_step2_desc', $lang); ?></span>
-                    </div>
-                </div>
-                <div class="measure-step-item height-accent">
-                    <span class="step-num">3</span>
-                    <div class="step-text">
-                        <strong><?php echo t('how_to_measure_step3_title', $lang); ?></strong>
-                        <span><?php echo t('how_to_measure_step3_desc', $lang); ?></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Matrix Table -->
-            <?php if (!empty($product['sizes'])): ?>
-                <div class="modal-matrix-container">
-                    <div class="matrix-heading-wrap">
-                        <span class="matrix-sparkle">✦</span>
-                        <h4><?php echo $lang === 'ku' ? 'خشتێ قیاسێن ڤی بەرهەمی' : ($lang === 'ar' ? 'جدول مقاسات هذا المنتج' : 'Product Size Matrix'); ?></h4>
-                    </div>
-                    <table class="modal-dim-table" id="drawerDimTable">
-                        <thead>
-                            <tr>
-                                <th><?php echo $lang === 'ku' ? 'قیاس' : ($lang === 'ar' ? 'المقاس' : 'Size'); ?></th>
-                                <th><?php echo $lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارتفاع' : 'Height'); ?></th>
-                                <th><?php echo $lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' : 'Width'); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($product['sizes'] as $sz): 
-                                $mRaw = $sizeMeasurements[$sz] ?? '';
-                                $hVal = '65cm';
-                                $wVal = '45cm';
-                                if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول):\s*([^\•,]+)/i', $mRaw, $mH)) {
-                                    $hVal = trim($mH[1]);
-                                }
-                                if (preg_match('/(?:Chest|Width|Trousers|پانی|الصدر|العرض):\s*([^\•,]+)/i', $mRaw, $mW)) {
-                                    $wVal = trim($mW[1]);
-                                }
-                                $safeKey = preg_replace('/[^a-zA-Z0-9]/', '', $sz);
-                            ?>
-                                <tr id="drawerMatrixRow_<?php echo htmlspecialchars($safeKey); ?>" 
-                                    class="clickable-matrix-row"
-                                    onclick="selectSizeFromDrawer('<?php echo htmlspecialchars(addslashes($sz)); ?>')">
-                                    <td><span class="matrix-sz-pill"><?php echo htmlspecialchars($sz); ?></span></td>
-                                    <td><?php echo htmlspecialchars($hVal); ?></td>
-                                    <td><?php echo htmlspecialchars($wVal); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <div class="size-guide-drawer-footer">
-            <button type="button" class="btn-modal-got-it" onclick="closeSizeGuideDrawer(event)">
-                <?php echo $lang === 'ku' ? 'تەمامە / هەلبژێرە' : ($lang === 'ar' ? 'تم / اختيار' : 'Confirm & Close'); ?>
-            </button>
-        </div>
-    </div>
-</div>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
