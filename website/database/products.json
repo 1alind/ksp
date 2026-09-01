@@ -1,0 +1,172 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "title": {
+                "en": "Royal Midnight Velvet Blazer",
+                "ar": "بليزر مخملي ملكي ميدنايت",
+                "ku": "ساکێ مەخمەلی یێ شاهانە میدنایت"
+            },
+            "category": "clothes",
+            "price": 245000,
+            "old_price": 315000,
+            "rating": 4.9,
+            "reviews_count": 38,
+            "badge": "Best Seller",
+            "badge_ar": "الأكثر مبيعاً",
+            "badge_ku": "پڕفرۆشترین",
+            "stock": 15,
+            "image": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Midnight Blue",
+                "Obsidian Black",
+                "Burgundy"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 65cm • Width: 45cm",
+                "M": "Height: 70cm • Width: 50cm",
+                "L": "Height: 73cm • Width: 54cm",
+                "XL": "Height: 76cm • Width: 58cm"
+            },
+            "description": {
+                "en": "Impeccably tailored luxury velvet blazer designed with silk lapels and custom metal buttons. Perfect for evening galas, high-profile events, and formal dinners.",
+                "ar": "بليزر مخملي فاخر بتفصيل متقن مع ياقة حريرية وأزرار معدنية مخصصة. مثالي للحفلات المسائية والمناسبات الرسمية.",
+                "ku": "ساکێ مخمەلی یێ گەلەک جوان و شاهانە ب نەخشیێن ئاوریشمی و دوگماێن زێڕین. گەلەک گونجایە بۆ ئاهەنگ و هەلکەفتێن فەرمی."
+            },
+            "featured": true
+        },
+        {
+            "id": 2,
+            "title": {
+                "en": "Onyx Skeleton Automatic Watch",
+                "ar": "ساعة أوتوماتيكية أونيكس هيكلية",
+                "ku": "دەمژمێرا ئۆتۆماتیک یا سکێلێتۆن ئۆنیکس"
+            },
+            "category": "watches",
+            "price": 550000,
+            "old_price": 725000,
+            "rating": 5,
+            "reviews_count": 64,
+            "badge": "Luxury",
+            "badge_ar": "فاخر",
+            "badge_ku": "لوکس و نازک",
+            "stock": 8,
+            "image": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Black Onyx & Gold",
+                "Silver Steel",
+                "Rose Gold"
+            ],
+            "sizes": [
+                "41mm Case"
+            ],
+            "size_measurements": {
+                "41mm Case": "Case Diameter: 41 mm • Thickness: 11.5 mm • Strap Width: 20 mm • Lug-to-Lug: 47 mm"
+            },
+            "description": {
+                "en": "Self-winding mechanical automatic movement with an open-heart skeleton dial, sapphire crystal glass, and Italian genuine leather strap. Water-resistant up to 50M.",
+                "ar": "حركة ميكانيكية أوتوماتيكية مع ميناء هيكلي مكشوف وزجاج من الكريستال الياقوتي المقاوم للخدش وسوار جلد إيطالي أصلي.",
+                "ku": "دەمژمێرەکا ميكانيكی یا ئۆتۆماتیك ب دیزاینێ سکێلێتۆن و شوشەیا یاقووتی یا دژی کڕاندنێ و قایشا چەرمی یا ئیتالی یا رەسەن."
+            },
+            "featured": true
+        },
+        {
+            "id": 3,
+            "title": {
+                "en": "Royal Amber & Smoked Oud Eau de Parfum",
+                "ar": "عطر العود المدخن والعنبر الملكي",
+                "ku": "عەترێ عوودێ دووکەلی و عەنبەرێ شاهانە"
+            },
+            "category": "perfumes",
+            "price": 190000,
+            "old_price": 250000,
+            "rating": 4.8,
+            "reviews_count": 92,
+            "badge": "Signature",
+            "badge_ar": "مميز",
+            "badge_ku": "تایبەت",
+            "stock": 25,
+            "image": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Gold Edition Bottle",
+                "Smoked Obsidian Flacon",
+                "Dark Amber Flacon"
+            ],
+            "sizes": [
+                "100ml / 3.4 oz",
+                "50ml / 1.7 oz"
+            ],
+            "size_measurements": {
+                "100ml / 3.4 oz": "Height: 14.5 cm • Width: 6.2 cm • Depth: 4.5 cm • Net: 100 ml (3.4 fl oz)",
+                "50ml / 1.7 oz": "Height: 11.2 cm • Width: 5.0 cm • Depth: 3.8 cm • Net: 50 ml (1.7 fl oz)"
+            },
+            "description": {
+                "en": "An intoxicating, long-lasting fragrance blending aged Cambodian oud, warm golden amber, Madagascar vanilla, and Damascus rose. Lasts over 24 hours.",
+                "ar": "عطر ساحر وثابت يمزج بين العود الكمبودي الفاخر والعنبر الذهبي الدافئ والفانيليا وزهور دمشق. يدوم لأكثر من 24 ساعة.",
+                "ku": "عەترەکێ گەلەک خوش و بێهنا وی گەلەک دمینیت ژ عوودێ کەمبۆدی، عەنبەرێ زێڕین و گولێن دیمەشقێ. پتر ژ 24 دەمژمێران دمینیت."
+            },
+            "featured": true
+        },
+        {
+            "id": 4,
+            "title": {
+                "en": "Italian Leather Minimalist Weekender Bag",
+                "ar": "حقيبة عطلة نهاية الأسبوع من الجلد الإيطالي",
+                "ku": "جانتا چەرمێ ئیتالی یا گەشت و دەوامێ"
+            },
+            "category": "accessories",
+            "price": 275000,
+            "old_price": 370000,
+            "rating": 4.9,
+            "reviews_count": 45,
+            "badge": "Handcrafted",
+            "badge_ar": "صناعة يدوية",
+            "badge_ku": "دەستکرد",
+            "stock": 11,
+            "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Vintage Tan",
+                "Deep Espresso",
+                "Matte Black"
+            ],
+            "sizes": [
+                "Standard 45L"
+            ],
+            "size_measurements": {
+                "Standard 45L": "Length: 52 cm • Height: 30 cm • Width: 26 cm • Handle Drop: 18 cm"
+            },
+            "description": {
+                "en": "Crafted from full-grain vegetable-tanned Italian leather with solid brass hardware, YKK zippers, and padded laptop compartment.",
+                "ar": "مصنوعة من جلد إيطالي أصلي كامل الحبيبات مع إكسسوارات من النحاس الصلب وسحابات متينة وحجرة مبطنة للكمبيوتر المحمول.",
+                "ku": "ژ چەرمێ ئیتالی یێ رەسەن و پاقژ هاتیە چێکرن دگەل قفلێن برۆنز و جهێ لەپتۆپی یێ تایبەت."
+            },
+            "featured": true
+        }
+    ]
+}

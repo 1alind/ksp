@@ -15,6 +15,47 @@ const __dirname = path.dirname(__filename);
 const websiteDir = path.join(__dirname, "website");
 const websiteDbDir = path.join(websiteDir, "database");
 
+// Serve static assets from nested asset subdirectories
+app.use("/assets", express.static(path.join(websiteDir, "assets")));
+app.use("/css", express.static(path.join(websiteDir, "assets", "css")));
+app.use("/js", express.static(path.join(websiteDir, "assets", "js")));
+
+// Middleware to serve static files (.css, .js, images, fonts, icons) from websiteDir, but never .php files
+app.use((req, res, next) => {
+  if (req.path.endsWith(".php") || !req.path.includes(".")) {
+    return next();
+  }
+
+  const cleanPath = req.path.replace(/^\//, "");
+  const baseName = path.basename(cleanPath);
+
+  // Candidate paths to search for the asset
+  const candidatePaths = [
+    path.join(websiteDir, cleanPath),
+    path.join(websiteDir, baseName),
+    path.join(websiteDir, "assets", cleanPath),
+    path.join(websiteDir, "assets", "js", baseName),
+    path.join(websiteDir, "assets", "css", baseName),
+    path.join(websiteDir, "assets", baseName)
+  ];
+
+  for (const staticPath of candidatePaths) {
+    if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile() && !staticPath.endsWith(".php")) {
+      return res.sendFile(staticPath);
+    }
+  }
+
+  // If request is for a script or stylesheet, never return HTML error page
+  if (req.path.endsWith(".js")) {
+    return res.status(404).type("application/javascript").send("/* Asset not found: " + req.path + " */");
+  }
+  if (req.path.endsWith(".css")) {
+    return res.status(404).type("text/css").send("/* Asset not found: " + req.path + " */");
+  }
+
+  next();
+});
+
 // Ensure website database directory exists
 if (!fs.existsSync(websiteDbDir)) fs.mkdirSync(websiteDbDir, { recursive: true });
 
@@ -118,7 +159,7 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body class="page-${activePage}">
 
@@ -413,15 +454,50 @@ function renderFooter(lang: string, theme: string = "dark"): string {
     </script>
 
     <!-- Application Core Script -->
-    <script src="script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>
 `;
 }
 
+function findPageFile(pageName: string): string | null {
+  // If the request is for a static asset, return null immediately so static middleware handles it
+  if (/\.(js|css|png|jpg|jpeg|svg|gif|webp|ico|woff|woff2|ttf|eot|otf|map|json|txt|pdf|xml|webmanifest)$/i.test(pageName)) {
+    return null;
+  }
+
+  const cleanName = pageName.replace(/\.php$/i, "");
+  const candidates: string[] = [];
+
+  if (pageName.includes("/")) {
+    const directNested = path.join(websiteDir, pageName.endsWith(".php") ? pageName : `${pageName}.php`);
+    const directNestedIndex = path.join(websiteDir, pageName, "index.php");
+    candidates.push(directNested, directNestedIndex);
+  }
+
+  candidates.push(
+    path.join(websiteDir, `${cleanName}.php`),
+    path.join(websiteDir, cleanName, "index.php"),
+    path.join(websiteDir, "admin", `${cleanName}.php`),
+    path.join(websiteDir, "shop", `${cleanName}.php`),
+    path.join(websiteDir, "checkout", `${cleanName}.php`),
+    path.join(websiteDir, "pages", `${cleanName}.php`),
+    path.join(websiteDir, "payments", `${cleanName}.php`),
+    path.join(websiteDir, "payment", `${cleanName}.php`),
+    path.join(websiteDir, "layouts", `${cleanName}.php`)
+  );
+
+  for (const cand of candidates) {
+    if (fs.existsSync(cand) && fs.statSync(cand).isFile()) {
+      return cand;
+    }
+  }
+  return null;
+}
+
 function renderPhpPage(pageName: string, req: express.Request, postData: any = null): string {
-  const filePath = path.join(websiteDir, `${pageName}.php`);
-  if (!fs.existsSync(filePath)) {
+  const filePath = findPageFile(pageName);
+  if (!filePath || !fs.existsSync(filePath)) {
     return `<div style="color:red;padding:40px;font-family:sans-serif;">Error: ${pageName}.php not found</div>`;
   }
 
@@ -758,20 +834,29 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   }
 
   // Read raw file content
-  let bodyContent = fs.readFileSync(filePath, "utf-8");
+  let rawContent = fs.readFileSync(filePath, "utf-8");
+  const wrapperMatch = rawContent.match(/require_once\s+(?:__DIR__\s*\.\s*)?['"]([^'"]+)['"]/);
+  if (wrapperMatch && !rawContent.includes('<div') && !rawContent.includes('<section') && !rawContent.includes('<header')) {
+    const nestedRel = wrapperMatch[1].replace(/^\//, "");
+    const nestedPath = path.join(path.dirname(filePath), nestedRel);
+    if (fs.existsSync(nestedPath)) {
+      rawContent = fs.readFileSync(nestedPath, "utf-8");
+    }
+  }
 
   // Determine activePage and pageTitle
-  let activePage = pageName === "index" ? "home" : pageName;
-  const pageMatch = bodyContent.match(/\$activePage\s*=\s*['"]([^'"]+)['"]/);
+  let activePage = pageName === "index" ? "home" : pageName.replace(/\.php$/i, "");
+  const pageMatch = rawContent.match(/\$activePage\s*=\s*['"]([^'"]+)['"]/);
   if (pageMatch) activePage = pageMatch[1];
 
   let pageTitle = "";
-  const titleMatch = bodyContent.match(/\$pageTitle\s*=\s*['"]([^'"]+)['"]/);
+  const titleMatch = rawContent.match(/\$pageTitle\s*=\s*['"]([^'"]+)['"]/);
   if (titleMatch) pageTitle = titleMatch[1];
 
   // Remove top PHP setup block and trailing footer include
-  bodyContent = bodyContent.replace(/^<\?php[\s\S]*?\?>/m, "");
-  bodyContent = bodyContent.replace(/<\?php\s+require_once\s+(?:__DIR__\s*\.\s*)?['"]\/footer\.php['"]\s*;?\s*\?>/g, "");
+  let bodyContent = rawContent;
+  bodyContent = bodyContent.replace(/^\s*<\?php[\s\S]*?\?>/s, "");
+  bodyContent = bodyContent.replace(/<\?php\s+require_once[\s\S]*?['"](?:\/|layouts\/)?(?:header|footer)\.php['"]\s*;?\s*\?>/g, "");
 
   // Substitute all translation calls
   const dynamicTranslations = loadTranslations();
@@ -906,7 +991,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   });
 
   // Product Single Page Details
-  if (pageName === "product") {
+  if (pageName === "product" || pageName === "shop/product") {
     const prodId = parseInt((req.query.id as string) || "1", 10);
     const prod = productsList.find((p: any) => p.id === prodId) || productsList[0] || {};
     const prodTitle = typeof prod.title === "object" ? (prod.title[lang] || prod.title.en) : prod.title;
@@ -1048,6 +1133,12 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+json_encode\(\$sizeMeasurements\)\s*;?\s*\?>/g, JSON.stringify(sizeMeasurements));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+json_encode\(\$colorImages\)\s*;?\s*\?>/g, JSON.stringify(colorImagesMap));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$product\['sizes'\]\)[^;]*\)\s*\?\s*'true'\s*:\s*'false'\s*;?\s*\?>/g, (prod.sizes && prod.sizes.length > 0) ? "true" : "false");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$product\['colors'\]\)[^;]*\)\s*\?\s*'true'\s*:\s*'false'\s*;?\s*\?>/g, (prod.colors && prod.colors.length > 0) ? "true" : "false");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(int\)\(\$product\['id'\]\s*\?\?\s*\d+\)\s*;?\s*\?>/g, String(prod.id));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(int\)\$productId\s*;?\s*\?>/g, String(prod.id));
+    const guideVariant = prod.category === "watches" ? "watch" : (prod.category === "perfumes" ? "perfume" : (prod.category === "accessories" ? "bag" : "tshirt"));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$guideVariant\s*;?\s*\?>/g, guideVariant);
 
     // Related Products Loop
     const related = productsList.filter((p: any) => p.category === prod.category && p.id !== prod.id).slice(0, 4);
@@ -1074,7 +1165,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   }
 
   // Admin Dashboard Content
-  if (pageName === "admin") {
+  if (pageName === "admin" || pageName === "admin/index") {
     let rev = 0;
     ordersList.forEach((o: any) => (rev += o.total || 0));
 
@@ -1187,15 +1278,107 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$productsList\s+as\s+\$p\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, prodRows);
   }
 
+  // Size Guide Page Details & Schematics
+  if (pageName === "size_guide" || pageName === "shop/size_guide") {
+    const variant = (req.query.v as string) || "tshirt";
+    const productId = parseInt((req.query.pid as string) || (req.query.id as string) || (req.query.ref_id as string) || "0", 10);
+    const selectedSize = ((req.query.size as string) || "").trim();
+    let heightParam = ((req.query.h as string) || "").trim();
+    let widthParam = ((req.query.w as string) || "").trim();
+    let backUrl = ((req.query.from as string) || "").trim();
+
+    let product = null;
+    let productTitle = "";
+
+    if (productId > 0) {
+      product = productsList.find((p: any) => p.id === productId) || null;
+      if (product) {
+        productTitle = typeof product.title === "object" ? (product.title[lang] || product.title.en) : product.title;
+        if (!heightParam || !widthParam) {
+          let measurements: any = product.size_measurements || {};
+          if (typeof measurements === "string") {
+            try { measurements = JSON.parse(measurements); } catch (e) { measurements = {}; }
+          }
+          const lookupSize = selectedSize || (product.sizes && product.sizes[0]) || "M";
+          let mRaw = measurements[lookupSize] || "";
+          if (!mRaw && product.sizes) {
+            const cleanSz = lookupSize.toUpperCase().trim();
+            if (cleanSz === "S") mRaw = "Height: 65cm • Width: 45cm";
+            else if (cleanSz === "M") mRaw = "Height: 70cm • Width: 50cm";
+            else if (cleanSz === "L") mRaw = "Height: 73cm • Width: 54cm";
+            else if (cleanSz === "XL") mRaw = "Height: 76cm • Width: 58cm";
+            else if (cleanSz === "XXL" || cleanSz === "2XL") mRaw = "Height: 79cm • Width: 62cm";
+            else if (cleanSz === "XS") mRaw = "Height: 62cm • Width: 42cm";
+            else mRaw = "Height: 70cm • Width: 50cm";
+          }
+          const mH = mRaw.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+          if (mH && !heightParam) heightParam = mH[1].trim();
+          const mW = mRaw.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+          if (mW && !widthParam) widthParam = mW[1].trim();
+        }
+      }
+    }
+
+    let heightDisplay = heightParam || "70cm";
+    let widthDisplay = widthParam || "50cm";
+    if (/^\d+$/.test(heightDisplay)) heightDisplay += "cm";
+    if (/^\d+$/.test(widthDisplay)) widthDisplay += "cm";
+
+    if (!backUrl) {
+      if (productId > 0) {
+        backUrl = `product.php?id=${productId}`;
+      } else {
+        backUrl = "shop.php";
+      }
+    }
+
+    const isReturningToProduct = productId > 0 || backUrl.includes("product.php");
+    const backBtnLabel = isReturningToProduct
+      ? (lang === "ku" ? "← ڤەگەر بۆ بەرهەمی" : (lang === "ar" ? "← العودة للمنتج" : "← Back to Product"))
+      : (lang === "ku" ? "← ڤەگەر بۆ فڕۆشگەهێ" : (lang === "ar" ? "← العودة للمتجر" : "← Back to Shop"));
+
+    let tabQuery = "";
+    if (productId > 0) tabQuery += "&pid=" + productId;
+    if (selectedSize) tabQuery += "&size=" + encodeURIComponent(selectedSize);
+    if (heightParam) tabQuery += "&h=" + encodeURIComponent(heightParam);
+    if (widthParam) tabQuery += "&w=" + encodeURIComponent(widthParam);
+    if (backUrl) tabQuery += "&from=" + encodeURIComponent(backUrl);
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$heightDisplay\)\s*;?\s*\?>/g, heightDisplay);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$widthDisplay\)\s*;?\s*\?>/g, widthDisplay);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$heightDisplay\s*;?\s*\?>/g, heightDisplay);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$widthDisplay\s*;?\s*\?>/g, widthDisplay);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$backUrl\)\s*;?\s*\?>/g, backUrl);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$backUrl\s*;?\s*\?>/g, backUrl);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$backBtnLabel\s*;?\s*\?>/g, backBtnLabel);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$productTitle\)\s*;?\s*\?>/g, productTitle);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$productTitle\s*;?\s*\?>/g, productTitle);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$selectedSize\)\s*;?\s*\?>/g, selectedSize);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$tabQuery\s*;?\s*\?>/g, tabQuery);
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$variant\s*===\s*'([^']+)'\s*\?\s*'active'\s*:\s*''\s*;?\s*\?>/g, (match, v) => v === variant ? 'active' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$dir\s*;?\s*\?>/g, (lang === 'ar' || lang === 'ku') ? 'rtl' : 'ltr');
+
+    if (variant === "jeans") {
+      bodyContent = bodyContent.replace(/<\?php\s+if\s*\(\$variant\s*===\s*'jeans'\):\s*\?>([\s\S]*?)<\?php\s+else:\s*\?>([\s\S]*?)<\?php\s+endif;\s*\?>/gs, "$1");
+    } else {
+      bodyContent = bodyContent.replace(/<\?php\s+if\s*\(\$variant\s*===\s*'jeans'\):\s*\?>([\s\S]*?)<\?php\s+else:\s*\?>([\s\S]*?)<\?php\s+endif;\s*\?>/gs, "$2");
+    }
+
+    if (!product) {
+      bodyContent = bodyContent.replace(/<\?php\s+if\s*\(\$product\):\s*.*?<\?php\s+endif;\s*\?>/gs, "");
+    }
+  }
+
   // Checkout Page condition handling
-  if (pageName === "checkout") {
+  if (pageName === "checkout" || pageName === "checkout/checkout") {
     // If not POST confirmed in Node template rendering, show the checkout form part
     bodyContent = bodyContent.replace(/<\?php\s+if\s*\(\$orderPlaced\s+&&\s+\$confirmedOrder\):\s*.*?(?:<!-- Order Success Confirmation Screen -->[\s\S]*?<\/script>\s*)?<\?php\s+else:\s*\?>/gs, "");
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+json_encode\(\$rate(?:\s*\?\?\s*\d+)?\)\s*;?\s*\?>/g, "1320");
     bodyContent = bodyContent.replace(/<\?php\s+endif;\s*\?>/g, "");
   }
 
   // Track Order Page Details
-  if (pageName === "track") {
+  if (pageName === "track" || pageName === "track/index" || pageName === "orders/track") {
     const searchId = ((req.query.order_id as string) || "").trim();
     if (searchId) {
       const found = ordersList.find((o: any) =>
@@ -1733,9 +1916,9 @@ app.all(["/payment/fake.php", "/website/payment/fake.php", "/payment/fake", "/we
 });
 
 // Dedicated Payment Hub page routing
-app.get(["/payment", "/payment/", "/payment/index.php", "/website/payment/index.php"], (req, res) => {
-  const filePath = path.join(websiteDir, "payment", "index.php");
-  if (fs.existsSync(filePath)) {
+app.get(["/payment", "/payment/", "/payment/index.php", "/payments", "/payments/", "/payments/index.php"], (req, res) => {
+  const filePath = findPageFile("payments/index.php") || findPageFile("payment/index.php");
+  if (filePath && fs.existsSync(filePath)) {
     res.send(fs.readFileSync(filePath, "utf-8"));
   } else {
     res.send("Payment SDK Directory Active");
@@ -1747,20 +1930,42 @@ app.get("/", (req, res) => {
   res.send(renderPhpPage("index", req));
 });
 
+// Match single segment routes (e.g. /shop, /admin, /product.php)
 app.get("/:page.php", (req, res) => {
   const page = req.params.page;
-  const filePath = path.join(websiteDir, `${page}.php`);
-  if (fs.existsSync(filePath)) {
+  const filePath = findPageFile(page);
+  if (filePath) {
     res.send(renderPhpPage(page, req));
   } else {
     res.status(404).send("Page not found");
   }
 });
 
+// Match nested routes (e.g. /admin/index.php, /shop/product.php, /checkout/cart.php)
+app.get("/:dir/:page.php", (req, res) => {
+  const target = `${req.params.dir}/${req.params.page}`;
+  const filePath = findPageFile(target);
+  if (filePath) {
+    res.send(renderPhpPage(target, req));
+  } else {
+    res.status(404).send("Page not found");
+  }
+});
+
+app.get("/:dir/:page", (req, res, next) => {
+  const target = `${req.params.dir}/${req.params.page}`;
+  const filePath = findPageFile(target);
+  if (filePath) {
+    res.send(renderPhpPage(target, req));
+  } else {
+    next();
+  }
+});
+
 app.get("/:page", (req, res, next) => {
   const page = req.params.page;
-  const filePath = path.join(websiteDir, `${page}.php`);
-  if (fs.existsSync(filePath)) {
+  const filePath = findPageFile(page);
+  if (filePath) {
     res.send(renderPhpPage(page, req));
   } else {
     next();
@@ -1769,9 +1974,19 @@ app.get("/:page", (req, res, next) => {
 
 app.post("/:page.php", (req, res) => {
   const page = req.params.page;
-  const filePath = path.join(websiteDir, `${page}.php`);
-  if (fs.existsSync(filePath)) {
+  const filePath = findPageFile(page);
+  if (filePath) {
     res.send(renderPhpPage(page, req, req.body));
+  } else {
+    res.status(404).send("Page not found");
+  }
+});
+
+app.post("/:dir/:page.php", (req, res) => {
+  const target = `${req.params.dir}/${req.params.page}`;
+  const filePath = findPageFile(target);
+  if (filePath) {
+    res.send(renderPhpPage(target, req, req.body));
   } else {
     res.status(404).send("Page not found");
   }
@@ -1779,16 +1994,23 @@ app.post("/:page.php", (req, res) => {
 
 app.post("/:page", (req, res) => {
   const page = req.params.page;
-  const filePath = path.join(websiteDir, `${page}.php`);
-  if (fs.existsSync(filePath)) {
+  const filePath = findPageFile(page);
+  if (filePath) {
     res.send(renderPhpPage(page, req, req.body));
   } else {
     res.status(404).send("Page not found");
   }
 });
 
-// Serve static assets from website directory (CSS, JS, images)
-app.use(express.static(websiteDir));
+app.post("/:dir/:page", (req, res) => {
+  const target = `${req.params.dir}/${req.params.page}`;
+  const filePath = findPageFile(target);
+  if (filePath) {
+    res.send(renderPhpPage(target, req, req.body));
+  } else {
+    res.status(404).send("Page not found");
+  }
+});
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`AURA Luxury Store running at http://localhost:${PORT}`);

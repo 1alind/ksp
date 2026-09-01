@@ -1,0 +1,40 @@
+{
+    "orders": [
+        {
+            "id": 1,
+            "order_id": "ORD-10001",
+            "customer_name": "Ahmad Al-Kurdi",
+            "customer_phone": "0750 123 4567",
+            "customer_email": "ahmad.k@aura-vip.com",
+            "governorate": "Duhok",
+            "district": "Malta",
+            "customer_address": "Near Dream City Gate 2, Villa 45",
+            "subtotal": 490000,
+            "shipping_fee": 5000,
+            "discount_amount": 0,
+            "total_amount": 495000,
+            "total": 495000,
+            "currency": "IQD",
+            "payment_method": "First Iraqi Bank (FIB)",
+            "payment_status": "Paid",
+            "order_status": "Shipped",
+            "courier": "VIP Express Courier",
+            "driver_name": "Sardar Mohammed",
+            "driver_phone": "0750 987 6543",
+            "tracking_code": "TRK-DHK-9921",
+            "dispatch_notes": "Call customer 15 mins before arrival. Fragile luxury glass packaging.",
+            "estimated_delivery": "Today by 6:00 PM",
+            "items": [
+                {
+                    "id": 1,
+                    "title": "Royal Midnight Velvet Blazer",
+                    "price": 245000,
+                    "quantity": 2,
+                    "size": "L",
+                    "color": "Midnight Blue"
+                }
+            ],
+            "created_at": "2026-09-01T10:30:00.000Z"
+        }
+    ]
+}
