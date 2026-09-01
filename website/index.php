@@ -80,7 +80,7 @@ $featuredProducts = array_filter($products, function($p) {
             <?php endforeach; ?>
         </div>
 
-        <div class="text-center mt-48">
+        <div class="showcase-catalog-btn-wrap text-center">
             <a href="shop.php" class="btn btn-secondary btn-lg">
                 <span><?php echo t('shop_title', $lang); ?></span>
                 <span>→</span>
