@@ -158,7 +158,7 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
     
     <link rel="stylesheet" href="/style.css">
 </head>
-<body class="page-${activePage}">
+<body class="page-${activePage.replace(/[\/\.]/g, '-')} ${activePage.startsWith('admin') || ['orders', 'products', 'payments', 'users', 'inquiries', 'branding'].includes(activePage) ? 'page-admin' : ''}">
 
     <!-- Top Announcement Bar -->
     ${announcementEnabled ? `
