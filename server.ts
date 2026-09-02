@@ -860,9 +860,12 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     }
   }
 
-  // Support inline partial includes (such as nav.php)
+  // Support inline partial includes (such as nav.php), while excluding header/footer which are injected via renderHeader/renderFooter
   rawContent = rawContent.replace(/<\?php\s+(?:require_once|include_once|require|include)\s+(?:__DIR__\s*\.\s*)?['"]([^'"]+)['"]\s*;?\s*\?>/g, (match, relPath) => {
     const cleanRel = relPath.replace(/^\//, "");
+    if (cleanRel.endsWith("header.php") || cleanRel.endsWith("footer.php") || cleanRel.includes("/header.php") || cleanRel.includes("/footer.php")) {
+      return "";
+    }
     const resolvedPath = path.join(path.dirname(filePath), cleanRel);
     if (fs.existsSync(resolvedPath)) {
       return fs.readFileSync(resolvedPath, "utf-8");
