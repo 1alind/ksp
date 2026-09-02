@@ -9,10 +9,7 @@ const PORT = 3000;
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.json({ limit: "10mb" }));
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const websiteDir = path.join(__dirname, "website");
+const websiteDir = path.join(process.cwd(), "website");
 const websiteDbDir = path.join(websiteDir, "database");
 
 // Serve static assets from nested asset subdirectories
@@ -509,10 +506,10 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   if (!["dark", "light"].includes(theme)) theme = "dark";
 
   const productsDb = getDbFile("products.json");
-  const productsList = productsDb.products || [];
+  let productsList = productsDb.products || [];
 
   const ordersDb = getDbFile("orders.json");
-  const ordersList = ordersDb.orders || [];
+  let ordersList = ordersDb.orders || [];
 
   const reviewsDb = getDbFile("reviews.json");
   const usersDb = getDbFile("users.json");
@@ -812,8 +809,27 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
     if (postData.delete_product_id) {
       const delId = parseInt(postData.delete_product_id, 10);
-      productsDb.products = productsList.filter((p: any) => p.id !== delId);
+      productsList = productsList.filter((p: any) => p.id !== delId);
+      productsDb.products = productsList;
       saveDbFile("products.json", productsDb);
+    }
+
+    if (postData.delete_order_id) {
+      ordersList = ordersList.filter((o: any) => o.order_id !== postData.delete_order_id);
+      ordersDb.orders = ordersList;
+      saveDbFile("orders.json", ordersDb);
+    }
+
+    if (postData.delete_user_id) {
+      const delUid = parseInt(postData.delete_user_id, 10);
+      usersDb.users = (usersDb.users || []).filter((u: any) => u.id !== delUid);
+      saveDbFile("users.json", usersDb);
+    }
+
+    if (postData.delete_inquiry_id) {
+      const inqDb = getDbFile("inquiries.json");
+      inqDb.inquiries = (inqDb.inquiries || []).filter((inq: any) => inq.id !== postData.delete_inquiry_id);
+      saveDbFile("inquiries.json", inqDb);
     }
 
     if (postData.send_inquiry && postData.name && postData.message) {
@@ -843,6 +859,16 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       rawContent = fs.readFileSync(nestedPath, "utf-8");
     }
   }
+
+  // Support inline partial includes (such as nav.php)
+  rawContent = rawContent.replace(/<\?php\s+(?:require_once|include_once|require|include)\s+(?:__DIR__\s*\.\s*)?['"]([^'"]+)['"]\s*;?\s*\?>/g, (match, relPath) => {
+    const cleanRel = relPath.replace(/^\//, "");
+    const resolvedPath = path.join(path.dirname(filePath), cleanRel);
+    if (fs.existsSync(resolvedPath)) {
+      return fs.readFileSync(resolvedPath, "utf-8");
+    }
+    return match;
+  });
 
   // Determine activePage and pageTitle
   let activePage = pageName === "index" ? "home" : pageName.replace(/\.php$/i, "");
@@ -1164,20 +1190,67 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$relatedProducts\s+as\s+\$item\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, relatedHtml);
   }
 
-  // Admin Dashboard Content
-  if (pageName === "admin" || pageName === "admin/index") {
-    let rev = 0;
-    ordersList.forEach((o: any) => (rev += o.total || 0));
+  // Admin Modular Command Suite Content
+  const isAdminPage = pageName === "admin" || pageName === "admin/index" || pageName.startsWith("admin/") || ["orders", "products", "payments", "users", "inquiries", "branding"].includes(pageName);
+  if (isAdminPage) {
+    const inquiriesDb = getDbFile("inquiries.json");
+    const inquiriesList = inquiriesDb.inquiries || [];
+    const settingsDb = getDbFile("settings.json");
+    const gateways = settingsDb.gateways || {};
+    const fib = gateways.fib || {};
+    const zain = gateways.zaincash || {};
+    const fastpay = gateways.fastpay || {};
+    const cod = gateways.cod || {};
+    const rate = settingsDb.exchange_rate_usd_to_iqd || 1320;
+    const usersList = usersDb.users || [];
 
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$totalRevenue,\s*2\)\s*;?\s*\?>/g, rev.toFixed(2));
+    let totalRevenueIqd = 0;
+    let pendingCount = 0;
+    let shippedCount = 0;
+    let deliveredCount = 0;
+    ordersList.forEach((o: any) => {
+      totalRevenueIqd += (o.total || 0);
+      const st = o.order_status || "Pending";
+      if (st === "Pending" || st === "Processing") pendingCount++;
+      if (st === "Shipped" || st === "Out for Delivery") shippedCount++;
+      if (st === "Delivered") deliveredCount++;
+    });
+
+    const totalStock = productsList.reduce((sum: number, p: any) => sum + (p.stock || 0), 0);
+    const featuredCount = productsList.filter((p: any) => p.featured).length;
+    const totalCustomerSpend = totalRevenueIqd;
+
+    // Detect active admin page tab
+    let currentAdminNav = "dashboard";
+    if (pageName.includes("orders") || pageName === "admin/orders") currentAdminNav = "orders";
+    else if (pageName.includes("products") || pageName === "admin/products") currentAdminNav = "products";
+    else if (pageName.includes("payments") || pageName === "admin/payments") currentAdminNav = "payments";
+    else if (pageName.includes("users") || pageName === "admin/users") currentAdminNav = "users";
+    else if (pageName.includes("inquiries") || pageName === "admin/inquiries") currentAdminNav = "inquiries";
+    else if (pageName.includes("branding") || pageName === "admin/branding") currentAdminNav = "branding";
+
+    // Replaces for Nav active tabs
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$(?:currentNavPage|adminActive)\s*===\s*'([^']+)'\s*\?\s*'active'\s*:\s*''\s*;?\s*\?>/g, (m, val) => val === currentAdminNav ? 'active' : '');
+
+    // Replaces for Counts & Numerical KPI stats
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$(?:totalRevenue|totalRevenueIqd)(?:,\s*2)?\)\s*;?\s*\?>/g, Number(totalRevenueIqd).toLocaleString());
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+number_format\(\$totalCustomerSpend\)\s*;?\s*\?>/g, Number(totalCustomerSpend).toLocaleString());
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$ordersList\)\s*;?\s*\?>/g, String(ordersList.length));
     bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$productsList\)\s*;?\s*\?>/g, String(productsList.length));
-    const usersCount = (usersDb.users || []).length;
-    bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$usersList\)\s*;?\s*\?>/g, String(usersCount));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$usersList\)\s*;?\s*\?>/g, String(usersList.length));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+count\(\$inquiriesList\)\s*;?\s*\?>/g, String(inquiriesList.length));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$pendingCount\s*;?\s*\?>/g, String(pendingCount));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$shippedCount\s*;?\s*\?>/g, String(shippedCount));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$deliveredCount\s*;?\s*\?>/g, String(deliveredCount));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$totalStock\s*;?\s*\?>/g, String(totalStock));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$featuredCount\s*;?\s*\?>/g, String(featuredCount));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$rate\)\s*;?\s*\?>/g, String(rate));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\$rate\s*;?\s*\?>/g, String(rate));
 
+    // Order Rows
     const orderRows = ordersList.map((ord: any) => `
       <tr data-status="${ord.order_status || 'Pending'}" data-search="${(ord.order_id + ' ' + (ord.customer_name || '') + ' ' + (ord.phone || '') + ' ' + (ord.city || '')).toLowerCase()}">
-        <td><strong><a href="track.php?order_id=${ord.order_id}">${ord.order_id}</a></strong></td>
+        <td><strong><a href="/track.php?order_id=${ord.order_id}">${ord.order_id}</a></strong></td>
         <td><small>${new Date(ord.created_at).toLocaleDateString()}</small></td>
         <td>
           <strong>${ord.customer_name}</strong><br>
@@ -1216,7 +1289,11 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
             <button type="button" class="btn btn-outline btn-xs" onclick='printOrderInvoice(${JSON.stringify(ord).replace(/'/g, "&#39;").replace(/"/g, "&quot;")})' title="Print Invoice">
               📄 Invoice
             </button>
-            <a href="track.php?order_id=${ord.order_id}" class="btn btn-ghost btn-xs" title="Track Live">👁️</a>
+            <a href="/track.php?order_id=${ord.order_id}" class="btn btn-ghost btn-xs" title="Track Live">👁️</a>
+            <form action="/admin/orders.php" method="POST" onsubmit="return confirm('Delete order permanently?')" style="display:inline; margin:0;">
+              <input type="hidden" name="delete_order_id" value="${ord.order_id}">
+              <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete">🗑️</button>
+            </form>
           </div>
         </td>
       </tr>
@@ -1224,6 +1301,25 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$ordersList\s+as\s+\$ord\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, orderRows);
 
+    // Recent Orders (for dashboard index.php)
+    const recentOrders = ordersList.slice(0, 5);
+    const recentOrderRows = recentOrders.map((ord: any) => `
+      <tr>
+        <td><strong><a href="/track.php?order_id=${ord.order_id}">${ord.order_id}</a></strong></td>
+        <td><small>${new Date(ord.created_at).toLocaleDateString()}</small></td>
+        <td>
+          <strong>${ord.customer_name}</strong><br>
+          <small class="text-muted">${ord.city || ''}</small>
+        </td>
+        <td><strong class="text-primary font-bold">${Number(ord.total || 0).toLocaleString()} IQD</strong></td>
+        <td><span class="badge-tag">${ord.payment_method || 'COD'}</span></td>
+        <td><span class="badge-tag" style="font-weight:700; background:var(--bg-subtle);">${ord.order_status || 'Pending'}</span></td>
+        <td><a href="/admin/orders.php" class="btn btn-outline btn-xs">Manage in Orders →</a></td>
+      </tr>
+    `).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$recentOrders\s+as\s+\$ord\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, recentOrderRows);
+
+    // Products Rows
     const prodRows = productsList.map((p: any) => {
       const pTitle = typeof p.title === "object" ? (p.title[lang] || p.title.en) : p.title;
       const pPriceIqd = p.price || 0;
@@ -1236,7 +1332,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
             <div class="admin-prod-preview">
               <img src="${p.image}" alt="" class="admin-prod-thumb" id="adminThumb_${p.id}">
               <div>
-                <strong><a href="product.php?id=${p.id}" target="_blank" style="color:var(--text-primary);">${pTitle}</a></strong><br>
+                <strong><a href="/product.php?id=${p.id}" target="_blank" style="color:var(--text-primary);">${pTitle}</a></strong><br>
                 ${p.badge ? `<small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;">${p.badge}</small>` : ""}
                 ${p.featured ? `<small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>` : ""}
               </div>
@@ -1262,10 +1358,10 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
               <button type="button" class="btn btn-outline btn-xs" style="color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;" onclick='openEditProductModal(${safeJson})'>
                 ✏️ Edit
               </button>
-              <a href="product.php?id=${p.id}" target="_blank" class="btn btn-ghost btn-xs" title="View in boutique">
+              <a href="/product.php?id=${p.id}" target="_blank" class="btn btn-ghost btn-xs" title="View in boutique">
                 👁️
               </a>
-              <form action="admin.php" method="POST" onsubmit="return confirm('Delete product permanently?')" style="display:inline; margin:0;">
+              <form action="/admin/products.php" method="POST" onsubmit="return confirm('Delete product permanently?')" style="display:inline; margin:0;">
                 <input type="hidden" name="delete_product_id" value="${p.id}">
                 <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete product">🗑️</button>
               </form>
@@ -1276,6 +1372,161 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     }).join("");
 
     bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$productsList\s+as\s+\$p\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, prodRows);
+
+    // Users Rows
+    const userRows = usersList.map((u: any) => {
+      const initials = (u.name || "U").substring(0, 2).toUpperCase();
+      const uPhone = u.phone || "";
+      let cleanPhone = uPhone.replace(/[^0-9]/g, "");
+      if (cleanPhone.startsWith("07")) cleanPhone = "964" + cleanPhone.substring(1);
+      const searchStr = `${u.name || ''} ${u.email || ''} ${u.phone || ''} ${u.city || ''}`.toLowerCase();
+      return `
+        <tr data-search="${searchStr}">
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--accent-gold); color:#0c0e14; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px;">
+                ${initials}
+              </div>
+              <div>
+                <strong style="color:var(--text-primary); font-size:14px;">${u.name}</strong><br>
+                <code style="font-size:11px; color:var(--text-muted);">${u.user_code || 'USR-' + String(u.id).padStart(3, '0')}</code>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span style="font-size:13px;">${u.email}</span><br>
+            <small class="text-muted">📞 ${uPhone}</small>
+          </td>
+          <td>
+            <span class="badge-tag" style="font-weight:600;">📍 ${u.city || 'Duhok'}</span>
+          </td>
+          <td>
+            <strong style="font-size:14px;">${u.orders_count || 1}</strong> <span class="text-muted">orders</span>
+          </td>
+          <td>
+            <strong style="color:var(--accent-gold); font-size:14px;">${Number(u.total_spent || 240000).toLocaleString()} IQD</strong>
+          </td>
+          <td>
+            <small class="text-muted">${u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Active Member'}</small>
+          </td>
+          <td>
+            <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border-color:#22c55e; font-weight:700;">Active</span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              ${cleanPhone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e;">💬 WA</a>` : ''}
+              <form action="/admin/users.php" method="POST" onsubmit="return confirm('Delete customer profile?')" style="display:inline; margin:0;">
+                <input type="hidden" name="delete_user_id" value="${u.id}">
+                <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete">✕</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$usersList\s+as\s+\$u\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, userRows);
+
+    // Inquiries Rows
+    const inqRows = inquiriesList.map((inq: any) => {
+      let waNum = (inq.phone || "").replace(/[^0-9]/g, "");
+      if (waNum.startsWith("07")) waNum = "964" + waNum.substring(1);
+      const waText = encodeURIComponent(`Hello ${inq.name}, greetings from AURA Luxury Store concierge. Regarding your inquiry: ${inq.subject || ''}`);
+      const searchStr = `${inq.name || ''} ${inq.subject || ''} ${inq.email || ''} ${inq.phone || ''}`.toLowerCase();
+      return `
+        <div class="inquiry-card" data-search="${searchStr}" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700; margin-bottom:6px; display:inline-block;">Inquiry #${inq.id}</span>
+                <h4 style="margin:4px 0 2px; font-size:16px; font-weight:700; color:var(--text-primary);">${inq.name}</h4>
+                <div style="font-size:12.5px; color:var(--text-muted);">
+                  ✉️ <a href="mailto:${inq.email}" style="color:var(--text-secondary);">${inq.email || 'N/A'}</a> &nbsp;•&nbsp; 
+                  📞 ${inq.phone || 'N/A'}
+                </div>
+              </div>
+              <span style="font-size:11.5px; color:var(--text-muted);">${inq.created_at || inq.date ? new Date(inq.created_at || inq.date).toLocaleDateString() : 'Recent'}</span>
+            </div>
+            <div style="background:var(--bg-subtle); border-radius:8px; padding:12px; margin-top:8px; border:1px solid var(--border-subtle);">
+              <strong style="display:block; font-size:13px; color:var(--text-primary); margin-bottom:4px;">📌 ${inq.subject || 'General Inquiry'}</strong>
+              <p style="margin:0; font-size:13.5px; color:var(--text-secondary); line-height:1.5; white-space:pre-wrap;">${inq.message || ''}</p>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--border-subtle); flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; gap:8px;">
+              ${waNum ? `<a href="https://wa.me/${waNum}?text=${waText}" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e; border-color:#22c55e;">💬 WhatsApp Reply</a>` : ''}
+              ${inq.email ? `<a href="mailto:${inq.email}?subject=${encodeURIComponent('Re: ' + (inq.subject || 'AURA Luxury Inquiry'))}" class="btn btn-outline btn-xs">✉️ Email</a>` : ''}
+            </div>
+            <form action="/admin/inquiries.php" method="POST" onsubmit="return confirm('Mark inquiry as resolved?')" style="margin:0;">
+              <input type="hidden" name="delete_inquiry_id" value="${inq.id}">
+              <button type="submit" class="btn btn-ghost text-danger btn-xs">✓ Mark Resolved</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }).join("");
+    bodyContent = bodyContent.replace(/<\?php\s+foreach\s*\(\$inquiriesList\s+as\s+\$inq\):\s*.*?<\?php\s+endforeach;\s*\?>/gs, inqRows);
+
+    // Gateway & Settings replacement (payments.php & branding.php)
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$fib\['enabled'\]\)\s*\|\|\s*!isset\(\$fib\['enabled'\]\)\)\s*\?\s*'checked'\s*:\s*'';\s*\?>/g, (fib.enabled ?? true) ? 'checked' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$fib\['mode'\]\s*\?\?\s*''\)\s*===\s*'test'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, fib.mode === 'test' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$fib\['mode'\]\s*\?\?\s*''\)\s*===\s*'prod'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, fib.mode === 'prod' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['account_iban'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.account_iban || 'IQ44FIBQ0000001009283741');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['account_holder'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.account_holder || 'AURA LUXURY ATELIER LTD');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['client_id'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.client_id || 'fib_live_client_89420ab92c');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['client_secret'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.client_secret || '••••••••••••••••••••••••');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['callback_url'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.callback_url || 'https://aurastore.iq/api/fib/callback');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['webhook_secret'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.webhook_secret || 'whsec_9942a8b9c10d3f8e');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fib\['access_token'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fib.access_token || '');
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$zain\['enabled'\]\)\s*\|\|\s*!isset\(\$zain\['enabled'\]\)\)\s*\?\s*'checked'\s*:\s*'';\s*\?>/g, (zain.enabled ?? true) ? 'checked' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$zain\['mode'\]\s*\?\?\s*''\)\s*===\s*'test'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, zain.mode === 'test' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$zain\['mode'\]\s*\?\?\s*''\)\s*===\s*'prod'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, zain.mode === 'prod' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$zain\['merchant_id'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, zain.merchant_id || '5ff6561082c3f8109c11f2a3');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$zain\['secret_key'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, zain.secret_key || '$2y$10$h.dl5J86r4490SO6nvEnA');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$zain\['msisdn'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, zain.msisdn || '9647835077893');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$zain\['pin'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, zain.pin || '1234');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$zain\['redirect_url'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, zain.redirect_url || 'https://aurastore.iq/api/zaincash/redirect');
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$fastpay\['enabled'\]\)\s*\|\|\s*!isset\(\$fastpay\['enabled'\]\)\)\s*\?\s*'checked'\s*:\s*'';\s*\?>/g, (fastpay.enabled ?? true) ? 'checked' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$fastpay\['mode'\]\s*\?\?\s*''\)\s*===\s*'test'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, fastpay.mode === 'test' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$fastpay\['mode'\]\s*\?\?\s*''\)\s*===\s*'prod'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, fastpay.mode === 'prod' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fastpay\['merchant_mobile'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fastpay.merchant_mobile || '0750 892 4110');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$fastpay\['store_id'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, fastpay.store_id || 'FP_STORE_94821');
+
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$cod\['enabled'\]\)\s*\|\|\s*!isset\(\$cod\['enabled'\]\)\)\s*\?\s*'checked'\s*:\s*'';\s*\?>/g, 'checked');
+
+    // Branding replacements ($s)
+    const s = settingsDb;
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_name'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_name || 'AURA Luxury Store');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_name_ar'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_name_ar || 'متجر أورا الفاخر');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_name_ku'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_name_ku || 'فروشگەها ئۆرا یا شاهانە');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_tagline_en'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_tagline_en || 'Bespoke Luxury & Haute Elegance in Iraq');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_tagline_ar'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_tagline_ar || 'الأناقة الملكية والقطع الحصرية في العراق');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_tagline_ku'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_tagline_ku || 'جوانی و شیکپۆشیا شاهانە ل عیراق و کوردستانێ');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$s\['logo_type'\]\s*\?\?\s*'[^']*'\)\s*===\s*'emblem'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, (s.logo_type || 'emblem') === 'emblem' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(\$s\['logo_type'\]\s*\?\?\s*''\)\s*===\s*'image'\s*\?\s*'selected'\s*:\s*'';\s*\?>/g, s.logo_type === 'image' ? 'selected' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['logo_emblem'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.logo_emblem || 'A');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['logo_main'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.logo_main || 'AURA');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['logo_sub'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.logo_sub || 'STUDIO');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['brand_accent_color'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.brand_accent_color || '#d4af37');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['logo_image_url'\]\s*\?\?\s*''\);\s*\?>/g, s.logo_image_url || '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['favicon_url'\]\s*\?\?\s*''\);\s*\?>/g, s.favicon_url || '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+\(!empty\(\$s\['announcement_enabled'\]\)\s*\|\|\s*!isset\(\$s\['announcement_enabled'\]\)\)\s*\?\s*'checked'\s*:\s*'';\s*\?>/g, (s.announcement_enabled ?? true) ? 'checked' : '');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['announcement_text_en'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.announcement_text_en || 'Free White-Glove Hand Delivery Across Kurdistan on orders over 150,000 IQD');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['announcement_text_ar'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.announcement_text_ar || 'توصيل مجاني فائق السرعة لجميع محافظات كردستان والعراق للطلبات فوق 150,000 د.ع');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['announcement_text_ku'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.announcement_text_ku || 'گەهاندنا بێ بەرامبەر یا ب لەز بۆ هەمی باژێرێن کوردستانێ بۆ داخوازیێن زێدەتر ژ 150,000 دینار');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_description_en'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_description_en || 'Iraq’s premier atelier for luxury couture, Swiss timepieces, and rare niche fragrances.');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_description_ar'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_description_ar || 'الوجهة الأولى في العراق للأزياء الراقية، الساعات السويسرية، والعطور النادرة.');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['store_description_ku'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.store_description_ku || 'ئێکەمین و مەزنترین فڕۆشگەها کەلوپەلێن لوکس و براندێن جیهانی ل کوردستان و عیراقێ.');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['delivery_kurdistan_fee'\]\s*\?\?\s*5000\);\s*\?>/g, String(s.delivery_kurdistan_fee ?? 5000));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['delivery_iraq_fee'\]\s*\?\?\s*8000\);\s*\?>/g, String(s.delivery_iraq_fee ?? 8000));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['free_delivery_threshold'\]\s*\?\?\s*150000\);\s*\?>/g, String(s.free_delivery_threshold ?? 150000));
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['contact_phone'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.contact_phone || '+964 750 892 4110');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['contact_whatsapp'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.contact_whatsapp || '9647508924110');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['contact_email'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.contact_email || 'concierge@aurastore.iq');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['boutique_location_en'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.boutique_location_en || 'Dream City Boulevard, Atelier Suite #4, Erbil / Duhok, Kurdistan');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['boutique_location_ar'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.boutique_location_ar || 'بوليفارد دريم سيتي، جناح رقم 4، أربيل / دهوك، كردستان العراق');
+    bodyContent = bodyContent.replace(/<\?php\s+echo\s+htmlspecialchars\(\$s\['boutique_location_ku'\]\s*\?\?\s*'[^']*'\);\s*\?>/g, s.boutique_location_ku || 'جادا دریم ستی، باڤیلیۆنا ئۆرا، هەولێر / دهۆک، هەرێما کوردستانێ');
   }
 
   // Size Guide Page Details & Schematics

@@ -1,0 +1,222 @@
+<?php
+$pageTitle = 'Brand Customizer & Global Settings | AURA Luxury Admin';
+$adminActive = 'branding';
+$settingsDb = json_decode(file_get_contents(__DIR__ . '/../database/settings.json'), true);
+$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
+$ordersList = $ordersDb['orders'] ?? [];
+$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
+$productsList = $productsDb['products'] ?? [];
+$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
+$usersList = $usersDb['users'] ?? [];
+$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
+$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+
+$s = $settingsDb;
+?>
+
+<div class="page-banner">
+    <div class="container">
+        <div class="page-banner-content">
+            <span class="section-kicker">✦ Executive Command Suite</span>
+            <h1 class="page-banner-title">Brand Customizer & Settings</h1>
+            <p class="page-banner-subtitle">
+                Fine-tune trilingual store identity, monogram emblem, announcement ribbons, delivery pricing, and atelier contacts.
+            </p>
+        </div>
+    </div>
+</div>
+
+<section class="admin-section" style="padding: 40px 0 80px;">
+    <div class="container">
+
+        <!-- Unified Admin Navigation Bar -->
+        <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <form action="/admin/branding.php" method="POST">
+            <input type="hidden" name="save_website_branding" value="1">
+
+            <!-- Section 1: Store Name & Trilingual Branding -->
+            <div class="admin-form-card mb-24">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 class="admin-card-title" style="margin:0; font-size:17px;">🏛️ Trilingual Store Name & Slogans</h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">These appear across the header, footer, page titles, and tax invoices.</p>
+                    </div>
+                </div>
+
+                <div class="form-row-3 mb-16">
+                    <div class="form-group">
+                        <label>Store Name (English)</label>
+                        <input type="text" name="store_name" value="<?php echo htmlspecialchars($s['store_name'] ?? 'AURA Luxury Store'); ?>" class="form-control" placeholder="AURA Luxury Store">
+                    </div>
+                    <div class="form-group">
+                        <label>Store Name (Arabic - العربية)</label>
+                        <input type="text" name="store_name_ar" value="<?php echo htmlspecialchars($s['store_name_ar'] ?? 'متجر أورا الفاخر'); ?>" class="form-control" placeholder="متجر أورا الفاخر">
+                    </div>
+                    <div class="form-group">
+                        <label>Store Name (Kurdish - کوردی)</label>
+                        <input type="text" name="store_name_ku" value="<?php echo htmlspecialchars($s['store_name_ku'] ?? 'فروشگەها ئۆرا یا شاهانە'); ?>" class="form-control" placeholder="فروشگەها ئۆرا یا شاهانە">
+                    </div>
+                </div>
+
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Tagline (English)</label>
+                        <input type="text" name="store_tagline_en" value="<?php echo htmlspecialchars($s['store_tagline_en'] ?? 'Bespoke Luxury & Haute Elegance in Iraq'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Tagline (Arabic - العربية)</label>
+                        <input type="text" name="store_tagline_ar" value="<?php echo htmlspecialchars($s['store_tagline_ar'] ?? 'الأناقة الملكية والقطع الحصرية في العراق'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Tagline (Kurdish - کوردی)</label>
+                        <input type="text" name="store_tagline_ku" value="<?php echo htmlspecialchars($s['store_tagline_ku'] ?? 'جوانی و شیکپۆشیا شاهانە ل عیراق و کوردستانێ'); ?>" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Logo & Visual Monogram -->
+            <div class="admin-form-card mb-24">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 class="admin-card-title" style="margin:0; font-size:17px;">✨ Logo Emblem & Visual Identity</h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Choose between a gold monogram heraldic seal or custom image logo.</p>
+                    </div>
+                </div>
+
+                <div class="form-row-3 mb-16">
+                    <div class="form-group">
+                        <label>Logo Type</label>
+                        <select name="logo_type" class="form-control">
+                            <option value="emblem" <?php echo ($s['logo_type'] ?? 'emblem') === 'emblem' ? 'selected' : ''; ?>>Luxury Monogram Emblem + Text</option>
+                            <option value="image" <?php echo ($s['logo_type'] ?? '') === 'image' ? 'selected' : ''; ?>>Custom Image URL Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Emblem Initial Letter</label>
+                        <input type="text" name="logo_emblem" value="<?php echo htmlspecialchars($s['logo_emblem'] ?? 'A'); ?>" maxlength="2" class="form-control" style="font-weight:800; text-align:center;">
+                    </div>
+                    <div class="form-group">
+                        <label>Accent Brand Color</label>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="color" name="brand_accent_color" value="<?php echo htmlspecialchars($s['brand_accent_color'] ?? '#d4af37'); ?>" style="height:40px; width:50px; padding:2px; border-radius:6px; cursor:pointer;">
+                            <input type="text" value="<?php echo htmlspecialchars($s['brand_accent_color'] ?? '#d4af37'); ?>" class="form-control" readonly style="font-family:monospace;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-2 mb-16">
+                    <div class="form-group">
+                        <label>Main Brand Word (e.g. AURA)</label>
+                        <input type="text" name="logo_main" value="<?php echo htmlspecialchars($s['logo_main'] ?? 'AURA'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Sub Brand Word (e.g. STUDIO or LUXURY)</label>
+                        <input type="text" name="logo_sub" value="<?php echo htmlspecialchars($s['logo_sub'] ?? 'STUDIO'); ?>" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Custom Logo Image URL (Optional)</label>
+                        <input type="url" name="logo_image_url" value="<?php echo htmlspecialchars($s['logo_image_url'] ?? ''); ?>" class="form-control" placeholder="https://domain.com/logo.png">
+                    </div>
+                    <div class="form-group">
+                        <label>Favicon URL (Browser Tab Icon)</label>
+                        <input type="url" name="favicon_url" value="<?php echo htmlspecialchars($s['favicon_url'] ?? ''); ?>" class="form-control" placeholder="https://domain.com/favicon.png">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Announcement Bar & Delivery Logistics -->
+            <div class="admin-form-card mb-24">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 class="admin-card-title" style="margin:0; font-size:17px;">📢 Top Announcement Ribbon & Delivery Fees</h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Control the luxury ticker banner and shipping costs across Iraqi provinces.</p>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input type="checkbox" name="announcement_enabled" value="1" <?php echo ($s['announcement_enabled'] ?? true) ? 'checked' : ''; ?> style="width:18px; height:18px; accent-color:var(--accent-gold);">
+                        <span style="font-weight:700; font-size:13px;">Enable Announcement Bar</span>
+                    </label>
+                </div>
+
+                <div class="form-row-3 mb-20">
+                    <div class="form-group">
+                        <label>Announcement Text (English)</label>
+                        <input type="text" name="announcement_text_en" value="<?php echo htmlspecialchars($s['announcement_text_en'] ?? '✨ Complimentary White-Glove Delivery on orders over 250,000 IQD across Iraq'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Announcement Text (Arabic - العربية)</label>
+                        <input type="text" name="announcement_text_ar" value="<?php echo htmlspecialchars($s['announcement_text_ar'] ?? '✨ توصيل فاخر مجاني للطلبات فوق 250,000 دينار عراقي لكافة المحافظات'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Announcement Text (Kurdish - کوردی)</label>
+                        <input type="text" name="announcement_text_ku" value="<?php echo htmlspecialchars($s['announcement_text_ku'] ?? '✨ گەهاندنا بێبەرامبەر یا شاهانە بۆ داخازیێن ژ 250,000 دیناران بژووری ل سەرتاسەری عیراقێ'); ?>" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Delivery Fee - Kurdistan Region (IQD)</label>
+                        <input type="number" name="delivery_kurdistan_fee" value="<?php echo htmlspecialchars($s['delivery_kurdistan_fee'] ?? 5000); ?>" class="form-control" placeholder="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Fee - Federal Iraq (Baghdad/Basra) (IQD)</label>
+                        <input type="number" name="delivery_iraq_fee" value="<?php echo htmlspecialchars($s['delivery_iraq_fee'] ?? 8000); ?>" class="form-control" placeholder="8000">
+                    </div>
+                    <div class="form-group">
+                        <label>Free Delivery Minimum Spend (IQD)</label>
+                        <input type="number" name="free_delivery_threshold" value="<?php echo htmlspecialchars($s['free_delivery_threshold'] ?? 250000); ?>" class="form-control" placeholder="250000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Contact & Boutique Atelier Details -->
+            <div class="admin-form-card mb-24">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 class="admin-card-title" style="margin:0; font-size:17px;">📍 Boutique Atelier & Client Support Contacts</h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Contact phone, WhatsApp concierge link, and boutique physical showroom address.</p>
+                    </div>
+                </div>
+
+                <div class="form-row-3 mb-16">
+                    <div class="form-group">
+                        <label>Customer Service Phone</label>
+                        <input type="text" name="contact_phone" value="<?php echo htmlspecialchars($s['contact_phone'] ?? '+964 750 000 0000'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Official WhatsApp Number</label>
+                        <input type="text" name="contact_whatsapp" value="<?php echo htmlspecialchars($s['contact_whatsapp'] ?? '9647500000000'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Support / Concierge Email</label>
+                        <input type="email" name="contact_email" value="<?php echo htmlspecialchars($s['contact_email'] ?? 'concierge@aurastore.iq'); ?>" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Boutique Location (English)</label>
+                        <input type="text" name="boutique_location_en" value="<?php echo htmlspecialchars($s['boutique_location_en'] ?? 'Dream City Boulevard, Erbil • Gulan Street'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Boutique Location (Arabic - العربية)</label>
+                        <input type="text" name="boutique_location_ar" value="<?php echo htmlspecialchars($s['boutique_location_ar'] ?? 'شارع دريم سيتي، أربيل • شارع كولان'); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Boutique Location (Kurdish - کوردی)</label>
+                        <input type="text" name="boutique_location_ku" value="<?php echo htmlspecialchars($s['boutique_location_ku'] ?? 'بۆلیڤاردا دریم سیتی، هەولێر • جادا گولان'); ?>" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="submit" class="btn btn-primary btn-luxury" style="padding:12px 32px; font-size:15px;">
+                    💾 Save Brand & Store Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
