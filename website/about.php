@@ -46,7 +46,7 @@ require_once __DIR__ . '/header.php';
                     </div>
                     <div class="highlight-box">
                         <strong>25,000+</strong>
-                        <span>VIP Clients Across Kurdistan & Global</span>
+                        <span>Clients Across Kurdistan & Global</span>
                     </div>
                 </div>
             </div>

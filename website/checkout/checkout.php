@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             'payment_status' => $isOnlinePaid ? 'Paid (Verified Online)' : 'Pending (Pay on Delivery)',
             'payment_gateway_tx' => $isOnlinePaid ? ('TX-' . strtoupper(substr(md5(uniqid()), 0, 10))) : 'COD-' . rand(1000, 9999),
             'order_status' => 'Processing',
-            'courier' => 'AURA VIP Express Logistics',
+            'courier' => 'AURA Express Logistics',
             'tracking_code' => 'AURA-EXP-' . rand(10000, 99999),
             'dispatch_notes' => 'Order verified. Satin wrap and quality inspection underway at central hub.',
             'estimated_delivery' => 'Within 24-48 Hours across ' . htmlspecialchars($fullCityLocation),

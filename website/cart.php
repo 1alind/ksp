@@ -194,12 +194,12 @@ function applyCoupon() {
     if (code === 'AURA10') {
         sessionStorage.setItem('aura_discount_rate', '0.10');
         feedback.className = 'coupon-msg text-success';
-        feedback.innerText = '✓ 10% Aura VIP Discount applied!';
+        feedback.innerText = '✓ 10% Aura Discount applied!';
         renderCartPage();
     } else if (code === 'LUXURY20') {
         sessionStorage.setItem('aura_discount_rate', '0.20');
         feedback.className = 'coupon-msg text-success';
-        feedback.innerText = '✓ 20% Luxury Connoisseur Discount applied!';
+        feedback.innerText = '✓ 20% Luxury Discount applied!';
         renderCartPage();
     } else {
         feedback.className = 'coupon-msg text-danger';

@@ -1,6 +1,6 @@
 <?php
 $activePage = 'contact';
-$pageTitle = 'VIP Concierge & Client Services';
+$pageTitle = 'Concierge & Client Services';
 require_once __DIR__ . '/../layouts/header.php';
 
 $actionMsg = '';
@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
-    $subject = trim($_POST['subject'] ?? 'VIP Inquiry');
+    $subject = trim($_POST['subject'] ?? 'Customer Inquiry');
     $message = trim($_POST['message'] ?? '');
 
     if (!empty($name) && !empty($message)) {
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
         if (function_exists('save_inquiry')) {
             save_inquiry($inquiryData);
         }
-        $actionMsg = $lang === 'ku' ? 'پەیاما تە ب سەرکەفتیانە هاتە هنارتن! تیما مە د نێزیکترین دەم دا دێ پەیوەندیێ ب تە کەت.' : ($lang === 'ar' ? 'تم إرسال استفسارك بنجاح! سيتواصل معك فريق خدمة العملاء قريباً.' : 'Your concierge inquiry has been received. Our VIP client advisors will reach out promptly.');
+        $actionMsg = $lang === 'ku' ? 'پەیاما تە ب سەرکەفتیانە هاتە هنارتن! تیما مە د نێزیکترین دەم دا دێ پەیوەندیێ ب تە کەت.' : ($lang === 'ar' ? 'تم إرسال استفسارك بنجاح! سيتواصل معك فريق خدمة العملاء قريباً.' : 'Your concierge inquiry has been received. Our client advisors will reach out promptly.');
     }
 }
 ?>
@@ -77,14 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
                     <div class="contact-item">
                         <span class="contact-icon">💬</span>
                         <div>
-                            <strong>WhatsApp VIP Concierge</strong>
+                            <strong>WhatsApp Support</strong>
                             <p><a href="https://wa.me/9647500000000" target="_blank" rel="noopener">+964 750 000 0000 (Instant Chat)</a></p>
                         </div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">✉️</span>
                         <div>
-                            <strong><?php echo $lang === 'ku' ? 'ئیمەیل' : ($lang === 'ar' ? 'البريد الإلكتروني' : 'VIP Email'); ?></strong>
+                            <strong><?php echo $lang === 'ku' ? 'ئیمەیل' : ($lang === 'ar' ? 'البريد الإلكتروني' : 'Direct Email'); ?></strong>
                             <p><a href="mailto:concierge@aurastore.iq">concierge@aurastore.iq</a></p>
                         </div>
                     </div>
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
                 <form action="contact.php" method="POST" class="contact-form mt-20">
                     <div class="form-group mb-16">
                         <label class="form-label"><?php echo $lang === 'ku' ? 'ناڤێ تەمام' : ($lang === 'ar' ? 'الاسم الكامل' : 'Full Name'); ?> *</label>
-                        <input type="text" name="name" class="form-control" required placeholder="Lord / Lady...">
+                        <input type="text" name="name" class="form-control" required placeholder="e.g. Ahmed Ali">
                     </div>
                     <div class="form-row mb-16" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                         <div class="form-group">

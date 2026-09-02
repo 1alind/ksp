@@ -12,7 +12,7 @@ class CodPayment {
             'payment_status' => 'Pending (Pay on Delivery)',
             'amount_due' => $orderData['total'] ?? 0,
             'currency' => 'IQD',
-            'delivery_instructions' => 'Payment will be collected by AURA VIP Courier in cash at time of doorstep handover.'
+            'delivery_instructions' => 'Payment will be collected by AURA Courier in cash at time of doorstep handover.'
         ];
     }
 }

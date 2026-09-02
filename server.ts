@@ -422,7 +422,7 @@ function renderFooter(lang: string, theme: string = "dark"): string {
             <div class="container footer-bottom-inner">
                 <p>&copy; 2026 AURA Luxury Store. ${t('rights_reserved', lang)}</p>
                 <div class="footer-bottom-links">
-                    <a href="contact.php">VIP Concierge</a>
+                    <a href="contact.php">Customer Support</a>
                     <span>•</span>
                     <a href="track.php">Delivery Tracker</a>
                     <span>•</span>
@@ -544,7 +544,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
       const newOrder = {
         order_id: orderId,
-        customer_name: postData.full_name || "VIP Client",
+        customer_name: postData.full_name || "Customer",
         phone: postData.phone || "0750 000 0000",
         email: postData.email || "",
         city: postData.city || "Duhok",
@@ -716,7 +716,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
         phone: postData.user_phone || "0750 000 0000",
         role: postData.user_role || "Customer",
         city: postData.user_city || "Duhok",
-        vip_status: postData.user_vip === "1" ? "VIP Black" : "Standard",
+        status: "Active",
         created_at: new Date().toISOString()
       });
       usersDb.users = users;

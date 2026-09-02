@@ -337,7 +337,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
             <span class="section-kicker">✦ Executive Command Suite</span>
             <h1 class="page-banner-title"><?php echo t('admin_title', $lang); ?></h1>
             <p class="page-banner-subtitle">
-                Unified management of FIB & ZainCash gateways, Iraq & Kurdistan delivery radar, VIP clients, and live inventory.
+                Unified management of FIB & ZainCash gateways, Iraq & Kurdistan delivery radar, customer directory, and live inventory.
             </p>
         </div>
     </div>
@@ -380,10 +380,10 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
             </div>
 
             <div class="admin-metric-card">
-                <span class="m-icon">👑</span>
+                <span class="m-icon">👥</span>
                 <div class="m-info">
                     <span class="m-label"><?php echo t('admin_stats_users', $lang); ?></span>
-                    <strong class="m-value"><?php echo count($usersList); ?> VIP Clients</strong>
+                    <strong class="m-value"><?php echo count($usersList); ?> Customers</strong>
                     <span class="iqd-price-pill"><?php echo count($inquiriesList); ?> Concierge Inquiries</span>
                 </div>
             </div>
@@ -1105,30 +1105,26 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
             </div>
         </div>
 
-        <!-- TAB 6: VIP CLIENTS DIRECTORY -->
+        <!-- TAB 6: CUSTOMERS DIRECTORY -->
         <div class="admin-tab-pane" id="adm-users">
             <div class="admin-table-card">
                 <div class="admin-header-row" style="padding:20px; border-bottom:1px solid var(--border-color);">
-                    <h3 class="admin-card-title" style="margin:0;">👑 VIP Clients & Loyalty Tiers</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Registered clients and high-net-worth patrons across Kurdistan Region & Iraq.</p>
+                    <h3 class="admin-card-title" style="margin:0;">👥 Customer Directory</h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Registered customers across Kurdistan Region & Iraq.</p>
                 </div>
                 <div class="table-responsive">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Client Name</th>
+                                <th>Customer Name</th>
                                 <th>Contact & City</th>
-                                <th>VIP Tier</th>
                                 <th>Total Spent</th>
                                 <th>Orders Count</th>
                                 <th>Joined</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($usersList as $u): 
-                                $tier = $u['vip_tier'] ?? 'Gold Patron';
-                                $badgeColor = $tier === 'Platinum Royal' ? 'var(--accent-gold)' : ($tier === 'Diamond Elite' ? '#38bdf8' : '#e2e8f0');
-                            ?>
+                            <?php foreach ($usersList as $u): ?>
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
@@ -1141,11 +1137,6 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                                     <td>
                                         <?php echo htmlspecialchars($u['email']); ?><br>
                                         <small class="text-muted"><?php echo htmlspecialchars($u['city'] ?? 'Duhok'); ?> • <?php echo htmlspecialchars($u['phone'] ?? '+964 750 000 0000'); ?></small>
-                                    </td>
-                                    <td>
-                                        <span class="badge-tag" style="border-color:<?php echo $badgeColor; ?>; color:<?php echo $badgeColor; ?>;">
-                                            👑 <?php echo htmlspecialchars($tier); ?>
-                                        </span>
                                     </td>
                                     <td class="font-bold text-primary"><?php echo number_format($u['total_spent'] ?? 0); ?> IQD</td>
                                     <td><?php echo $u['orders_count'] ?? 1; ?> orders</td>
@@ -1162,8 +1153,8 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
         <div class="admin-tab-pane" id="adm-inquiries">
             <div class="admin-table-card">
                 <div class="admin-header-row" style="padding:20px; border-bottom:1px solid var(--border-color);">
-                    <h3 class="admin-card-title" style="margin:0;">💬 Customer Messages & Concierge Desk</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Live contact inquiries sent by visitors via the VIP Concierge form.</p>
+                    <h3 class="admin-card-title" style="margin:0;">💬 Customer Messages & Support Desk</h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Live contact inquiries sent by visitors via the contact form.</p>
                 </div>
                 <div class="table-responsive">
                     <table class="admin-table">
@@ -1388,11 +1379,11 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                         </div>
                         <div class="form-group">
                             <label>Hero Subtitle (Arabic)</label>
-                            <textarea name="hero_subtitle_ar" rows="2" class="form-control" dir="rtl"><?php echo htmlspecialchars($settings['hero_subtitle_ar'] ?? 'اكتشف مجموعتنا المختارة من الأزياء الراقية والساعات السويسرية والعطور الفاخرة مع توصيل VIP لجميع مدن العراق وكردستان.'); ?></textarea>
+                            <textarea name="hero_subtitle_ar" rows="2" class="form-control" dir="rtl"><?php echo htmlspecialchars($settings['hero_subtitle_ar'] ?? 'اكتشف مجموعتنا المختارة من الأزياء الراقية والساعات السويسرية والعطور الفاخرة مع توصيل سريع لجميع مدن العراق وكردستان.'); ?></textarea>
                         </div>
                         <div class="form-group">
                             <label>Hero Subtitle (Kurdish)</label>
-                            <textarea name="hero_subtitle_ku" rows="2" class="form-control" dir="rtl"><?php echo htmlspecialchars($settings['hero_subtitle_ku'] ?? 'دیزاینێن تایبەت یێن جل و بەرگان، دەمژمێرێن ناڤدار و بهێنێن شاهانە ب گەهاندنا VIP بۆ هەمی پارێزگەهێن کوردستان و ئیراقێ.'); ?></textarea>
+                            <textarea name="hero_subtitle_ku" rows="2" class="form-control" dir="rtl"><?php echo htmlspecialchars($settings['hero_subtitle_ku'] ?? 'دیزاینێن تایبەت یێن جل و بەرگان، دەمژمێرێن ناڤدار و بهێنێن شاهانە ب گەهاندنا لەزگین بۆ هەمی پارێزگەهێن کوردستان و ئیراقێ.'); ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -1434,11 +1425,11 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                     <div class="form-row-3">
                         <div class="form-group">
                             <label>Announcement Text (English)</label>
-                            <input type="text" name="announcement_text_en" value="<?php echo htmlspecialchars($settings['announcement_text_en'] ?? '✨ Complimentary VIP Delivery on orders above $150 in Kurdistan & Iraq'); ?>" class="form-control">
+                            <input type="text" name="announcement_text_en" value="<?php echo htmlspecialchars($settings['announcement_text_en'] ?? '✨ Complimentary Express Delivery on orders above $150 in Kurdistan & Iraq'); ?>" class="form-control">
                         </div>
                         <div class="form-group">
                             <label>Announcement Text (Arabic)</label>
-                            <input type="text" name="announcement_text_ar" value="<?php echo htmlspecialchars($settings['announcement_text_ar'] ?? '✨ توصيل VIP مجاني للطلبات الأكثر من 150$ في كردستان والعراق'); ?>" class="form-control" dir="rtl">
+                            <input type="text" name="announcement_text_ar" value="<?php echo htmlspecialchars($settings['announcement_text_ar'] ?? '✨ توصيل مجاني سريع للطلبات الأكثر من 150$ في كردستان والعراق'); ?>" class="form-control" dir="rtl">
                         </div>
                         <div class="form-group">
                             <label>Announcement Text (Kurdish)</label>
@@ -1546,8 +1537,8 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                     <div class="form-group">
                         <label>Logistics Courier Company</label>
                         <select name="courier" id="dispCourier" class="form-control">
-                            <option value="AURA VIP Express Logistics">AURA VIP Express Logistics</option>
-                            <option value="Lezzoo Express VIP">Lezzoo Express VIP</option>
+                            <option value="AURA Express Logistics">AURA Express Logistics</option>
+                            <option value="Lezzoo Express">Lezzoo Express</option>
                             <option value="Fast Iraq Express Cargo">Fast Iraq Express Cargo</option>
                             <option value="Aramex Iraq">Aramex Iraq</option>
                             <option value="DHL Express Iraq">DHL Express Iraq</option>
@@ -1693,7 +1684,7 @@ $fastpay = $settings['gateways']['fastpay'] ?? [];
                             <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('🔥 Best Seller', '🔥 الأكثر مبيعاً', '🔥 پڕفرۆشترین')">🔥 Best Seller</button>
                             <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('💎 Limited Edition', '💎 إصدار محدود', '💎 وەشانەکا سنوردار')">💎 Limited Edition</button>
                             <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('✨ New Arrival', '✨ وصل حديثاً', '✨ نوی گەهشتی')">✨ New Arrival</button>
-                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('👑 Royal VIP', '👑 فاخر ملكي', '👑 شاهانە و نازک')">👑 Royal VIP</button>
+                            <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('👑 Royal Luxury', '👑 فاخر ملكي', '👑 شاهانە و نازک')">👑 Royal Luxury</button>
                             <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('🏷️ Special Deal', '🏷️ عرض خاص', '🏷️ پێشنیارا تایبەت')">🏷️ Special Deal</button>
                             <button type="button" class="badge-tag text-danger" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('', '', '')">✕ Clear Badge</button>
                         </div>
@@ -1925,7 +1916,7 @@ function openDispatchModal(order) {
     document.getElementById('dispOrderId').value = order.order_id || '';
     document.getElementById('dispatchModalOrderSub').innerText = 'Updating shipment details for Order #' + (order.order_id || '') + ' (' + (order.customer_name || '') + ')';
     document.getElementById('dispStatus').value = order.order_status || 'Pending';
-    document.getElementById('dispCourier').value = order.courier || 'AURA VIP Express Logistics';
+    document.getElementById('dispCourier').value = order.courier || 'AURA Express Logistics';
     document.getElementById('dispDriverName').value = order.driver_name || '';
     document.getElementById('dispDriverPhone').value = order.driver_phone || '';
     document.getElementById('dispTrackingCode').value = order.tracking_code || ('AURA-EXP-' + order.order_id.replace('ORD-', ''));
@@ -1973,7 +1964,7 @@ function printOrderInvoice(order) {
             <div>
                 <h1 style="font-size:26px; font-weight:800; letter-spacing:2px; margin:0; color:#111827;">AURA</h1>
                 <span style="font-size:12px; letter-spacing:3px; color:#d97706; font-weight:700;">LUXURY STORE • IRAQ</span>
-                <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">VIP Concierge & Fulfillment Hub</p>
+                <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Customer Care & Fulfillment Hub</p>
             </div>
             <div style="text-align:right;">
                 <h2 style="font-size:18px; font-weight:800; margin:0; color:#111827;">TAX INVOICE</h2>

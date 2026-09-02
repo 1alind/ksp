@@ -9,4 +9,4 @@ This folder contains public informational pages, brand story, and client service
 | File | Description |
 | :--- | :--- |
 | **`about.php`** | **Our Heritage & Craftsmanship**. The story of Maison Aura, atelier sourcing, and luxury certifications. |
-| **`contact.php`** | **VIP Concierge & Client Advisory**. Customer inquiry form, WhatsApp instant link, phone number, and physical boutique address. |
+| **`contact.php`** | **Concierge & Client Advisory**. Customer inquiry form, WhatsApp instant link, phone number, and physical boutique address. |

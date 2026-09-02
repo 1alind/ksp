@@ -190,7 +190,7 @@ if (!empty($searchOrderId)) {
                             <span style="font-size:24px;">🚚</span>
                             <div>
                                 <h4 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0;">
-                                    <?php echo htmlspecialchars($foundOrder['courier'] ?? 'AURA VIP Express Logistics'); ?>
+                                    <?php echo htmlspecialchars($foundOrder['courier'] ?? 'AURA Express Logistics'); ?>
                                 </h4>
                                 <span style="font-size:12px; color:var(--accent-gold); font-weight:700;">
                                     Tracking / Manifest: <code><?php echo htmlspecialchars($foundOrder['tracking_code'] ?? $foundOrder['order_id']); ?></code>
@@ -270,9 +270,9 @@ if (!empty($searchOrderId)) {
                     $contactPhone = $settings['contact_phone'] ?? '+964 750 123 4567';
                     $contactEmail = $settings['contact_email'] ?? 'concierge@aurastore.iq';
                     $contactWa = preg_replace('/[^0-9]/', '', $settings['contact_whatsapp'] ?? '9647501234567');
-                    $waMsg = rawurlencode("Hello AURA VIP Concierge, I am contacting you regarding my delivered package (Order ID: {$foundOrder['order_id']}).");
+                    $waMsg = rawurlencode("Hello AURA Support, I am contacting you regarding my delivered package (Order ID: {$foundOrder['order_id']}).");
                 ?>
-                    <!-- DELIVERED ONLY: Direct VIP Concierge, Contact Info & Package Resolution Desk -->
+                    <!-- DELIVERED ONLY: Direct Support, Contact Info & Package Resolution Desk -->
                     <div class="package-issue-claim-card mt-24" style="background:var(--bg-subtle); border:1.5px solid #22c55e; border-radius:14px; padding:26px; box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1);">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:18px;">
                             <div>
@@ -306,7 +306,7 @@ if (!empty($searchOrderId)) {
                             <a href="https://wa.me/<?php echo $contactWa; ?>?text=<?php echo $waMsg; ?>" target="_blank" style="display:flex; align-items:center; gap:12px; padding:14px 18px; background:rgba(34,197,94,0.08); border:1px solid #22c55e; border-radius:10px; text-decoration:none; color:var(--text-primary); transition:all 0.2s ease;">
                                 <span style="font-size:22px;">💬</span>
                                 <div>
-                                    <span style="display:block; font-size:11px; text-transform:uppercase; color:#22c55e; font-weight:700;">VIP WhatsApp</span>
+                                    <span style="display:block; font-size:11px; text-transform:uppercase; color:#22c55e; font-weight:700;">Direct WhatsApp</span>
                                     <strong style="font-size:14px; color:#22c55e;">+<?php echo $contactWa; ?></strong>
                                 </div>
                             </a>
@@ -358,7 +358,7 @@ if (!empty($searchOrderId)) {
 
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                                     <span class="text-muted" style="font-size:11.5px;">
-                                        🔒 <?php echo $lang === 'ku' ? 'داخازی دێ هێتە شاندن بۆ بەشێ زەمانەتێ' : ($lang === 'ar' ? 'سيتم إحالة الطلب مباشرة لقسم الضمان والاستبدال' : 'Direct VIP routing to our Quality & Warranty inspector'); ?>
+                                        🔒 <?php echo $lang === 'ku' ? 'داخازی دێ هێتە شاندن بۆ بەشێ زەمانەتێ' : ($lang === 'ar' ? 'سيتم إحالة الطلب مباشرة لقسم الضمان والاستبدال' : 'Direct routing to our Quality & Warranty inspector'); ?>
                                     </span>
                                     <button type="submit" class="btn btn-primary btn-luxury btn-sm">
                                         🚀 <?php echo t('issue_submit', $lang); ?>

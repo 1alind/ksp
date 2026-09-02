@@ -2,13 +2,13 @@
     "users": [
         {
             "id": 1,
-            "user_code": "USR-VIP-001",
+            "user_code": "USR-001",
             "name": "Ahmad Al-Kurdi",
-            "email": "ahmad.k@aura-vip.com",
+            "email": "ahmad.k@aura-store.com",
             "phone": "0750 123 4567",
             "city": "Duhok",
-            "role": "VIP Client",
-            "vip_status": "VIP Black",
+            "role": "Customer",
+            "status": "Active",
             "created_at": "2026-08-15T09:00:00.000Z"
         }
     ]

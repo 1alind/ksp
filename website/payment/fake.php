@@ -505,7 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($submittedAction)) {
             <div class="amount-highlight">
                 <span class="amount-meta">Amount Payable</span>
                 <div class="amount-num"><?php echo number_format($amount); ?> <?php echo htmlspecialchars($currency); ?></div>
-                <span class="amount-meta">Recipient: AURA Luxury Store VIP Gateway</span>
+                <span class="amount-meta">Recipient: AURA Luxury Store Gateway</span>
             </div>
 
             <!-- Transaction Information -->

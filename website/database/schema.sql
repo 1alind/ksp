@@ -460,11 +460,11 @@ VALUES
   'Cash on Delivery (دفع عند الاستلام)',
   'Pending',
   'Confirmed',
-  'Aura VIP White-Glove Courier',
+  'Aura White-Glove Courier',
   'Rebin Barzani',
   '+964 750 771 6655',
   'AUR-ERB-00192',
-  'VIP customer white glove delivery with pre-notification via WhatsApp.',
+  'Customer white glove delivery with pre-notification via WhatsApp.',
   'Tomorrow by 11:00 AM',
   '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":7,"title":"Nocturne Noir Rose Extrait de Parfum","price":230000,"quantity":1,"color":"Black Crystal Flacon","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80"}]'
 ),

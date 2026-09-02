@@ -14,8 +14,8 @@ This directory contains all files related to the store management dashboard, pro
 | **`orders.php`** | **Orders & Logistics Radar**. View orders, change statuses (Pending, Confirmed, Shipped, Delivered), and assign couriers. |
 | **`payments.php`** | **Payment Gateway Configuration**. Manage FIB (First Iraqi Bank), ZainCash, FastPay, Cash on Delivery, and USD/IQD exchange rate. |
 | **`branding.php`** | **Store Customizer**. Change store name, slogan, logo emblem/image, favicon, announcement bar, and boutique address. |
-| **`users.php`** | **Customer & VIP Accounts**. Manage client profiles, VIP Black tiers, and staff permissions. |
-| **`inquiries.php`** | **VIP Concierge Messages**. View customer inquiries submitted through the contact form. |
+| **`users.php`** | **Customer Accounts**. Manage client profiles and staff permissions. |
+| **`inquiries.php`** | **Customer Support Messages**. View customer inquiries submitted through the contact form. |
 
 ---
 

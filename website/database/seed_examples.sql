@@ -587,7 +587,7 @@ VALUES
   '[{"product_id":12,"title":"Hand-Polished Aviator Titanium Sunglasses","price":145000,"quantity":1,"color":"Gold Frame / Gradient Brown Lens","size":"58mm Standard","image":"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80"},{"product_id":8,"title":"Artisan Braided Leather Belt with Gold Buckle","price":95000,"quantity":1,"color":"Cognac Brown","size":"100 cm (36-38)","image":"https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"}]'
 ),
 
--- Status 2: Confirmed | Cash on Delivery | VIP Concierge Verified | Erbil
+-- Status 2: Confirmed | Cash on Delivery | Concierge Verified | Erbil
 (
   2,
   'ORD-98422',
@@ -604,11 +604,11 @@ VALUES
   'Cash on Delivery (دفع عند الاستلام)',
   'Pending',
   'Confirmed',
-  'Aura VIP White-Glove Courier',
+  'Aura White-Glove Courier',
   'Rebin Barzani',
   '+964 750 771 6655',
   'AUR-ERB-00192',
-  'Customer confirmed address via phone call. VIP white-glove packaging requested.',
+  'Customer confirmed address via phone call. White-glove packaging requested.',
   'Tomorrow by 11:00 AM',
   '[{"product_id":3,"title":"Royal Amber & Smoked Oud Eau de Parfum","price":190000,"quantity":1,"color":"Gold Edition Bottle","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"},{"product_id":7,"title":"Nocturne Noir Rose Extrait de Parfum","price":230000,"quantity":1,"color":"Black Crystal Flacon","size":"100ml / 3.4 oz","image":"https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80"}]'
 ),
@@ -708,11 +708,11 @@ VALUES
   'First Iraqi Bank (FIB)',
   'Paid (FIB Verified)',
   'Delivered',
-  'Aura VIP White-Glove Courier',
+  'Aura White-Glove Courier',
   'Alan Merani',
   '+964 750 448 3311',
   'AUR-ERB-00188',
-  'VIP hand delivery completed at residence. Customer inspected timepiece and signed receipt.',
+  'White-glove delivery completed at residence. Customer inspected timepiece and signed receipt.',
   'Delivered on Aug 28, 2026',
   '[{"product_id":6,"title":"Celestial Diamond Chronograph","price":890000,"quantity":1,"color":"18K Rose Gold & Diamond Dial","size":"42mm Case","image":"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80"},{"product_id":5,"title":"Silk Jacquard Formal Evening Suit","price":380000,"quantity":1,"color":"Deep Emerald Jacquard","size":"50 (L)","image":"https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"}]'
 ),
