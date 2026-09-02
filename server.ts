@@ -157,6 +157,7 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="/style.css">
+    ${activePage.startsWith('admin') || ['orders', 'products', 'payments', 'users', 'inquiries', 'branding'].includes(activePage) ? '<link rel="stylesheet" href="/admin/admin.css">' : ''}
 </head>
 <body class="page-${activePage.replace(/[\/\.]/g, '-')} ${activePage.startsWith('admin') || ['orders', 'products', 'payments', 'users', 'inquiries', 'branding'].includes(activePage) ? 'page-admin' : ''}">
 
@@ -295,7 +296,7 @@ function renderHeader(lang: string, theme: string, activePage: string, pageTitle
             <a href="contact.php" class="mobile-nav-item ${activePage === 'contact' ? 'active' : ''}">
                 <span>✉️</span> ${t('nav_contact', lang)}
             </a>
-            <a href="admin.php" class="mobile-nav-item ${activePage === 'admin' ? 'active' : ''}">
+            <a href="/admin/index.php" class="mobile-nav-item ${activePage === 'admin' ? 'active' : ''}">
                 <span>⚙️</span> ${t('nav_admin', lang)}
             </a>
         </nav>
@@ -387,7 +388,7 @@ function renderFooter(lang: string, theme: string = "dark"): string {
                     <li><a href="shop.php">${t('nav_shop', lang)}</a></li>
                     <li><a href="contact.php">${t('nav_contact', lang)}</a></li>
                     <li><a href="track.php">${t('nav_track', lang)}</a></li>
-                    <li><a href="admin.php">${t('nav_admin', lang)}</a></li>
+                    <li><a href="/admin/index.php">${t('nav_admin', lang)}</a></li>
                 </ul>
             </div>
 
@@ -423,7 +424,7 @@ function renderFooter(lang: string, theme: string = "dark"): string {
                     <span>•</span>
                     <a href="track.php">Delivery Tracker</a>
                     <span>•</span>
-                    <a href="admin.php">Management</a>
+                    <a href="/admin/index.php">Management</a>
                 </div>
             </div>
         </div>
@@ -489,6 +490,13 @@ function findPageFile(pageName: string): string | null {
 }
 
 function renderPhpPage(pageName: string, req: express.Request, postData: any = null): string {
+  if (pageName === "admin" || pageName === "admin.php") {
+    const tab = (req.query.tab as string) || (req.query.page as string);
+    if (tab && ["orders", "products", "payments", "users", "inquiries", "branding", "index"].includes(tab)) {
+      pageName = `admin/${tab}`;
+    }
+  }
+
   let filePath = findPageFile(pageName);
   if (!filePath || !fs.existsSync(filePath)) {
     return `<div style="color:red;padding:40px;font-family:sans-serif;">Error: ${pageName}.php not found</div>`;
@@ -847,11 +855,11 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
 
   // Read raw file content
   let rawContent = fs.readFileSync(filePath, "utf-8");
-  const wrapperMatch = rawContent.match(/require_once\s+(?:__DIR__\s*\.\s*)?['"]([^'"]+)['"]/);
+  const wrapperMatch = rawContent.match(/require_once\s+(?:__DIR__\s*\.\s*)?['"]([^'"]+\.php)['"]/);
   if (wrapperMatch && !rawContent.includes('<div') && !rawContent.includes('<section') && !rawContent.includes('<header')) {
     const nestedRel = wrapperMatch[1].replace(/^\//, "");
     const nestedPath = path.join(path.dirname(filePath), nestedRel);
-    if (fs.existsSync(nestedPath)) {
+    if (fs.existsSync(nestedPath) && fs.statSync(nestedPath).isFile()) {
       rawContent = fs.readFileSync(nestedPath, "utf-8");
       filePath = nestedPath;
     }
@@ -864,7 +872,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
       return "";
     }
     const resolvedPath = path.join(path.dirname(filePath), cleanRel);
-    if (fs.existsSync(resolvedPath)) {
+    if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) {
       return fs.readFileSync(resolvedPath, "utf-8");
     }
     return match;
@@ -882,7 +890,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
   // Remove top PHP setup block and trailing footer include
   let bodyContent = rawContent;
   bodyContent = bodyContent.replace(/^\s*<\?php[\s\S]*?\?>/s, "");
-  bodyContent = bodyContent.replace(/<\?php\s+require_once[\s\S]*?['"](?:\/|layouts\/)?(?:header|footer)\.php['"]\s*;?\s*\?>/g, "");
+  bodyContent = bodyContent.replace(/<\?php\s+(?:require_once|include_once|require|include)[\s\S]*?['"](?:\/|\.\.\/|layouts\/)?(?:header|footer)\.php['"]\s*;?\s*\?>/g, "");
 
   // Substitute all translation calls
   const dynamicTranslations = loadTranslations();

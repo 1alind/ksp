@@ -14,6 +14,9 @@ $totalCustomerSpend = 0;
 foreach ($ordersList as $o) {
     $totalCustomerSpend += ($o['total'] ?? 0);
 }
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -207,3 +210,5 @@ function filterUsersTable() {
     });
 }
 </script>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

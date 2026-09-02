@@ -22,6 +22,9 @@ foreach ($ordersList as $o) {
     if ($st === 'Shipped' || $st === 'Out for Delivery') $shippedCount++;
     if ($st === 'Delivered') $deliveredCount++;
 }
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -392,3 +395,5 @@ function closeInvoiceModal() {
     document.getElementById('invoiceModalOverlay').classList.remove('open');
 }
 </script>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

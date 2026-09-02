@@ -27,6 +27,9 @@ foreach ($ordersList as $o) {
 $fib = $settingsDb['gateways']['fib'] ?? [];
 $zain = $settingsDb['gateways']['zaincash'] ?? [];
 $fastpay = $settingsDb['gateways']['fastpay'] ?? [];
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -296,3 +299,5 @@ $fastpay = $settingsDb['gateways']['fastpay'] ?? [];
         </div>
     </div>
 </section>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

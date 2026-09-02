@@ -68,7 +68,7 @@ $gateways = $settings['gateways'] ?? [];
                 <p>OAuth2 authentication, dynamic QR generation, mobile banking scan acceptance.</p>
                 <div style="display:flex; gap:8px;">
                     <a href="fake.php?gateway=fib&amount=520000" class="btn" target="_blank">Test FIB Flow</a>
-                    <a href="../admin.php" class="btn btn-outline">Configure</a>
+                    <a href="/admin/payments.php" class="btn btn-outline">Configure</a>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@ $gateways = $settings['gateways'] ?? [];
                 <p>HS256 HMAC JWT signature encoding, transaction redirect, and OTP authorization.</p>
                 <div style="display:flex; gap:8px;">
                     <a href="fake.php?gateway=zaincash&amount=310000" class="btn" target="_blank">Test ZainCash</a>
-                    <a href="../admin.php" class="btn btn-outline">Configure</a>
+                    <a href="/admin/payments.php" class="btn btn-outline">Configure</a>
                 </div>
             </div>
 
@@ -88,7 +88,7 @@ $gateways = $settings['gateways'] ?? [];
                 <p>Merchant store payments, FastPay QR codes, and instant mobile wallet settlement.</p>
                 <div style="display:flex; gap:8px;">
                     <a href="fake.php?gateway=fastpay&amount=195000" class="btn" target="_blank">Test FastPay</a>
-                    <a href="../admin.php" class="btn btn-outline">Configure</a>
+                    <a href="/admin/payments.php" class="btn btn-outline">Configure</a>
                 </div>
             </div>
 

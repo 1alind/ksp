@@ -69,7 +69,7 @@
                 <ul class="footer-nav">
                     <li><a href="shop.php"><?php echo t('nav_shop', $lang); ?></a></li>
                     <li><a href="track.php"><?php echo t('nav_track', $lang); ?></a></li>
-                    <li><a href="admin.php"><?php echo t('nav_admin', $lang); ?></a></li>
+                    <li><a href="/admin/index.php"><?php echo t('nav_admin', $lang); ?></a></li>
                 </ul>
             </div>
 
@@ -122,7 +122,7 @@
                 <div class="footer-legal-links">
                     <a href="shop.php"><?php echo t('nav_shop', $lang); ?></a>
                     <a href="track.php"><?php echo t('nav_track', $lang); ?></a>
-                    <a href="admin.php"><?php echo t('nav_admin', $lang); ?></a>
+                    <a href="/admin/index.php"><?php echo t('nav_admin', $lang); ?></a>
                 </div>
             </div>
         </div>

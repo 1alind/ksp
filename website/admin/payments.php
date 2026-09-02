@@ -16,6 +16,9 @@ $zain = $settingsDb['gateways']['zaincash'] ?? [];
 $fastpay = $settingsDb['gateways']['fastpay'] ?? [];
 $cod = $settingsDb['gateways']['cod'] ?? [];
 $rate = $settingsDb['exchange_rate_usd_to_iqd'] ?? 1320;
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -289,3 +292,5 @@ function togglePasswordVisibility(inputId) {
     if (el) el.type = el.type === 'password' ? 'text' : 'password';
 }
 </script>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

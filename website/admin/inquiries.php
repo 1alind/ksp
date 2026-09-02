@@ -9,6 +9,9 @@ $usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), t
 $usersList = $usersDb['users'] ?? [];
 $inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
 $inquiriesList = $inquiriesDb['inquiries'] ?? [];
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -181,3 +184,5 @@ function filterInquiries() {
     });
 }
 </script>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

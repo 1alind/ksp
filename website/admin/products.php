@@ -16,6 +16,9 @@ foreach ($productsList as $p) {
     $totalStock += ($p['stock'] ?? 0);
     if (!empty($p['featured'])) $featuredCount++;
 }
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -568,3 +571,5 @@ function calculateDiscountPreview() {
     }
 }
 </script>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>

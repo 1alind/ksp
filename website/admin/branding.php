@@ -12,6 +12,9 @@ $inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.j
 $inquiriesList = $inquiriesDb['inquiries'] ?? [];
 
 $s = $settingsDb;
+
+$activePage = 'admin';
+require_once __DIR__ . '/../header.php';
 ?>
 
 <div class="page-banner">
@@ -220,3 +223,5 @@ $s = $settingsDb;
         </form>
     </div>
 </section>
+
+<?php require_once __DIR__ . '/../footer.php'; ?>
