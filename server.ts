@@ -476,12 +476,8 @@ function findPageFile(pageName: string): string | null {
     path.join(websiteDir, `${cleanName}.php`),
     path.join(websiteDir, cleanName, "index.php"),
     path.join(websiteDir, "admin", `${cleanName}.php`),
-    path.join(websiteDir, "shop", `${cleanName}.php`),
-    path.join(websiteDir, "checkout", `${cleanName}.php`),
-    path.join(websiteDir, "pages", `${cleanName}.php`),
-    path.join(websiteDir, "payments", `${cleanName}.php`),
     path.join(websiteDir, "payment", `${cleanName}.php`),
-    path.join(websiteDir, "layouts", `${cleanName}.php`)
+    path.join(websiteDir, "payment", cleanName, "index.php")
   );
 
   for (const cand of candidates) {
@@ -493,7 +489,7 @@ function findPageFile(pageName: string): string | null {
 }
 
 function renderPhpPage(pageName: string, req: express.Request, postData: any = null): string {
-  const filePath = findPageFile(pageName);
+  let filePath = findPageFile(pageName);
   if (!filePath || !fs.existsSync(filePath)) {
     return `<div style="color:red;padding:40px;font-family:sans-serif;">Error: ${pageName}.php not found</div>`;
   }
@@ -857,6 +853,7 @@ function renderPhpPage(pageName: string, req: express.Request, postData: any = n
     const nestedPath = path.join(path.dirname(filePath), nestedRel);
     if (fs.existsSync(nestedPath)) {
       rawContent = fs.readFileSync(nestedPath, "utf-8");
+      filePath = nestedPath;
     }
   }
 
