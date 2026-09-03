@@ -161,8 +161,17 @@
                 "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80"
             ],
             "colors": [
-                "Pearl White"
+                "Pearl White",
+                "Onyx Black"
             ],
+            "color_hexes": {
+                "Pearl White": "#f8fafc",
+                "Onyx Black": "#18181b"
+            },
+            "color_images": {
+                "Pearl White": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80",
+                "Onyx Black": "https://images.unsplash.com/photo-1620012253295-c15c429fcc6e?auto=format&fit=crop&w=800&q=80"
+            },
             "sizes": [
                 "S",
                 "M",

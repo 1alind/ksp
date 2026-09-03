@@ -64,14 +64,34 @@ if (preg_match('/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([
     if (!str_ends_with($initialWidth, 'cm') && !str_ends_with($initialWidth, 'mm')) $initialWidth .= 'cm';
 }
 
-// Map each color to its corresponding image
+// Map each color to its corresponding image and hex color swatch
 $colorImages = [];
+$colorHexes = [];
 if (!empty($product['colors'])) {
     foreach ($product['colors'] as $i => $c) {
-        if (!empty($product['images'][$i])) {
+        if (!empty($product['color_images'][$c])) {
+            $colorImages[$c] = $product['color_images'][$c];
+        } elseif (!empty($product['images'][$i])) {
             $colorImages[$c] = $product['images'][$i];
         } else {
             $colorImages[$c] = $product['image'];
+        }
+
+        if (!empty($product['color_hexes'][$c])) {
+            $colorHexes[$c] = $product['color_hexes'][$c];
+        } else {
+            // Auto-detect common color hexes if not explicitly defined
+            $cLower = strtolower($c);
+            if (str_contains($cLower, 'white') || str_contains($cLower, 'سپی') || str_contains($cLower, 'أبيض')) $colorHexes[$c] = '#ffffff';
+            elseif (str_contains($cLower, 'black') || str_contains($cLower, 'رەش') || str_contains($cLower, 'أسود') || str_contains($cLower, 'obsidian')) $colorHexes[$c] = '#111827';
+            elseif (str_contains($cLower, 'blue') || str_contains($cLower, 'شین') || str_contains($cLower, 'أزرق') || str_contains($cLower, 'navy') || str_contains($cLower, 'midnight')) $colorHexes[$c] = '#1e3a8a';
+            elseif (str_contains($cLower, 'red') || str_contains($cLower, 'سۆر') || str_contains($cLower, 'أحمر') || str_contains($cLower, 'burgundy') || str_contains($cLower, 'wine')) $colorHexes[$c] = '#881337';
+            elseif (str_contains($cLower, 'green') || str_contains($cLower, 'کەسک') || str_contains($cLower, 'أخضر') || str_contains($cLower, 'emerald') || str_contains($cLower, 'olive')) $colorHexes[$c] = '#065f46';
+            elseif (str_contains($cLower, 'gold') || str_contains($cLower, 'زێڕ') || str_contains($cLower, 'ذهب') || str_contains($cLower, 'champagne')) $colorHexes[$c] = '#d4af37';
+            elseif (str_contains($cLower, 'silver') || str_contains($cLower, 'gray') || str_contains($cLower, 'grey') || str_contains($cLower, 'رصاص')) $colorHexes[$c] = '#64748b';
+            elseif (str_contains($cLower, 'brown') || str_contains($cLower, 'قاوە') || str_contains($cLower, 'بني') || str_contains($cLower, 'chocolate')) $colorHexes[$c] = '#78350f';
+            elseif (str_contains($cLower, 'beige') || str_contains($cLower, 'بيج') || str_contains($cLower, 'sand') || str_contains($cLower, 'cream')) $colorHexes[$c] = '#f5f5dc';
+            else $colorHexes[$c] = !empty($product['color_hex']) ? $product['color_hex'] : '#d4af37';
         }
     }
 }
@@ -248,13 +268,15 @@ if (!empty($product['colors'])) {
                         <div class="color-options-group" id="colorButtonsContainer">
                             <?php foreach ($product['colors'] as $i => $color): 
                                 $colImg = $colorImages[$color] ?? $product['image'];
+                                $colHex = $colorHexes[$color] ?? '#d4af37';
+                                $isLight = in_array(strtolower(trim($colHex)), ['#ffffff', '#fff', '#f8fafc', '#f1f5f9', '#f5f5dc', 'white']);
                             ?>
                                 <button type="button" 
                                         class="color-badge-pill" 
                                         data-color="<?php echo htmlspecialchars($color); ?>"
                                         data-image="<?php echo htmlspecialchars($colImg); ?>"
                                         onclick="onColorSelected(this, '<?php echo htmlspecialchars(addslashes($color)); ?>', '<?php echo htmlspecialchars(addslashes($colImg)); ?>')">
-                                    <span class="color-dot-indicator"></span>
+                                    <span class="color-dot-indicator" style="background-color: <?php echo htmlspecialchars($colHex); ?>; <?php echo $isLight ? 'border:1.5px solid #94a3b8; box-shadow:0 0 0 1px rgba(0,0,0,0.1);' : ''; ?>"></span>
                                     <span class="color-name-text"><?php echo htmlspecialchars($color); ?></span>
                                 </button>
                             <?php endforeach; ?>

@@ -52,14 +52,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
         $sizesRaw = trim($_POST['edit_prod_sizes'] ?? '');
         $sizes = array_values(array_filter(array_map('trim', explode(',', $sizesRaw))));
-        $colorsRaw = trim($_POST['edit_prod_colors'] ?? '');
-        $colors = array_values(array_filter(array_map('trim', explode(',', $colorsRaw))));
+        // Process Color Variants for Edit
+        $colors = [];
+        $colorHexes = [];
+        $colorImages = [];
+        
+        if (!empty($_POST['edit_variant_name']) && is_array($_POST['edit_variant_name'])) {
+            foreach ($_POST['edit_variant_name'] as $idx => $vName) {
+                $vName = trim($vName);
+                if ($vName !== '') {
+                    $colors[] = $vName;
+                    $vHex = trim($_POST['edit_variant_hex'][$idx] ?? '#d4af37');
+                    $vImg = trim($_POST['edit_variant_image'][$idx] ?? '');
+                    if ($vHex !== '') $colorHexes[$vName] = $vHex;
+                    if ($vImg !== '') {
+                        $colorImages[$vName] = $vImg;
+                        if (!in_array($vImg, $gallery)) $gallery[] = $vImg;
+                    }
+                }
+            }
+        }
+        
+        if (empty($colors) && !empty($_POST['edit_prod_colors'])) {
+            $colors = array_values(array_filter(array_map('trim', explode(',', $_POST['edit_prod_colors']))));
+        }
+        if (empty($colors) && !empty($colorName)) {
+            $colors = [$colorName];
+            if ($colorHex) $colorHexes[$colorName] = $colorHex;
+            if ($image) $colorImages[$colorName] = $image;
+        }
+        if (empty($colors)) {
+            $colors = ['Default Edition'];
+        }
+        if (empty($colorName) && !empty($colors[0])) {
+            $colorName = $colors[0];
+            $colorHex = $colorHexes[$colorName] ?? '#d4af37';
+        }
+        if (empty($image) && !empty($colorImages[$colorName])) {
+            $image = $colorImages[$colorName];
+        }
+
         $descEn = trim($_POST['edit_prod_desc_en'] ?? '');
         $descAr = trim($_POST['edit_prod_desc_ar'] ?? '');
         $descKu = trim($_POST['edit_prod_desc_ku'] ?? '');
         $modelGroup = trim($_POST['edit_prod_model_group'] ?? '');
-        $colorName = trim($_POST['edit_prod_color_name'] ?? '');
-        $colorHex = trim($_POST['edit_prod_color_hex'] ?? '');
         $linkedProducts = isset($_POST['edit_prod_linked_products']) && is_array($_POST['edit_prod_linked_products']) 
             ? array_map('intval', $_POST['edit_prod_linked_products']) 
             : [];
@@ -82,7 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
             'sizes' => !empty($sizes) ? $sizes : ['S', 'M', 'L', 'XL'],
-            'colors' => !empty($colors) ? $colors : (!empty($colorName) ? [$colorName] : ['Default']),
+            'colors' => $colors,
+            'color_hexes' => $colorHexes,
+            'color_images' => $colorImages,
             'model_group' => $modelGroup,
             'color_name' => $colorName,
             'color_hex' => $colorHex,
@@ -112,12 +150,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['prod_image'] ?? '');
         $galleryRaw = trim($_POST['prod_gallery'] ?? '');
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
+
+        // Process Color Variants for Add
+        $colors = [];
+        $colorHexes = [];
+        $colorImages = [];
+        
+        if (!empty($_POST['prod_variant_name']) && is_array($_POST['prod_variant_name'])) {
+            foreach ($_POST['prod_variant_name'] as $idx => $vName) {
+                $vName = trim($vName);
+                if ($vName !== '') {
+                    $colors[] = $vName;
+                    $vHex = trim($_POST['prod_variant_hex'][$idx] ?? '#d4af37');
+                    $vImg = trim($_POST['prod_variant_image'][$idx] ?? '');
+                    if ($vHex !== '') $colorHexes[$vName] = $vHex;
+                    if ($vImg !== '') {
+                        $colorImages[$vName] = $vImg;
+                        if (!in_array($vImg, $gallery)) $gallery[] = $vImg;
+                    }
+                }
+            }
+        }
+
+        $colorName = trim($_POST['prod_color_name'] ?? '');
+        $colorHex = trim($_POST['prod_color_hex'] ?? '');
+
+        if (empty($colors) && !empty($_POST['prod_colors_comma'])) {
+            $colors = array_values(array_filter(array_map('trim', explode(',', $_POST['prod_colors_comma']))));
+        }
+        if (empty($colors) && !empty($colorName)) {
+            $colors = [$colorName];
+            if ($colorHex) $colorHexes[$colorName] = $colorHex;
+            if ($image) $colorImages[$colorName] = $image;
+        }
+        if (empty($colors)) {
+            $colors = ['Default Edition'];
+        }
+        if (empty($colorName) && !empty($colors[0])) {
+            $colorName = $colors[0];
+            $colorHex = $colorHexes[$colorName] ?? '#d4af37';
+        }
+        if (empty($image) && !empty($colorImages[$colorName])) {
+            $image = $colorImages[$colorName];
+        }
+
         $descEn = trim($_POST['prod_desc_en'] ?? '');
         $descAr = trim($_POST['prod_desc_ar'] ?? '');
         $descKu = trim($_POST['prod_desc_ku'] ?? '');
         $modelGroup = trim($_POST['prod_model_group'] ?? '');
-        $colorName = trim($_POST['prod_color_name'] ?? '');
-        $colorHex = trim($_POST['prod_color_hex'] ?? '');
         $linkedProducts = isset($_POST['prod_linked_products']) && is_array($_POST['prod_linked_products']) 
             ? array_map('intval', $_POST['prod_linked_products']) 
             : [];
@@ -139,7 +219,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
             'sizes' => ['S', 'M', 'L', 'XL'],
-            'colors' => !empty($colorName) ? [$colorName] : ['Default Edition'],
+            'colors' => $colors,
+            'color_hexes' => $colorHexes,
+            'color_images' => $colorImages,
             'model_group' => $modelGroup,
             'color_name' => $colorName,
             'color_hex' => $colorHex,
@@ -313,53 +395,123 @@ require_once __DIR__ . '/../header.php';
                     <textarea name="prod_gallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
                 </div>
 
-                <!-- SECTION: Product Linking & Color Variants (For linking multiple shirts/colors of same model) -->
-                <div id="colorVariantsSection" style="background:rgba(212, 175, 55, 0.08); padding:22px 24px; border-radius:var(--radius-sm); border:2px solid var(--accent-gold); margin-bottom:24px; box-shadow:0 0 15px rgba(212, 175, 55, 0.15);">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <!-- SECTION: Product Colors & Swatches (Add 2 or More Colors Directly) -->
+                <div id="colorVariantsSection" style="background:rgba(212, 175, 55, 0.08); padding:24px; border-radius:var(--radius-md); border:2px solid var(--accent-gold); margin-bottom:24px; box-shadow:0 0 20px rgba(212, 175, 55, 0.12);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <span style="font-weight:900; font-size:16px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1.5px; display:flex; align-items:center; gap:8px;">
-                                🎨 🔗 Link Product as a Color/Model Variant (Colors & Variations)
+                            <span style="font-weight:900; font-size:16px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+                                🎨 Product Colors & Editions (Add 2 or More Colors for this Piece)
                             </span>
                             <p class="text-muted" style="margin:4px 0 0; font-size:13px; line-height:1.5;">
-                                <strong>How to add 2 colors of the same product:</strong> Give both products the <em>same Model Group</em> (e.g. <code>classic-shirt</code>) or check the box of the other color below. Customers will see interactive color swatches on the product page to switch between them!
+                                Add all available colors here (e.g. <strong>Color 1: Pure White</strong>, <strong>Color 2: Obsidian Black</strong>). When shoppers visit this item, they will see interactive color buttons that instantly swap photos!
                             </p>
                         </div>
                         <span class="badge-tag" style="background:var(--accent-gold); color:#0a0c10; font-weight:800; padding:6px 12px; font-size:12px; border-radius:6px;">🎨 MULTI-COLOR ENGINE</span>
                     </div>
 
-                    <div class="form-row-3 mb-16">
-                        <div class="form-group">
-                            <label style="font-weight:700; color:var(--text-primary);">1. Shared Model Group Code <span class="text-muted">(e.g. oxford-shirt)</span></label>
-                            <input type="text" name="prod_model_group" id="prodModelGroup" class="form-control" placeholder="e.g. royal-blazer or classic-silk-shirt" style="border-color:var(--accent-gold);">
-                            <small class="text-muted" style="font-size:11.5px;">All items with the same group code are linked together automatically as color variants.</small>
+                    <!-- Quick Preset Color Pills -->
+                    <div style="margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">+ Quick Add Color:</span>
+                        <button type="button" class="btn btn-xs" style="background:#111827; color:#fff; border:1px solid #374151; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Obsidian Black', '#111827')">⚫ Black</button>
+                        <button type="button" class="btn btn-xs" style="background:#ffffff; color:#111; border:1px solid #cbd5e1; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Pure White', '#ffffff')">⚪ White</button>
+                        <button type="button" class="btn btn-xs" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Royal Navy Blue', '#1e3a8a')">🔵 Navy Blue</button>
+                        <button type="button" class="btn btn-xs" style="background:#065f46; color:#fff; border:1px solid #10b981; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Emerald Green', '#065f46')">🟢 Emerald Green</button>
+                        <button type="button" class="btn btn-xs" style="background:#881337; color:#fff; border:1px solid #f43f5e; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Burgundy Wine', '#881337')">🍷 Burgundy</button>
+                        <button type="button" class="btn btn-xs" style="background:#d4af37; color:#0a0c10; border:1px solid #eab308; font-size:11.5px; border-radius:20px; padding:4px 10px; font-weight:700;" onclick="addPresetColor('addColorVariantsList', 'Imperial Gold', '#d4af37')">✨ Imperial Gold</button>
+                        <button type="button" class="btn btn-xs" style="background:#f5f5dc; color:#333; border:1px solid #d1d5db; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Pearl Beige', '#f5f5dc')">🍨 Pearl Beige</button>
+                        <button type="button" class="btn btn-xs" style="background:#64748b; color:#fff; border:1px solid #94a3b8; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Slate Grey', '#64748b')">🔘 Slate Grey</button>
+                    </div>
+
+                    <!-- Dynamic List of Colors for this Product -->
+                    <div id="addColorVariantsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                        <!-- Row 1: Default Color 1 -->
+                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color 1 Name</label>
+                                <input type="text" name="prod_variant_name[]" value="Obsidian Black" class="form-control" placeholder="e.g. Obsidian Black" required style="font-size:13px; padding:6px 10px;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="color" value="#111827" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
+                                    <input type="text" name="prod_variant_hex[]" value="#111827" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Optional - Photo for this color)</label>
+                                <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px;">
+                            </div>
+                            <div style="padding-top:16px; text-align:center;">
+                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove color">✕</button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label style="font-weight:700; color:var(--text-primary);">2. This Item's Color Name <span class="text-danger">*</span></label>
-                            <input type="text" name="prod_color_name" id="prodColorName" class="form-control" placeholder="e.g. Pure White, Obsidian Black, Emerald Green">
-                        </div>
-                        <div class="form-group">
-                            <label style="font-weight:700; color:var(--text-primary);">3. Color Swatch Circle (Hex / Visual)</label>
-                            <div style="display:flex; gap:8px; align-items:center;">
-                                <input type="color" id="prodColorPicker" value="#1e3a8a" style="width:44px; height:40px; padding:0; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;" onchange="document.getElementById('prodColorHex').value = this.value;">
-                                <input type="text" name="prod_color_hex" id="prodColorHex" class="form-control" placeholder="#1e3a8a" value="#1e3a8a" onchange="document.getElementById('prodColorPicker').value = this.value;">
+
+                        <!-- Row 2: Default Color 2 -->
+                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color 2 Name</label>
+                                <input type="text" name="prod_variant_name[]" value="Pure White" class="form-control" placeholder="e.g. Pure White" style="font-size:13px; padding:6px 10px;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="color" value="#ffffff" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
+                                    <input type="text" name="prod_variant_hex[]" value="#ffffff" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Optional - Photo for this color)</label>
+                                <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px;">
+                            </div>
+                            <div style="padding-top:16px; text-align:center;">
+                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove color">✕</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label style="font-weight:700; color:var(--text-primary);">4. Or Direct Instant Link (Check the other color product):</label>
-                        <div style="max-height:170px; overflow-y:auto; background:var(--bg-card); padding:12px; border-radius:8px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:10px;">
-                            <?php foreach ($productsList as $existingP): 
-                                $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
-                            ?>
-                                <label style="display:flex; align-items:center; gap:10px; font-size:12.5px; cursor:pointer; padding:6px 10px; border-radius:6px; background:var(--bg-subtle); border:1px solid var(--border-color);">
-                                    <input type="checkbox" name="prod_linked_products[]" value="<?php echo $existingP['id']; ?>" style="accent-color:var(--accent-gold); width:16px; height:16px;">
-                                    <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:28px; height:28px; object-fit:cover; border-radius:4px;">
-                                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; font-weight:600;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
+                    <!-- Button to Add More Colors -->
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px;">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="addColorVariantRow('addColorVariantsList')" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:8px 16px;">
+                            <span>➕</span> Add Another Color (e.g. Color 3, Color 4)
+                        </button>
+                        <span class="text-muted" style="font-size:12px;">You can add 2, 3, 4, or unlimited colors to this piece!</span>
                     </div>
+
+                    <!-- Optional: Cross-Product Model Group Linking -->
+                    <details style="background:var(--bg-surface); padding:12px 16px; border-radius:8px; border:1px dashed var(--border-color);">
+                        <summary style="font-weight:700; font-size:13px; color:var(--accent-gold); cursor:pointer; user-select:none;">
+                            ⚙️ Advanced: Link Across Separate Catalog Items (Model Grouping)
+                        </summary>
+                        <div style="margin-top:12px;">
+                            <p class="text-muted" style="font-size:12px; margin-bottom:10px;">
+                                If you already created separate product entries in the catalog for each color, enter a shared Model Group code (e.g. <code>classic-oxford</code>) or select them below to link them together!
+                            </p>
+                            <div class="form-row-2 mb-10">
+                                <div class="form-group">
+                                    <label style="font-size:12px; font-weight:600;">Shared Model Group Identifier</label>
+                                    <input type="text" name="prod_model_group" id="prodModelGroup" class="form-control" placeholder="e.g. oxford-shirt-2026">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size:12px; font-weight:600;">Primary Color Label for this Item</label>
+                                    <input type="text" name="prod_color_name" id="prodColorName" class="form-control" placeholder="e.g. Obsidian Black">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size:12px; font-weight:600;">Or Check Catalog Items to Link:</label>
+                                <div style="max-height:140px; overflow-y:auto; background:var(--bg-card); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px;">
+                                    <?php foreach ($productsList as $existingP): 
+                                        $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
+                                    ?>
+                                        <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
+                                            <input type="checkbox" name="prod_linked_products[]" value="<?php echo $existingP['id']; ?>" style="accent-color:var(--accent-gold);">
+                                            <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:22px; height:22px; object-fit:cover; border-radius:3px;">
+                                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <div class="form-row-3 mb-20">
@@ -647,65 +799,82 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
-            <!-- Section 4.5: Color Variations & Model Linking -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1.5px solid var(--accent-gold); margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <!-- Section 4.5: Color Variations & Multi-Color Builder -->
+            <div id="editColorVariantsSection" style="background:var(--bg-subtle); padding:18px; border-radius:var(--radius-sm); border:1.5px solid var(--accent-gold); margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                     <div>
-                        <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
-                            🔗 Linked Colors & Model Grouping
+                        <span style="font-weight:700; font-size:14px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                            🎨 Product Colors & Swatches (Add / Edit Colors)
                         </span>
-                        <small class="text-muted">Connect multiple colors/editions of this same shirt or piece so buyers can pick variations easily on the product page</small>
+                        <small class="text-muted">Manage all colors for this piece (e.g. Color 1: Black with Black shirt image, Color 2: White with White shirt image).</small>
                     </div>
-                    <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Multi-Color Linking</span>
+                    <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Multi-Color Options</span>
                 </div>
-                
-                <div class="form-row-3 mb-16">
-                    <div class="form-group">
-                        <label>Model Group Identifier <span class="text-muted">(Auto-links matching pieces)</span></label>
-                        <input type="text" name="edit_prod_model_group" id="editProdModelGroup" class="form-control" placeholder="e.g. royal-blazer-2026 or oxford-shirt">
-                    </div>
-                    <div class="form-group">
-                        <label>This Item's Color Name</label>
-                        <input type="text" name="edit_prod_color_name" id="editProdColorName" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black">
-                    </div>
-                    <div class="form-group">
-                        <label>Color Swatch Hex / Visual</label>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="color" id="editProdColorPicker" value="#d4af37" style="width:40px; height:38px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="document.getElementById('editProdColorHex').value = this.value;">
-                            <input type="text" name="edit_prod_color_hex" id="editProdColorHex" class="form-control" placeholder="#d4af37" onchange="document.getElementById('editProdColorPicker').value = this.value;">
+
+                <!-- Quick Preset Color Pills for Edit Modal -->
+                <div style="margin-bottom:12px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <span style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">+ Quick Add:</span>
+                    <button type="button" class="btn btn-xs" style="background:#111827; color:#fff; border:1px solid #374151; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Obsidian Black', '#111827')">⚫ Black</button>
+                    <button type="button" class="btn btn-xs" style="background:#ffffff; color:#111; border:1px solid #cbd5e1; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Pure White', '#ffffff')">⚪ White</button>
+                    <button type="button" class="btn btn-xs" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Royal Navy Blue', '#1e3a8a')">🔵 Navy Blue</button>
+                    <button type="button" class="btn btn-xs" style="background:#065f46; color:#fff; border:1px solid #10b981; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Emerald Green', '#065f46')">🟢 Emerald</button>
+                    <button type="button" class="btn btn-xs" style="background:#881337; color:#fff; border:1px solid #f43f5e; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Burgundy Wine', '#881337')">🍷 Burgundy</button>
+                    <button type="button" class="btn btn-xs" style="background:#d4af37; color:#0a0c10; border:1px solid #eab308; font-size:11px; border-radius:20px; padding:3px 8px; font-weight:700;" onclick="addPresetColor('editColorVariantsList', 'Imperial Gold', '#d4af37')">✨ Gold</button>
+                    <button type="button" class="btn btn-xs" style="background:#f5f5dc; color:#333; border:1px solid #d1d5db; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Pearl Beige', '#f5f5dc')">🍨 Beige</button>
+                </div>
+
+                <!-- Dynamic Container for Edit Modal Colors -->
+                <div id="editColorVariantsList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+                    <!-- Populated dynamically via JS openEditProductModal -->
+                </div>
+
+                <!-- Add Another Color Button in Edit Modal -->
+                <div style="margin-bottom:16px;">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addColorVariantRow('editColorVariantsList')" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:6px 14px; font-size:12px;">
+                        <span>➕</span> Add Another Color (e.g. Color 2, Color 3)
+                    </button>
+                </div>
+
+                <details style="background:var(--bg-surface); padding:10px 14px; border-radius:6px; border:1px dashed var(--border-color);">
+                    <summary style="font-weight:700; font-size:12px; color:var(--accent-gold); cursor:pointer; user-select:none;">
+                        ⚙️ Advanced: Cross-Product Model Grouping & Direct Links
+                    </summary>
+                    <div style="margin-top:10px;">
+                        <div class="form-row-2 mb-10">
+                            <div class="form-group">
+                                <label style="font-size:11.5px; font-weight:600;">Model Group Identifier</label>
+                                <input type="text" name="edit_prod_model_group" id="editProdModelGroup" class="form-control" placeholder="e.g. royal-blazer-2026 or oxford-shirt">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size:11.5px; font-weight:600;">Primary Color Label</label>
+                                <input type="text" name="edit_prod_color_name" id="editProdColorName" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:11.5px; font-weight:600;">Or Check Catalog Items to Link:</label>
+                            <div id="editProdLinkedContainer" style="max-height:130px; overflow-y:auto; background:var(--bg-card); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:6px;">
+                                <?php foreach ($productsList as $existingP): 
+                                    $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
+                                ?>
+                                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
+                                        <input type="checkbox" name="edit_prod_linked_products[]" value="<?php echo $existingP['id']; ?>" class="edit-linked-cb" id="editLinkedCb_<?php echo $existingP['id']; ?>">
+                                        <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:22px; height:22px; object-fit:cover; border-radius:3px;">
+                                        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Or Directly Link to Catalog Items:</label>
-                    <div id="editProdLinkedContainer" style="max-height:150px; overflow-y:auto; background:var(--bg-surface); padding:10px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px;">
-                        <?php foreach ($productsList as $existingP): 
-                            $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
-                        ?>
-                            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
-                                <input type="checkbox" name="edit_prod_linked_products[]" value="<?php echo $existingP['id']; ?>" class="edit-linked-cb" id="editLinkedCb_<?php echo $existingP['id']; ?>">
-                                <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:24px; height:24px; object-fit:cover; border-radius:4px;">
-                                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
+                </details>
             </div>
 
-            <!-- Section 5: Sizes, Colors & Descriptions -->
+            <!-- Section 5: Sizes & Descriptions -->
             <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:24px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 Attributes & Trilingual Descriptions</span>
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 Available Sizes & Trilingual Descriptions</span>
                 
-                <div class="form-row-2 mb-16">
-                    <div class="form-group">
-                        <label>Available Sizes (Comma-separated)</label>
-                        <input type="text" name="edit_prod_sizes" id="editProdSizes" class="form-control" placeholder="S, M, L, XL or 42mm, 44mm">
-                    </div>
-                    <div class="form-group">
-                        <label>Available Colors / Editions</label>
-                        <input type="text" name="edit_prod_colors" id="editProdColors" class="form-control" placeholder="Midnight Black, Royal Gold, Emerald">
-                    </div>
+                <div class="form-group mb-16">
+                    <label>Available Sizes (Comma-separated)</label>
+                    <input type="text" name="edit_prod_sizes" id="editProdSizes" class="form-control" placeholder="S, M, L, XL or 42mm, 44mm">
                 </div>
 
                 <div class="form-row-3">
@@ -756,6 +925,70 @@ function filterProductsTable() {
     });
 }
 
+// Multi-Color Dynamic Row Engine
+function addColorVariantRow(containerId, colorName = '', colorHex = '#1e3a8a', imageUrl = '', isRemovable = true) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const isAdd = containerId.startsWith('add');
+    const prefix = isAdd ? 'prod' : 'edit';
+    const rowCount = container.querySelectorAll('.color-variant-row').length + 1;
+
+    const row = document.createElement('div');
+    row.className = 'color-variant-row';
+    row.style.cssText = 'display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);';
+
+    row.innerHTML = `
+        <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color ${rowCount} Name</label>
+            <input type="text" name="${prefix}_variant_name[]" value="${escapeHtmlAttr(colorName)}" class="form-control" placeholder="e.g. Royal Navy" required style="font-size:13px; padding:6px 10px;">
+        </div>
+        <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <input type="color" value="${escapeHtmlAttr(colorHex)}" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
+                <input type="text" name="${prefix}_variant_hex[]" value="${escapeHtmlAttr(colorHex)}" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
+            </div>
+        </div>
+        <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Photo for this specific color)</label>
+            <input type="url" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px;">
+        </div>
+        <div style="padding-top:16px; text-align:center;">
+            <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove this color">✕</button>
+        </div>
+    `;
+
+    container.appendChild(row);
+    const nameInput = row.querySelector('input[type="text"]');
+    if (nameInput && !colorName) nameInput.focus();
+}
+
+function removeColorVariantRow(btn) {
+    const row = btn.closest('.color-variant-row');
+    if (!row) return;
+    const container = row.parentElement;
+    if (container && container.querySelectorAll('.color-variant-row').length <= 1) {
+        if (window.AdminApp && window.AdminApp.toast) {
+            window.AdminApp.toast('A piece must have at least one color option.', 'warning');
+        }
+        return;
+    }
+    row.remove();
+}
+
+function addPresetColor(containerId, name, hex) {
+    addColorVariantRow(containerId, name, hex, '');
+    if (window.AdminApp && window.AdminApp.toast) {
+        window.AdminApp.toast('Added "' + name + '" color option!', 'success');
+    }
+}
+
+function escapeHtmlAttr(str) {
+    if (!str) return '';
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function openEditProductModal(product) {
     if (!product) return;
     document.getElementById('editProdId').value = product.id;
@@ -789,15 +1022,30 @@ function openEditProductModal(product) {
     const sizes = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || '');
     document.getElementById('editProdSizes').value = sizes;
 
-    const colors = Array.isArray(product.colors) ? product.colors.join(', ') : (product.colors || '');
-    document.getElementById('editProdColors').value = colors;
+    // Populate Multi-Color Variants in Edit Modal
+    const editColorsList = document.getElementById('editColorVariantsList');
+    if (editColorsList) {
+        editColorsList.innerHTML = '';
+        const prodColors = Array.isArray(product.colors) ? product.colors : (product.colors ? [product.colors] : []);
+        const colorHexes = (typeof product.color_hexes === 'object' && product.color_hexes !== null) ? product.color_hexes : {};
+        const colorImages = (typeof product.color_images === 'object' && product.color_images !== null) ? product.color_images : {};
+
+        if (prodColors.length > 0) {
+            prodColors.forEach((colName, idx) => {
+                const hex = colorHexes[colName] || product.color_hex || '#d4af37';
+                const img = colorImages[colName] || (product.images && product.images[idx]) || (idx === 0 ? mainImg : '');
+                addColorVariantRow('editColorVariantsList', colName, hex, img);
+            });
+        } else {
+            const defName = product.color_name || 'Obsidian Black';
+            const defHex = product.color_hex || '#111827';
+            addColorVariantRow('editColorVariantsList', defName, defHex, mainImg);
+        }
+    }
 
     // Color Variations & Model Grouping
     document.getElementById('editProdModelGroup').value = product.model_group || '';
     document.getElementById('editProdColorName').value = product.color_name || '';
-    const colHex = product.color_hex || '#d4af37';
-    document.getElementById('editProdColorHex').value = colHex;
-    document.getElementById('editProdColorPicker').value = colHex;
 
     // Clear and check linked product checkboxes
     const linkedIds = Array.isArray(product.linked_products) ? product.linked_products.map(Number) : [];
@@ -863,7 +1111,9 @@ function quickAddColorVariant(product) {
     // Fill Add Product Form fields
     document.getElementById('prodModelGroup').value = groupSlug;
     document.getElementById('prodColorName').value = '';
-    document.getElementById('prodColorName').focus();
+    
+    // Add a new color row to the Add Product colors list
+    addColorVariantRow('addColorVariantsList', 'New Color Edition', '#1e3a8a', '');
 
     // Check the box for the source product in the add form
     document.querySelectorAll('input[name="prod_linked_products[]"]').forEach(cb => {
@@ -879,7 +1129,7 @@ function quickAddColorVariant(product) {
     }
     
     if (window.AdminApp && window.AdminApp.toast) {
-        window.AdminApp.toast('Ready to add a new color for "' + pTitleEn + '"! Fill in the new color details and image.', 'info');
+        window.AdminApp.toast('Ready to add a new color for "' + pTitleEn + '"! Configure the new color row.', 'info');
     }
 }
 
