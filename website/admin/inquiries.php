@@ -1,14 +1,44 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../database/db.php';
+
+$flashMsg = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['send_inquiry'])) {
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $subject = trim($_POST['subject'] ?? 'General Consultation');
+        $message = trim($_POST['message'] ?? '');
+
+        if (!empty($name) && !empty($message)) {
+            $inq = [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'subject' => $subject,
+                'message' => $message,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            $saved = save_inquiry($inq);
+            $flashMsg = "✓ Concierge inquiry logged successfully!";
+        }
+    } elseif (isset($_POST['delete_inquiry_id'])) {
+        $inqId = trim($_POST['delete_inquiry_id']);
+        delete_inquiry($inqId);
+        $flashMsg = "✓ Inquiry marked as resolved and closed.";
+    }
+}
+
 $pageTitle = 'Customer Concierge & Support Inquiries | AURA Luxury Admin';
 $adminActive = 'inquiries';
-$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
-$ordersList = $ordersDb['orders'] ?? [];
-$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
-$productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+$ordersList = get_all_orders();
+$productsList = get_all_products();
+$usersList = get_all_users();
+$inquiriesList = get_all_inquiries();
 
 $activePage = 'admin';
 require_once __DIR__ . '/../header.php';
@@ -31,6 +61,13 @@ require_once __DIR__ . '/../header.php';
 
         <!-- Unified Admin Navigation Bar -->
         <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <?php if ($flashMsg): ?>
+            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+                <span><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+        <?php endif; ?>
 
         <!-- Metric Sub-Cards -->
         <div class="admin-metrics-grid" style="margin-bottom:24px;">

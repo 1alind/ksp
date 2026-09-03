@@ -1,14 +1,153 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../database/db.php';
+
+// Handle JSON / AJAX requests (e.g. stock adjustment or quick edit)
+$rawInput = file_get_contents('php://input');
+if (!empty($rawInput)) {
+    $jsonReq = json_decode($rawInput, true);
+    if (is_array($jsonReq)) {
+        if (isset($jsonReq['product_id']) && isset($jsonReq['stock_delta'])) {
+            header('Content-Type: application/json');
+            $newStock = adjust_product_stock($jsonReq['product_id'], $jsonReq['stock_delta']);
+            echo json_encode(['success' => true, 'product_id' => (int)$jsonReq['product_id'], 'stock' => $newStock]);
+            exit;
+        }
+    }
+}
+
+// Handle query parameter AJAX action
+if (isset($_GET['action']) && $_GET['action'] === 'adjust_stock') {
+    header('Content-Type: application/json');
+    $pId = intval($_POST['product_id'] ?? $_GET['product_id'] ?? 0);
+    $delta = intval($_POST['stock_delta'] ?? $_GET['stock_delta'] ?? 0);
+    $newStock = adjust_product_stock($pId, $delta);
+    echo json_encode(['success' => true, 'product_id' => $pId, 'stock' => $newStock]);
+    exit;
+}
+
+$flashMsg = null;
+$flashType = 'success';
+
+// Handle POST submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 1. UPDATE PRODUCT
+    if (isset($_POST['update_product'])) {
+        $pId = intval($_POST['edit_prod_id'] ?? 0);
+        $titleEn = trim($_POST['edit_prod_title_en'] ?? '');
+        $titleAr = trim($_POST['edit_prod_title_ar'] ?? '');
+        $titleKu = trim($_POST['edit_prod_title_ku'] ?? '');
+        $category = trim($_POST['edit_prod_category'] ?? 'clothes');
+        $price = floatval($_POST['edit_prod_price'] ?? 0);
+        $oldPrice = !empty($_POST['edit_prod_old_price']) ? floatval($_POST['edit_prod_old_price']) : null;
+        $stock = intval($_POST['edit_prod_stock'] ?? 10);
+        $featured = !empty($_POST['edit_prod_featured']);
+        $badge = trim($_POST['edit_prod_badge'] ?? '');
+        $badgeAr = trim($_POST['edit_prod_badge_ar'] ?? '');
+        $badgeKu = trim($_POST['edit_prod_badge_ku'] ?? '');
+        $image = trim($_POST['edit_prod_image'] ?? '');
+        $galleryRaw = trim($_POST['edit_prod_gallery'] ?? '');
+        $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
+        $sizesRaw = trim($_POST['edit_prod_sizes'] ?? '');
+        $sizes = array_values(array_filter(array_map('trim', explode(',', $sizesRaw))));
+        $colorsRaw = trim($_POST['edit_prod_colors'] ?? '');
+        $colors = array_values(array_filter(array_map('trim', explode(',', $colorsRaw))));
+        $descEn = trim($_POST['edit_prod_desc_en'] ?? '');
+        $descAr = trim($_POST['edit_prod_desc_ar'] ?? '');
+        $descKu = trim($_POST['edit_prod_desc_ku'] ?? '');
+
+        $productData = [
+            'id' => $pId,
+            'title' => [
+                'en' => $titleEn,
+                'ar' => $titleAr,
+                'ku' => $titleKu
+            ],
+            'category' => $category,
+            'price' => $price,
+            'old_price' => $oldPrice,
+            'stock' => $stock,
+            'featured' => $featured,
+            'badge' => $badge,
+            'badge_ar' => $badgeAr,
+            'badge_ku' => $badgeKu,
+            'image' => $image,
+            'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
+            'sizes' => !empty($sizes) ? $sizes : ['S', 'M', 'L', 'XL'],
+            'colors' => !empty($colors) ? $colors : ['Default'],
+            'description' => [
+                'en' => $descEn,
+                'ar' => $descAr,
+                'ku' => $descKu
+            ]
+        ];
+
+        save_product($productData);
+        $flashMsg = "✓ Product #{$pId} ('" . htmlspecialchars($titleEn) . "') was updated successfully!";
+    }
+    // 2. ADD NEW PRODUCT
+    elseif (isset($_POST['add_new_product'])) {
+        $titleEn = trim($_POST['prod_title_en'] ?? '');
+        $titleAr = trim($_POST['prod_title_ar'] ?? '');
+        $titleKu = trim($_POST['prod_title_ku'] ?? '');
+        $category = trim($_POST['prod_category'] ?? 'clothes');
+        $price = floatval($_POST['prod_price'] ?? 0);
+        $oldPrice = !empty($_POST['prod_old_price']) ? floatval($_POST['prod_old_price']) : null;
+        $stock = intval($_POST['prod_stock'] ?? 10);
+        $badge = trim($_POST['prod_badge'] ?? '');
+        $badgeAr = trim($_POST['prod_badge_ar'] ?? '');
+        $badgeKu = trim($_POST['prod_badge_ku'] ?? '');
+        $image = trim($_POST['prod_image'] ?? '');
+        $galleryRaw = trim($_POST['prod_gallery'] ?? '');
+        $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
+        $descEn = trim($_POST['prod_desc_en'] ?? '');
+        $descAr = trim($_POST['prod_desc_ar'] ?? '');
+        $descKu = trim($_POST['prod_desc_ku'] ?? '');
+
+        $productData = [
+            'title' => [
+                'en' => $titleEn,
+                'ar' => $titleAr,
+                'ku' => $titleKu
+            ],
+            'category' => $category,
+            'price' => $price,
+            'old_price' => $oldPrice,
+            'stock' => $stock,
+            'featured' => false,
+            'badge' => $badge,
+            'badge_ar' => $badgeAr,
+            'badge_ku' => $badgeKu,
+            'image' => $image,
+            'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
+            'sizes' => ['S', 'M', 'L', 'XL'],
+            'colors' => ['Default Edition'],
+            'description' => [
+                'en' => $descEn,
+                'ar' => $descAr,
+                'ku' => $descKu
+            ]
+        ];
+
+        $saved = save_product($productData);
+        $flashMsg = "✓ New luxury piece #{$saved['id']} ('" . htmlspecialchars($titleEn) . "') was published to the catalog!";
+    }
+    // 3. DELETE PRODUCT
+    elseif (isset($_POST['delete_product_id'])) {
+        $pId = intval($_POST['delete_product_id']);
+        delete_product($pId);
+        $flashMsg = "✓ Product #{$pId} has been permanently removed from the catalog.";
+    }
+}
+
 $pageTitle = 'Product Catalog & Inventory | AURA Luxury Admin';
 $adminActive = 'products';
-$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
-$ordersList = $ordersDb['orders'] ?? [];
-$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
-$productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+$productsList = get_all_products();
+$ordersList = get_all_orders();
+$usersList = get_all_users();
+$inquiriesList = get_all_inquiries();
 
 $totalStock = 0;
 $featuredCount = 0;
@@ -38,6 +177,13 @@ require_once __DIR__ . '/../header.php';
 
         <!-- Unified Admin Navigation Bar -->
         <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <?php if ($flashMsg): ?>
+            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+                <span><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+        <?php endif; ?>
 
         <!-- Product Metrics Sub-Cards -->
         <div class="admin-metrics-grid" style="margin-bottom:24px;">

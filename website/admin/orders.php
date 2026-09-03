@@ -1,14 +1,96 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../database/db.php';
+
+// Handle JSON / AJAX requests (e.g. order status update)
+$rawInput = file_get_contents('php://input');
+if (!empty($rawInput)) {
+    $jsonReq = json_decode($rawInput, true);
+    if (is_array($jsonReq)) {
+        if (isset($jsonReq['order_id']) && isset($jsonReq['order_status'])) {
+            header('Content-Type: application/json');
+            $updated = update_order_status($jsonReq['order_id'], $jsonReq['order_status']);
+            echo json_encode(['success' => (bool)$updated, 'order_id' => $jsonReq['order_id'], 'order_status' => $jsonReq['order_status']]);
+            exit;
+        }
+    }
+}
+
+// Handle query parameter AJAX action
+if (isset($_GET['action']) && $_GET['action'] === 'update_status') {
+    header('Content-Type: application/json');
+    $oid = trim($_POST['order_id'] ?? $_GET['order_id'] ?? '');
+    $status = trim($_POST['order_status'] ?? $_GET['order_status'] ?? 'Pending');
+    $updated = update_order_status($oid, $status);
+    echo json_encode(['success' => (bool)$updated, 'order_id' => $oid, 'order_status' => $status]);
+    exit;
+}
+
+$flashMsg = null;
+$flashType = 'success';
+
+// Handle POST submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 1. UPDATE DISPATCH / LOGISTICS
+    if (isset($_POST['update_order_dispatch'])) {
+        $oid = trim($_POST['order_id'] ?? '');
+        $status = trim($_POST['order_status'] ?? 'Shipped');
+        $courier = trim($_POST['courier'] ?? 'AURA Express Fleet');
+        $tracking = trim($_POST['tracking_code'] ?? '');
+        $driverName = trim($_POST['driver_name'] ?? '');
+        $driverPhone = trim($_POST['driver_phone'] ?? '');
+        $estDelivery = trim($_POST['estimated_delivery'] ?? '');
+        $dispatchNotes = trim($_POST['dispatch_notes'] ?? '');
+
+        if (!empty($oid)) {
+            update_order_full($oid, [
+                'order_status' => $status,
+                'courier' => $courier,
+                'tracking_code' => $tracking,
+                'driver_name' => $driverName,
+                'driver_phone' => $driverPhone,
+                'estimated_delivery' => $estDelivery,
+                'dispatch_notes' => $dispatchNotes
+            ]);
+            $flashMsg = "✓ Order #{$oid} logistics details updated and assigned to {$courier}!";
+        }
+    }
+    // 2. DELETE ORDER
+    elseif (isset($_POST['delete_order_id'])) {
+        $oid = trim($_POST['delete_order_id']);
+        if (!empty($oid)) {
+            // Delete from orders.json
+            $jsonFile = __DIR__ . '/../database/orders.json';
+            if (file_exists($jsonFile)) {
+                $data = json_decode(file_get_contents($jsonFile), true);
+                if (isset($data['orders']) && is_array($data['orders'])) {
+                    $data['orders'] = array_values(array_filter($data['orders'], function($o) use ($oid) {
+                        return ($o['order_id'] ?? '') !== $oid;
+                    }));
+                    @file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                }
+            }
+            // Delete from MySQL if available
+            $pdo = get_mysql_pdo();
+            if ($pdo) {
+                try {
+                    $stmt = $pdo->prepare("DELETE FROM orders WHERE order_id = :oid");
+                    $stmt->execute([':oid' => $oid]);
+                } catch (Exception $e) {}
+            }
+            $flashMsg = "✓ Order #{$oid} was permanently removed.";
+        }
+    }
+}
+
 $pageTitle = 'Orders & Logistics Radar | AURA Luxury Admin';
 $adminActive = 'orders';
-$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
-$ordersList = $ordersDb['orders'] ?? [];
-$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
-$productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+$ordersList = get_all_orders();
+$productsList = get_all_products();
+$usersList = get_all_users();
+$inquiriesList = get_all_inquiries();
 
 $pendingCount = 0;
 $shippedCount = 0;
@@ -44,6 +126,13 @@ require_once __DIR__ . '/../header.php';
 
         <!-- Unified Admin Navigation Bar -->
         <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <?php if ($flashMsg): ?>
+            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+                <span><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+        <?php endif; ?>
 
         <!-- Orders Metric Sub-Cards -->
         <div class="admin-metrics-grid" style="margin-bottom:24px;">

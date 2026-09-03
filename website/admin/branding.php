@@ -1,15 +1,56 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../database/db.php';
+
+$flashMsg = null;
+$settingsDb = get_settings();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_website_branding'])) {
+    $settingsDb['store_name'] = trim($_POST['store_name'] ?? 'AURA Luxury Store');
+    $settingsDb['store_name_ar'] = trim($_POST['store_name_ar'] ?? 'متجر أورا الفاخر');
+    $settingsDb['store_name_ku'] = trim($_POST['store_name_ku'] ?? 'فروشگەها ئۆرا یا شاهانە');
+
+    $settingsDb['store_tagline_en'] = trim($_POST['store_tagline_en'] ?? '');
+    $settingsDb['store_tagline_ar'] = trim($_POST['store_tagline_ar'] ?? '');
+    $settingsDb['store_tagline_ku'] = trim($_POST['store_tagline_ku'] ?? '');
+
+    $settingsDb['logo_type'] = trim($_POST['logo_type'] ?? 'emblem');
+    $settingsDb['logo_emblem'] = trim($_POST['logo_emblem'] ?? 'A');
+    $settingsDb['brand_accent_color'] = trim($_POST['brand_accent_color'] ?? '#d4af37');
+    $settingsDb['logo_main'] = trim($_POST['logo_main'] ?? 'AURA');
+    $settingsDb['logo_sub'] = trim($_POST['logo_sub'] ?? 'STUDIO');
+    $settingsDb['logo_image_url'] = trim($_POST['logo_image_url'] ?? '');
+    $settingsDb['favicon_url'] = trim($_POST['favicon_url'] ?? '');
+
+    $settingsDb['announcement_enabled'] = !empty($_POST['announcement_enabled']);
+    $settingsDb['announcement_text_en'] = trim($_POST['announcement_text_en'] ?? '');
+    $settingsDb['announcement_text_ar'] = trim($_POST['announcement_text_ar'] ?? '');
+    $settingsDb['announcement_text_ku'] = trim($_POST['announcement_text_ku'] ?? '');
+
+    $settingsDb['delivery_kurdistan_fee'] = intval($_POST['delivery_kurdistan_fee'] ?? 5000);
+    $settingsDb['delivery_iraq_fee'] = intval($_POST['delivery_iraq_fee'] ?? 8000);
+    $settingsDb['free_delivery_threshold'] = intval($_POST['free_delivery_threshold'] ?? 250000);
+
+    $settingsDb['contact_phone'] = trim($_POST['contact_phone'] ?? '');
+    $settingsDb['contact_whatsapp'] = trim($_POST['contact_whatsapp'] ?? '');
+    $settingsDb['contact_email'] = trim($_POST['contact_email'] ?? '');
+
+    $settingsDb['boutique_location_en'] = trim($_POST['boutique_location_en'] ?? '');
+    $settingsDb['boutique_location_ar'] = trim($_POST['boutique_location_ar'] ?? '');
+    $settingsDb['boutique_location_ku'] = trim($_POST['boutique_location_ku'] ?? '');
+
+    save_settings($settingsDb);
+    $flashMsg = "✓ Store branding, trilingual identity, and delivery rules updated successfully!";
+}
+
 $pageTitle = 'Brand Customizer & Global Settings | AURA Luxury Admin';
 $adminActive = 'branding';
-$settingsDb = json_decode(file_get_contents(__DIR__ . '/../database/settings.json'), true);
-$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
-$ordersList = $ordersDb['orders'] ?? [];
-$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
-$productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+$ordersList = get_all_orders();
+$productsList = get_all_products();
+$usersList = get_all_users();
+$inquiriesList = get_all_inquiries();
 
 $s = $settingsDb;
 
@@ -34,6 +75,13 @@ require_once __DIR__ . '/../header.php';
 
         <!-- Unified Admin Navigation Bar -->
         <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <?php if ($flashMsg): ?>
+            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+                <span><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+        <?php endif; ?>
 
         <form action="/admin/branding.php" method="POST">
             <input type="hidden" name="save_website_branding" value="1">

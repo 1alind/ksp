@@ -42,170 +42,282 @@ if (file_exists(__DIR__ . '/init_db.php')) {
 }
 
 // ==============================================================================
-// 1. PRODUCTS (MySQL Database Operations)
+// ==============================================================================
+// 1. PRODUCTS (Dual MySQL Database & JSON File Engine)
 // ==============================================================================
 function get_all_products() {
     $pdo = get_mysql_pdo();
-    if (!$pdo) return [];
-    
-    try {
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY id ASC");
-        $rows = $stmt->fetchAll();
-        $products = [];
-        foreach ($rows as $row) {
-            $products[] = [
-                'id' => (int)$row['id'],
-                'title' => [
-                    'en' => $row['title_en'],
-                    'ar' => $row['title_ar'],
-                    'ku' => $row['title_ku'],
-                ],
-                'category' => $row['category'],
-                'price' => (float)$row['price'],
-                'old_price' => $row['old_price'] ? (float)$row['old_price'] : null,
-                'rating' => (float)$row['rating'],
-                'reviews_count' => (int)$row['reviews_count'],
-                'badge' => $row['badge_en'],
-                'badge_ar' => $row['badge_ar'],
-                'badge_ku' => $row['badge_ku'],
-                'stock' => (int)$row['stock'],
-                'image' => $row['image'],
-                'images' => is_string($row['images']) ? json_decode($row['images'], true) : ($row['images'] ?? []),
-                'colors' => is_string($row['colors']) ? json_decode($row['colors'], true) : ($row['colors'] ?? []),
-                'sizes' => is_string($row['sizes']) ? json_decode($row['sizes'], true) : ($row['sizes'] ?? []),
-                'size_measurements' => is_string($row['size_measurements']) ? json_decode($row['size_measurements'], true) : ($row['size_measurements'] ?? []),
-                'description' => [
-                    'en' => $row['description_en'],
-                    'ar' => $row['description_ar'],
-                    'ku' => $row['description_ku'],
-                ],
-                'featured' => (bool)$row['featured']
-            ];
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM products ORDER BY id ASC");
+            $rows = $stmt->fetchAll();
+            if (!empty($rows)) {
+                $products = [];
+                foreach ($rows as $row) {
+                    $products[] = [
+                        'id' => (int)$row['id'],
+                        'title' => [
+                            'en' => $row['title_en'] ?? '',
+                            'ar' => $row['title_ar'] ?? '',
+                            'ku' => $row['title_ku'] ?? '',
+                        ],
+                        'category' => $row['category'] ?? 'clothes',
+                        'price' => (float)($row['price'] ?? 0),
+                        'old_price' => !empty($row['old_price']) ? (float)$row['old_price'] : null,
+                        'rating' => (float)($row['rating'] ?? 5.0),
+                        'reviews_count' => (int)($row['reviews_count'] ?? 0),
+                        'badge' => $row['badge_en'] ?? '',
+                        'badge_ar' => $row['badge_ar'] ?? '',
+                        'badge_ku' => $row['badge_ku'] ?? '',
+                        'stock' => (int)($row['stock'] ?? 0),
+                        'image' => $row['image'] ?? '',
+                        'images' => is_string($row['images'] ?? null) ? json_decode($row['images'], true) : ($row['images'] ?? []),
+                        'colors' => is_string($row['colors'] ?? null) ? json_decode($row['colors'], true) : ($row['colors'] ?? []),
+                        'sizes' => is_string($row['sizes'] ?? null) ? json_decode($row['sizes'], true) : ($row['sizes'] ?? []),
+                        'size_measurements' => is_string($row['size_measurements'] ?? null) ? json_decode($row['size_measurements'], true) : ($row['size_measurements'] ?? []),
+                        'description' => [
+                            'en' => $row['description_en'] ?? '',
+                            'ar' => $row['description_ar'] ?? '',
+                            'ku' => $row['description_ku'] ?? '',
+                        ],
+                        'featured' => !empty($row['featured'])
+                    ];
+                }
+                return $products;
+            }
+        } catch (Exception $e) {
+            // fallback to JSON
         }
-        return $products;
-    } catch (Exception $e) {
-        return [];
     }
+
+    // JSON file fallback
+    $jsonFile = __DIR__ . '/products.json';
+    if (file_exists($jsonFile)) {
+        $data = json_decode(file_get_contents($jsonFile), true);
+        return $data['products'] ?? [];
+    }
+    return [];
 }
 
 function get_product_by_id($id) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return null;
-    
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM products WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch();
-        if (!$row) return null;
-        
-        return [
-            'id' => (int)$row['id'],
-            'title' => [
-                'en' => $row['title_en'],
-                'ar' => $row['title_ar'],
-                'ku' => $row['title_ku'],
-            ],
-            'category' => $row['category'],
-            'price' => (float)$row['price'],
-            'old_price' => $row['old_price'] ? (float)$row['old_price'] : null,
-            'rating' => (float)$row['rating'],
-            'reviews_count' => (int)$row['reviews_count'],
-            'badge' => $row['badge_en'],
-            'badge_ar' => $row['badge_ar'],
-            'badge_ku' => $row['badge_ku'],
-            'stock' => (int)$row['stock'],
-            'image' => $row['image'],
-            'images' => is_string($row['images']) ? json_decode($row['images'], true) : ($row['images'] ?? []),
-            'colors' => is_string($row['colors']) ? json_decode($row['colors'], true) : ($row['colors'] ?? []),
-            'sizes' => is_string($row['sizes']) ? json_decode($row['sizes'], true) : ($row['sizes'] ?? []),
-            'size_measurements' => is_string($row['size_measurements']) ? json_decode($row['size_measurements'], true) : ($row['size_measurements'] ?? []),
-            'description' => [
-                'en' => $row['description_en'],
-                'ar' => $row['description_ar'],
-                'ku' => $row['description_ku'],
-            ],
-            'featured' => (bool)$row['featured']
-        ];
-    } catch (Exception $e) {
-        return null;
+    $all = get_all_products();
+    foreach ($all as $p) {
+        if ((int)$p['id'] === (int)$id) {
+            return $p;
+        }
     }
+    return null;
 }
 
 function save_product($new_product) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return $new_product;
-
-    try {
-        if (isset($new_product['id']) && $new_product['id'] > 0) {
-            $sql = "UPDATE products SET 
-                    title_en = :title_en, title_ar = :title_ar, title_ku = :title_ku,
-                    category = :category, price = :price, old_price = :old_price,
-                    stock = :stock, image = :image, images = :images,
-                    colors = :colors, sizes = :sizes, size_measurements = :size_measurements,
-                    description_en = :desc_en, description_ar = :desc_ar, description_ku = :desc_ku,
-                    featured = :featured
-                    WHERE id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':id' => $new_product['id'],
-                ':title_en' => $new_product['title']['en'] ?? ($new_product['title_en'] ?? ''),
-                ':title_ar' => $new_product['title']['ar'] ?? ($new_product['title_ar'] ?? ''),
-                ':title_ku' => $new_product['title']['ku'] ?? ($new_product['title_ku'] ?? ''),
-                ':category' => $new_product['category'] ?? 'clothes',
-                ':price' => $new_product['price'] ?? 0,
-                ':old_price' => $new_product['old_price'] ?? null,
-                ':stock' => $new_product['stock'] ?? 10,
-                ':image' => $new_product['image'] ?? '',
-                ':images' => is_string($new_product['images'] ?? null) ? $new_product['images'] : json_encode($new_product['images'] ?? []),
-                ':colors' => is_string($new_product['colors'] ?? null) ? $new_product['colors'] : json_encode($new_product['colors'] ?? []),
-                ':sizes' => is_string($new_product['sizes'] ?? null) ? $new_product['sizes'] : json_encode($new_product['sizes'] ?? []),
-                ':size_measurements' => is_string($new_product['size_measurements'] ?? null) ? $new_product['size_measurements'] : json_encode($new_product['size_measurements'] ?? []),
-                ':desc_en' => $new_product['description']['en'] ?? ($new_product['description_en'] ?? ''),
-                ':desc_ar' => $new_product['description']['ar'] ?? ($new_product['description_ar'] ?? ''),
-                ':desc_ku' => $new_product['description']['ku'] ?? ($new_product['description_ku'] ?? ''),
-                ':featured' => !empty($new_product['featured']) ? 1 : 0
-            ]);
-        } else {
-            $sql = "INSERT INTO products 
-                    (title_en, title_ar, title_ku, category, price, old_price, stock, image, images, colors, sizes, size_measurements, description_en, description_ar, description_ku, featured)
-                    VALUES (:title_en, :title_ar, :title_ku, :category, :price, :old_price, :stock, :image, :images, :colors, :sizes, :size_measurements, :desc_en, :desc_ar, :desc_ku, :featured)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':title_en' => $new_product['title']['en'] ?? ($new_product['title_en'] ?? ''),
-                ':title_ar' => $new_product['title']['ar'] ?? ($new_product['title_ar'] ?? ''),
-                ':title_ku' => $new_product['title']['ku'] ?? ($new_product['title_ku'] ?? ''),
-                ':category' => $new_product['category'] ?? 'clothes',
-                ':price' => $new_product['price'] ?? 0,
-                ':old_price' => $new_product['old_price'] ?? null,
-                ':stock' => $new_product['stock'] ?? 10,
-                ':image' => $new_product['image'] ?? '',
-                ':images' => is_string($new_product['images'] ?? null) ? $new_product['images'] : json_encode($new_product['images'] ?? []),
-                ':colors' => is_string($new_product['colors'] ?? null) ? $new_product['colors'] : json_encode($new_product['colors'] ?? []),
-                ':sizes' => is_string($new_product['sizes'] ?? null) ? $new_product['sizes'] : json_encode($new_product['sizes'] ?? []),
-                ':size_measurements' => is_string($new_product['size_measurements'] ?? null) ? $new_product['size_measurements'] : json_encode($new_product['size_measurements'] ?? []),
-                ':desc_en' => $new_product['description']['en'] ?? ($new_product['description_en'] ?? ''),
-                ':desc_ar' => $new_product['description']['ar'] ?? ($new_product['description_ar'] ?? ''),
-                ':desc_ku' => $new_product['description']['ku'] ?? ($new_product['description_ku'] ?? ''),
-                ':featured' => !empty($new_product['featured']) ? 1 : 0
-            ]);
-            $new_product['id'] = (int)$pdo->lastInsertId();
+    $jsonFile = __DIR__ . '/products.json';
+    $data = ['products' => []];
+    if (file_exists($jsonFile)) {
+        $decoded = json_decode(file_get_contents($jsonFile), true);
+        if (isset($decoded['products']) && is_array($decoded['products'])) {
+            $data = $decoded;
         }
-        return $new_product;
-    } catch (Exception $e) {
-        return $new_product;
     }
+
+    $existingIndex = -1;
+    $maxId = 0;
+    foreach ($data['products'] as $idx => $p) {
+        $pId = (int)($p['id'] ?? 0);
+        if ($pId > $maxId) $maxId = $pId;
+        if (isset($new_product['id']) && $pId === (int)$new_product['id'] && (int)$new_product['id'] > 0) {
+            $existingIndex = $idx;
+        }
+    }
+
+    if (empty($new_product['id']) || (int)$new_product['id'] <= 0) {
+        $new_product['id'] = $maxId + 1;
+    } else {
+        $new_product['id'] = (int)$new_product['id'];
+    }
+
+    // Ensure proper structure
+    $title = is_array($new_product['title'] ?? null) ? $new_product['title'] : [
+        'en' => $new_product['title_en'] ?? ($new_product['title'] ?? ''),
+        'ar' => $new_product['title_ar'] ?? ($new_product['title'] ?? ''),
+        'ku' => $new_product['title_ku'] ?? ($new_product['title'] ?? '')
+    ];
+    $description = is_array($new_product['description'] ?? null) ? $new_product['description'] : [
+        'en' => $new_product['desc_en'] ?? ($new_product['description_en'] ?? ($new_product['description'] ?? '')),
+        'ar' => $new_product['desc_ar'] ?? ($new_product['description_ar'] ?? ($new_product['description'] ?? '')),
+        'ku' => $new_product['desc_ku'] ?? ($new_product['description_ku'] ?? ($new_product['description'] ?? ''))
+    ];
+
+    $productFormatted = [
+        'id' => (int)$new_product['id'],
+        'title' => $title,
+        'category' => $new_product['category'] ?? 'clothes',
+        'price' => (float)($new_product['price'] ?? 0),
+        'old_price' => !empty($new_product['old_price']) ? (float)$new_product['old_price'] : null,
+        'rating' => isset($new_product['rating']) ? (float)$new_product['rating'] : 5.0,
+        'reviews_count' => isset($new_product['reviews_count']) ? (int)$new_product['reviews_count'] : 24,
+        'badge' => $new_product['badge'] ?? ($new_product['badge_en'] ?? ''),
+        'badge_ar' => $new_product['badge_ar'] ?? '',
+        'badge_ku' => $new_product['badge_ku'] ?? '',
+        'stock' => isset($new_product['stock']) ? (int)$new_product['stock'] : 10,
+        'image' => $new_product['image'] ?? '',
+        'images' => is_array($new_product['images'] ?? null) ? $new_product['images'] : (is_string($new_product['images'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['images']))) : []),
+        'colors' => is_array($new_product['colors'] ?? null) ? $new_product['colors'] : (is_string($new_product['colors'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['colors']))) : []),
+        'sizes' => is_array($new_product['sizes'] ?? null) ? $new_product['sizes'] : (is_string($new_product['sizes'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['sizes']))) : []),
+        'size_measurements' => is_array($new_product['size_measurements'] ?? null) ? $new_product['size_measurements'] : ($new_product['size_measurements'] ?? new stdClass()),
+        'description' => $description,
+        'featured' => !empty($new_product['featured'])
+    ];
+
+    if (empty($productFormatted['images']) && !empty($productFormatted['image'])) {
+        $productFormatted['images'] = [$productFormatted['image']];
+    }
+
+    // Save to JSON
+    if ($existingIndex >= 0) {
+        $data['products'][$existingIndex] = $productFormatted;
+    } else {
+        $data['products'][] = $productFormatted;
+    }
+    @file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+    // Save to MySQL if available
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            if ($existingIndex >= 0) {
+                $sql = "UPDATE products SET 
+                        title_en = :title_en, title_ar = :title_ar, title_ku = :title_ku,
+                        category = :category, price = :price, old_price = :old_price,
+                        badge_en = :badge_en, badge_ar = :badge_ar, badge_ku = :badge_ku,
+                        stock = :stock, image = :image, images = :images,
+                        colors = :colors, sizes = :sizes, size_measurements = :size_measurements,
+                        description_en = :desc_en, description_ar = :desc_ar, description_ku = :desc_ku,
+                        featured = :featured
+                        WHERE id = :id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':id' => $productFormatted['id'],
+                    ':title_en' => $productFormatted['title']['en'] ?? '',
+                    ':title_ar' => $productFormatted['title']['ar'] ?? '',
+                    ':title_ku' => $productFormatted['title']['ku'] ?? '',
+                    ':category' => $productFormatted['category'],
+                    ':price' => $productFormatted['price'],
+                    ':old_price' => $productFormatted['old_price'],
+                    ':badge_en' => $productFormatted['badge'],
+                    ':badge_ar' => $productFormatted['badge_ar'],
+                    ':badge_ku' => $productFormatted['badge_ku'],
+                    ':stock' => $productFormatted['stock'],
+                    ':image' => $productFormatted['image'],
+                    ':images' => json_encode($productFormatted['images'], JSON_UNESCAPED_UNICODE),
+                    ':colors' => json_encode($productFormatted['colors'], JSON_UNESCAPED_UNICODE),
+                    ':sizes' => json_encode($productFormatted['sizes'], JSON_UNESCAPED_UNICODE),
+                    ':size_measurements' => json_encode($productFormatted['size_measurements'], JSON_UNESCAPED_UNICODE),
+                    ':desc_en' => $productFormatted['description']['en'] ?? '',
+                    ':desc_ar' => $productFormatted['description']['ar'] ?? '',
+                    ':desc_ku' => $productFormatted['description']['ku'] ?? '',
+                    ':featured' => $productFormatted['featured'] ? 1 : 0
+                ]);
+            } else {
+                $sql = "INSERT INTO products 
+                        (id, title_en, title_ar, title_ku, category, price, old_price, rating, reviews_count, badge_en, badge_ar, badge_ku, stock, image, images, colors, sizes, size_measurements, description_en, description_ar, description_ku, featured)
+                        VALUES (:id, :title_en, :title_ar, :title_ku, :category, :price, :old_price, :rating, :reviews_count, :badge_en, :badge_ar, :badge_ku, :stock, :image, :images, :colors, :sizes, :size_measurements, :desc_en, :desc_ar, :desc_ku, :featured)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':id' => $productFormatted['id'],
+                    ':title_en' => $productFormatted['title']['en'] ?? '',
+                    ':title_ar' => $productFormatted['title']['ar'] ?? '',
+                    ':title_ku' => $productFormatted['title']['ku'] ?? '',
+                    ':category' => $productFormatted['category'],
+                    ':price' => $productFormatted['price'],
+                    ':old_price' => $productFormatted['old_price'],
+                    ':rating' => $productFormatted['rating'],
+                    ':reviews_count' => $productFormatted['reviews_count'],
+                    ':badge_en' => $productFormatted['badge'],
+                    ':badge_ar' => $productFormatted['badge_ar'],
+                    ':badge_ku' => $productFormatted['badge_ku'],
+                    ':stock' => $productFormatted['stock'],
+                    ':image' => $productFormatted['image'],
+                    ':images' => json_encode($productFormatted['images'], JSON_UNESCAPED_UNICODE),
+                    ':colors' => json_encode($productFormatted['colors'], JSON_UNESCAPED_UNICODE),
+                    ':sizes' => json_encode($productFormatted['sizes'], JSON_UNESCAPED_UNICODE),
+                    ':size_measurements' => json_encode($productFormatted['size_measurements'], JSON_UNESCAPED_UNICODE),
+                    ':desc_en' => $productFormatted['description']['en'] ?? '',
+                    ':desc_ar' => $productFormatted['description']['ar'] ?? '',
+                    ':desc_ku' => $productFormatted['description']['ku'] ?? '',
+                    ':featured' => $productFormatted['featured'] ? 1 : 0
+                ]);
+            }
+        } catch (Exception $e) {
+            // MySQL error logged or handled
+        }
+    }
+
+    return $productFormatted;
 }
 
 function delete_product($id) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
-    
-    try {
-        $stmt = $pdo->prepare("DELETE FROM products WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
-    } catch (Exception $e) {
-        return false;
+    $id = (int)$id;
+    $jsonFile = __DIR__ . '/products.json';
+    if (file_exists($jsonFile)) {
+        $decoded = json_decode(file_get_contents($jsonFile), true);
+        if (isset($decoded['products']) && is_array($decoded['products'])) {
+            $decoded['products'] = array_values(array_filter($decoded['products'], function($p) use ($id) {
+                return (int)($p['id'] ?? 0) !== $id;
+            }));
+            @file_put_contents($jsonFile, json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
     }
+
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM products WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+        } catch (Exception $e) {
+            // silently handle
+        }
+    }
+    return true;
+}
+
+function adjust_product_stock($id, $delta) {
+    $id = (int)$id;
+    $delta = (int)$delta;
+    $newStock = 0;
+
+    $jsonFile = __DIR__ . '/products.json';
+    if (file_exists($jsonFile)) {
+        $decoded = json_decode(file_get_contents($jsonFile), true);
+        if (isset($decoded['products']) && is_array($decoded['products'])) {
+            foreach ($decoded['products'] as &$p) {
+                if ((int)($p['id'] ?? 0) === $id) {
+                    $p['stock'] = max(0, (int)($p['stock'] ?? 0) + $delta);
+                    $newStock = $p['stock'];
+                    break;
+                }
+            }
+            unset($p);
+            @file_put_contents($jsonFile, json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("UPDATE products SET stock = GREATEST(0, stock + :delta) WHERE id = :id");
+            $stmt->execute([':delta' => $delta, ':id' => $id]);
+            $stmt2 = $pdo->prepare("SELECT stock FROM products WHERE id = :id LIMIT 1");
+            $stmt2->execute([':id' => $id]);
+            $r = $stmt2->fetch();
+            if ($r) {
+                $newStock = (int)$r['stock'];
+            }
+        } catch (Exception $e) {
+            // Handled
+        }
+    }
+
+    return $newStock;
 }
 
 // ==============================================================================

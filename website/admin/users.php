@@ -1,14 +1,44 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../database/db.php';
+
+$flashMsg = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['add_new_user'])) {
+        $name = trim($_POST['user_name'] ?? '');
+        $email = trim($_POST['user_email'] ?? '');
+        $phone = trim($_POST['user_phone'] ?? '');
+        $city = trim($_POST['user_city'] ?? 'Erbil');
+
+        if (!empty($name) && !empty($email)) {
+            $user = [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'city' => $city,
+                'orders_count' => 0,
+                'total_spent' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            $saved = save_user($user);
+            $flashMsg = "✓ Customer profile for {$name} was successfully registered!";
+        }
+    } elseif (isset($_POST['delete_user_id'])) {
+        $uId = intval($_POST['delete_user_id']);
+        delete_user($uId);
+        $flashMsg = "✓ Customer #{$uId} removed from directory.";
+    }
+}
+
 $pageTitle = 'Customer Accounts & Directory | AURA Luxury Admin';
 $adminActive = 'users';
-$ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);
-$ordersList = $ordersDb['orders'] ?? [];
-$productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
-$productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
+$ordersList = get_all_orders();
+$productsList = get_all_products();
+$usersList = get_all_users();
+$inquiriesList = get_all_inquiries();
 
 $totalCustomerSpend = 0;
 foreach ($ordersList as $o) {
@@ -36,6 +66,13 @@ require_once __DIR__ . '/../header.php';
 
         <!-- Unified Admin Navigation Bar -->
         <?php require_once __DIR__ . '/nav.php'; ?>
+
+        <?php if ($flashMsg): ?>
+            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+                <span><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+        <?php endif; ?>
 
         <!-- Metrics Grid -->
         <div class="admin-metrics-grid" style="margin-bottom:24px;">
