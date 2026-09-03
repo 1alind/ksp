@@ -324,7 +324,7 @@ require_once __DIR__ . '/../header.php';
         </div>
 
         <!-- Add Product Panel (Always Ready & Accessible) -->
-        <div class="admin-form-card mb-24" id="addProductCard" style="border:2px solid var(--accent-gold); background:var(--bg-card);">
+        <div class="admin-form-card mb-24" id="addProductCard" style="border:1px solid var(--border-color); background:var(--bg-card);">
             <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div>
                     <h3 class="admin-card-title" style="margin:0; font-size:18px;">+ Add New Luxury Piece or Color Variant</h3>
@@ -396,17 +396,17 @@ require_once __DIR__ . '/../header.php';
                 </div>
 
                 <!-- SECTION: Product Colors & Swatches (Add 2 or More Colors Directly) -->
-                <div id="colorVariantsSection" style="background:rgba(212, 175, 55, 0.08); padding:24px; border-radius:var(--radius-md); border:2px solid var(--accent-gold); margin-bottom:24px; box-shadow:0 0 20px rgba(212, 175, 55, 0.12);">
+                <div id="colorVariantsSection" style="background:var(--bg-subtle); padding:20px 24px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:24px;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <span style="font-weight:900; font-size:16px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:700; font-size:15px; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
                                 🎨 Product Colors & Editions (Add 2 or More Colors for this Piece)
                             </span>
                             <p class="text-muted" style="margin:4px 0 0; font-size:13px; line-height:1.5;">
                                 Add all available colors here (e.g. <strong>Color 1: Pure White</strong>, <strong>Color 2: Obsidian Black</strong>). When shoppers visit this item, they will see interactive color buttons that instantly swap photos!
                             </p>
                         </div>
-                        <span class="badge-tag" style="background:var(--accent-gold); color:#0a0c10; font-weight:800; padding:6px 12px; font-size:12px; border-radius:6px;">🎨 MULTI-COLOR ENGINE</span>
+                        <span class="badge-tag" style="background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700; padding:6px 12px; font-size:12px; border-radius:6px;">Multi-Color Options</span>
                     </div>
 
                     <!-- Dynamic List of Colors for this Product -->
@@ -784,15 +784,15 @@ require_once __DIR__ . '/../header.php';
             </div>
 
             <!-- Section 4.5: Color Variations & Multi-Color Builder -->
-            <div id="editColorVariantsSection" style="background:var(--bg-subtle); padding:18px; border-radius:var(--radius-sm); border:1.5px solid var(--accent-gold); margin-bottom:20px;">
+            <div id="editColorVariantsSection" style="background:var(--bg-subtle); padding:18px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                     <div>
-                        <span style="font-weight:700; font-size:14px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                        <span style="font-weight:700; font-size:14px; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.5px; display:block;">
                             🎨 Product Colors & Swatches (Add / Edit Colors)
                         </span>
                         <small class="text-muted">Manage all colors for this piece (e.g. Color 1: Black with Black shirt image, Color 2: White with White shirt image).</small>
                     </div>
-                    <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Multi-Color Options</span>
+                    <span class="badge-tag" style="background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700;">Multi-Color Options</span>
                 </div>
 
                 <!-- Dynamic Container for Edit Modal Colors -->
