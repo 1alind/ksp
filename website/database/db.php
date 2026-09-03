@@ -80,7 +80,11 @@ function get_all_products() {
                             'ar' => $row['description_ar'] ?? '',
                             'ku' => $row['description_ku'] ?? '',
                         ],
-                        'featured' => !empty($row['featured'])
+                        'featured' => !empty($row['featured']),
+                        'model_group' => $row['model_group'] ?? '',
+                        'color_name' => $row['color_name'] ?? '',
+                        'color_hex' => $row['color_hex'] ?? '',
+                        'linked_products' => is_string($row['linked_products'] ?? null) ? json_decode($row['linked_products'], true) : ($row['linked_products'] ?? [])
                     ];
                 }
                 return $products;
@@ -165,7 +169,13 @@ function save_product($new_product) {
         'sizes' => is_array($new_product['sizes'] ?? null) ? $new_product['sizes'] : (is_string($new_product['sizes'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['sizes']))) : []),
         'size_measurements' => is_array($new_product['size_measurements'] ?? null) ? $new_product['size_measurements'] : ($new_product['size_measurements'] ?? new stdClass()),
         'description' => $description,
-        'featured' => !empty($new_product['featured'])
+        'featured' => !empty($new_product['featured']),
+        'model_group' => trim($new_product['model_group'] ?? ''),
+        'color_name' => trim($new_product['color_name'] ?? ($new_product['color'] ?? '')),
+        'color_hex' => trim($new_product['color_hex'] ?? ''),
+        'linked_products' => is_array($new_product['linked_products'] ?? null) 
+            ? array_values(array_map('intval', array_filter($new_product['linked_products']))) 
+            : (is_string($new_product['linked_products'] ?? null) ? array_values(array_filter(array_map('intval', explode(',', $new_product['linked_products'])))) : [])
     ];
 
     if (empty($productFormatted['images']) && !empty($productFormatted['image'])) {
@@ -253,6 +263,82 @@ function save_product($new_product) {
     }
 
     return $productFormatted;
+}
+
+/**
+ * Get all linked color/model variants for a given product
+ */
+function get_linked_color_variants($product) {
+    if (empty($product)) return [];
+    $currentId = (int)($product['id'] ?? 0);
+    $modelGroup = trim($product['model_group'] ?? '');
+    $linkedIds = is_array($product['linked_products'] ?? null) ? $product['linked_products'] : [];
+    
+    // If there is no model group and no linked products, return empty
+    if (empty($modelGroup) && empty($linkedIds)) {
+        // Also check if any other product links to this one
+        $all = get_all_products();
+        $hasInboundLinks = false;
+        foreach ($all as $p) {
+            $pLinkedIds = is_array($p['linked_products'] ?? null) ? $p['linked_products'] : [];
+            if (in_array($currentId, $pLinkedIds, true)) {
+                $hasInboundLinks = true;
+                break;
+            }
+        }
+        if (!$hasInboundLinks) {
+            return [];
+        }
+    } else {
+        $all = get_all_products();
+    }
+    
+    $variants = [];
+    $seenIds = [];
+
+    foreach ($all as $p) {
+        $pId = (int)($p['id'] ?? 0);
+        $pModelGroup = trim($p['model_group'] ?? '');
+        $pLinkedIds = is_array($p['linked_products'] ?? null) ? $p['linked_products'] : [];
+        
+        $isLinked = false;
+        if (!empty($modelGroup) && !empty($pModelGroup) && strcasecmp($modelGroup, $pModelGroup) === 0) {
+            $isLinked = true;
+        } elseif (in_array($pId, $linkedIds, true)) {
+            $isLinked = true;
+        } elseif (in_array($currentId, $pLinkedIds, true)) {
+            $isLinked = true;
+        }
+        
+        if ($isLinked && !isset($seenIds[$pId])) {
+            $seenIds[$pId] = true;
+            $colorName = !empty($p['color_name']) ? $p['color_name'] : (!empty($p['colors']) ? $p['colors'][0] : 'Color Variation');
+            $variants[] = [
+                'id' => $pId,
+                'title' => $p['title'],
+                'image' => $p['image'],
+                'price' => (float)($p['price'] ?? 0),
+                'old_price' => !empty($p['old_price']) ? (float)$p['old_price'] : null,
+                'stock' => (int)($p['stock'] ?? 0),
+                'color_name' => $colorName,
+                'color_hex' => !empty($p['color_hex']) ? $p['color_hex'] : '#d4af37',
+                'model_group' => $pModelGroup,
+                'is_current' => ($pId === $currentId)
+            ];
+        }
+    }
+    
+    // Only return if there is at least 1 other sibling besides the current item
+    if (count($variants) < 2) {
+        return [];
+    }
+    
+    // Ensure current product is included and sort so current or active is nicely ordered
+    usort($variants, function($a, $b) {
+        return $a['id'] <=> $b['id'];
+    });
+    
+    return $variants;
 }
 
 function delete_product($id) {

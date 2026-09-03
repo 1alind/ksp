@@ -3,9 +3,9 @@
         {
             "id": 1,
             "title": {
-                "en": "Royal Midnight Velvet Blazer",
-                "ar": "بليزر مخملي ملكي ميدنايت",
-                "ku": "ساکێ مەخمەلی یێ شاهانە میدنایت"
+                "en": "Royal Velvet Blazer — Midnight Blue",
+                "ar": "بليزر مخملي ملكي — كحلي ميدنايت",
+                "ku": "ساکێ مەخمەلی یێ شاهانە — شینێ تارێ"
             },
             "category": "clothes",
             "price": 245000,
@@ -19,13 +19,10 @@
             "image": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
             "images": [
                 "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
-                "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
-                "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"
+                "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
             ],
             "colors": [
-                "Midnight Blue",
-                "Obsidian Black",
-                "Burgundy"
+                "Midnight Blue"
             ],
             "sizes": [
                 "S",
@@ -44,7 +41,242 @@
                 "ar": "بليزر مخملي فاخر بتفصيل متقن مع ياقة حريرية وأزرار معدنية مخصصة. مثالي للحفلات المسائية والمناسبات الرسمية.",
                 "ku": "ساکێ مخمەلی یێ گەلەک جوان و شاهانە ب نەخشیێن ئاوریشمی و دوگماێن زێڕین. گەلەک گونجایە بۆ ئاهەنگ و هەلکەفتێن فەرمی."
             },
-            "featured": true
+            "featured": true,
+            "model_group": "royal-velvet-blazer",
+            "color_name": "Midnight Blue",
+            "color_hex": "#1e3a8a",
+            "linked_products": [5, 6]
+        },
+        {
+            "id": 5,
+            "title": {
+                "en": "Royal Velvet Blazer — Obsidian Black",
+                "ar": "بليزر مخملي ملكي — أسود أوبسيديان",
+                "ku": "ساکێ مەخمەلی یێ شاهانە — رەشێ شاهانە"
+            },
+            "category": "clothes",
+            "price": 245000,
+            "old_price": 315000,
+            "rating": 5.0,
+            "reviews_count": 42,
+            "badge": "Limited Edition",
+            "badge_ar": "إصدار محدود",
+            "badge_ku": "چاپا تایبەت",
+            "stock": 12,
+            "image": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Obsidian Black"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 65cm • Width: 45cm",
+                "M": "Height: 70cm • Width: 50cm",
+                "L": "Height: 73cm • Width: 54cm",
+                "XL": "Height: 76cm • Width: 58cm"
+            },
+            "description": {
+                "en": "Midnight obsidian edition tailored from ultra-soft Italian velvet, featuring tone-on-tone silk detailing for an unforgettable presence.",
+                "ar": "إصدار الأسود الفاحم المصنوع من المخمل الإيطالي فائق النعومة مع تفاصيل حريرية متناسقة لإطلالة لا تُنسى.",
+                "ku": "مۆدێلێ رەشێ تاری یێ شاهانە ژ مخمەلێ گرانبەهایێ ئیتالی و نەخشێ ئاوریشمی."
+            },
+            "featured": true,
+            "model_group": "royal-velvet-blazer",
+            "color_name": "Obsidian Black",
+            "color_hex": "#111827",
+            "linked_products": [1, 6]
+        },
+        {
+            "id": 6,
+            "title": {
+                "en": "Royal Velvet Blazer — Burgundy Wine",
+                "ar": "بليزر مخملي ملكي — عنابي فاخر",
+                "ku": "ساکێ مەخمەلی یێ شاهانە — سۆرێ تاری"
+            },
+            "category": "clothes",
+            "price": 245000,
+            "old_price": 315000,
+            "rating": 4.8,
+            "reviews_count": 29,
+            "badge": "New Color",
+            "badge_ar": "لون جديد",
+            "badge_ku": "رەنگەکێ نوی",
+            "stock": 8,
+            "image": "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Burgundy Wine"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 65cm • Width: 45cm",
+                "M": "Height: 70cm • Width: 50cm",
+                "L": "Height: 73cm • Width: 54cm",
+                "XL": "Height: 76cm • Width: 58cm"
+            },
+            "description": {
+                "en": "Deep burgundy velvet masterwork creating a striking, regal statement for premier evening events and galas.",
+                "ar": "تحفة مخملية بلون عنابي عميق تمنحك حضوراً ملكياً بارزاً في الحفلات والمناسبات الراقية.",
+                "ku": "دیزاینەکا جوان ب رەنگێ سۆرێ ئاهەنگی یێ سەرنجراکێش بۆ شەڤبێرێن فەرمی."
+            },
+            "featured": false,
+            "model_group": "royal-velvet-blazer",
+            "color_name": "Burgundy Wine",
+            "color_hex": "#881337",
+            "linked_products": [1, 5]
+        },
+        {
+            "id": 7,
+            "title": {
+                "en": "Classic Tailored Silk Shirt — Pearl White",
+                "ar": "قميص حريري كلاسيكي مفصل — أبيض لؤلؤي",
+                "ku": "کراسێ ئاوریشمی یێ کلاسیک — سپیێ مرواری"
+            },
+            "category": "clothes",
+            "price": 145000,
+            "old_price": 185000,
+            "rating": 4.9,
+            "reviews_count": 52,
+            "badge": "Essential",
+            "badge_ar": "أساسي",
+            "badge_ku": "پێدڤی",
+            "stock": 20,
+            "image": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Pearl White"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 68cm • Width: 48cm",
+                "M": "Height: 72cm • Width: 52cm",
+                "L": "Height: 75cm • Width: 56cm",
+                "XL": "Height: 78cm • Width: 60cm"
+            },
+            "description": {
+                "en": "Pure Egyptian cotton and mulberry silk blend tailored shirt. Breathable, wrinkle-resistant, with mother-of-pearl buttons.",
+                "ar": "قميص مفصل من مزيج القطن المصري والحرير الطبيعي. مريح ومقاوم للتجعد مع أزرار من صدف اللؤلؤ الطبيعي.",
+                "ku": "کراسێ ئاوریشمی یێ هەڤبەش دگەل پەموویا مسری یا رەسەن، گەلەک نازک و ب دوگمێن سەدەفێ."
+            },
+            "featured": true,
+            "model_group": "tailored-silk-shirt",
+            "color_name": "Pearl White",
+            "color_hex": "#f8fafc",
+            "linked_products": [8, 9]
+        },
+        {
+            "id": 8,
+            "title": {
+                "en": "Classic Tailored Silk Shirt — Onyx Black",
+                "ar": "قميص حريري كلاسيكي مفصل — أسود أونيكس",
+                "ku": "کراسێ ئاوریشمی یێ کلاسیک — رەشێ ئۆنیکس"
+            },
+            "category": "clothes",
+            "price": 145000,
+            "old_price": 185000,
+            "rating": 5.0,
+            "reviews_count": 37,
+            "badge": "Popular",
+            "badge_ar": "شائع",
+            "badge_ku": "ب ناڤودەنگ",
+            "stock": 18,
+            "image": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Onyx Black"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 68cm • Width: 48cm",
+                "M": "Height: 72cm • Width: 52cm",
+                "L": "Height: 75cm • Width: 56cm",
+                "XL": "Height: 78cm • Width: 60cm"
+            },
+            "description": {
+                "en": "Obsidian black edition of our bestselling tailored silk blend shirt, delivering understated luxury and a crisp silhouette.",
+                "ar": "إصدار الأسود الفاحم من قميصنا الأكثر طلباً، يوفر أناقة راقية وقصة متناسقة تدوم طوال اليوم.",
+                "ku": "کراسێ رەش یێ هەڤبەشێ ئاوریشم و پەموو، دیزاینەکا جوان و فەرمی پێشکێش دکەت."
+            },
+            "featured": false,
+            "model_group": "tailored-silk-shirt",
+            "color_name": "Onyx Black",
+            "color_hex": "#0f172a",
+            "linked_products": [7, 9]
+        },
+        {
+            "id": 9,
+            "title": {
+                "en": "Classic Tailored Silk Shirt — Royal Navy",
+                "ar": "قميص حريري كلاسيكي مفصل — كحلي ملكي",
+                "ku": "کراسێ ئاوریشمی یێ کلاسیک — شینێ شاهانە"
+            },
+            "category": "clothes",
+            "price": 145000,
+            "old_price": 185000,
+            "rating": 4.8,
+            "reviews_count": 41,
+            "badge": "Trending",
+            "badge_ar": "رائج",
+            "badge_ku": "سەرکەفتی",
+            "stock": 14,
+            "image": "https://images.unsplash.com/photo-1620012253295-c15c429fcc71?auto=format&fit=crop&w=800&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1620012253295-c15c429fcc71?auto=format&fit=crop&w=800&q=80"
+            ],
+            "colors": [
+                "Royal Navy"
+            ],
+            "sizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "size_measurements": {
+                "S": "Height: 68cm • Width: 48cm",
+                "M": "Height: 72cm • Width: 52cm",
+                "L": "Height: 75cm • Width: 56cm",
+                "XL": "Height: 78cm • Width: 60cm"
+            },
+            "description": {
+                "en": "Rich deep navy blue silk blend shirt crafted for exceptional comfort and flawless drape under a sport coat or on its own.",
+                "ar": "قميص كحلي ملكي عميق من مزيج الحرير والقطن مصمم لتوفير راحة استثنائية وأناقة تليق بالبدلات الرسمية.",
+                "ku": "کراسێ شینێ تاری یێ شاهانە ژ پەموو و ئاوریشم، تایبەت بۆ بن ساک و جاکێتان."
+            },
+            "featured": false,
+            "model_group": "tailored-silk-shirt",
+            "color_name": "Royal Navy",
+            "color_hex": "#1e3a8a",
+            "linked_products": [7, 8]
         },
         {
             "id": 2,
@@ -56,7 +288,7 @@
             "category": "watches",
             "price": 550000,
             "old_price": 725000,
-            "rating": 5,
+            "rating": 5.0,
             "reviews_count": 64,
             "badge": "Luxury",
             "badge_ar": "فاخر",
@@ -84,7 +316,11 @@
                 "ar": "حركة ميكانيكية أوتوماتيكية مع ميناء هيكلي مكشوف وزجاج من الكريستال الياقوتي المقاوم للخدش وسوار جلد إيطالي أصلي.",
                 "ku": "دەمژمێرەکا ميكانيكی یا ئۆتۆماتیك ب دیزاینێ سکێلێتۆن و شوشەیا یاقووتی یا دژی کڕاندنێ و قایشا چەرمی یا ئیتالی یا رەسەن."
             },
-            "featured": true
+            "featured": true,
+            "model_group": "skeleton-watch-series",
+            "color_name": "Black Onyx & Gold",
+            "color_hex": "#d4af37",
+            "linked_products": []
         },
         {
             "id": 3,
@@ -126,7 +362,11 @@
                 "ar": "عطر ساحر وثابت يمزج بين العود الكمبودي الفاخر والعنبر الذهبي الدافئ والفانيليا وزهور دمشق. يدوم لأكثر من 24 ساعة.",
                 "ku": "عەترەکێ گەلەک خوش و بێهنا وی گەلەک دمینیت ژ عوودێ کەمبۆدی، عەنبەرێ زێڕین و گولێن دیمەشقێ. پتر ژ 24 دەمژمێران دمینیت."
             },
-            "featured": true
+            "featured": true,
+            "model_group": "royal-amber-oud",
+            "color_name": "Gold Edition Flacon",
+            "color_hex": "#d4af37",
+            "linked_products": []
         },
         {
             "id": 4,
@@ -166,7 +406,11 @@
                 "ar": "مصنوعة من جلد إيطالي أصلي كامل الحبيبات مع إكسسوارات من النحاس الصلب وسحابات متينة وحجرة مبطنة للكمبيوتر المحمول.",
                 "ku": "ژ چەرمێ ئیتالی یێ رەسەن و پاقژ هاتیە چێکرن دگەل قفلێن برۆنز و جهێ لەپتۆپی یێ تایبەت."
             },
-            "featured": true
+            "featured": true,
+            "model_group": "italian-leather-bag",
+            "color_name": "Vintage Tan",
+            "color_hex": "#b45309",
+            "linked_products": []
         }
     ]
 }

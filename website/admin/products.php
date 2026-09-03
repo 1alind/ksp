@@ -57,6 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descEn = trim($_POST['edit_prod_desc_en'] ?? '');
         $descAr = trim($_POST['edit_prod_desc_ar'] ?? '');
         $descKu = trim($_POST['edit_prod_desc_ku'] ?? '');
+        $modelGroup = trim($_POST['edit_prod_model_group'] ?? '');
+        $colorName = trim($_POST['edit_prod_color_name'] ?? '');
+        $colorHex = trim($_POST['edit_prod_color_hex'] ?? '');
+        $linkedProducts = isset($_POST['edit_prod_linked_products']) && is_array($_POST['edit_prod_linked_products']) 
+            ? array_map('intval', $_POST['edit_prod_linked_products']) 
+            : [];
 
         $productData = [
             'id' => $pId,
@@ -76,7 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
             'sizes' => !empty($sizes) ? $sizes : ['S', 'M', 'L', 'XL'],
-            'colors' => !empty($colors) ? $colors : ['Default'],
+            'colors' => !empty($colors) ? $colors : (!empty($colorName) ? [$colorName] : ['Default']),
+            'model_group' => $modelGroup,
+            'color_name' => $colorName,
+            'color_hex' => $colorHex,
+            'linked_products' => $linkedProducts,
             'description' => [
                 'en' => $descEn,
                 'ar' => $descAr,
@@ -105,6 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descEn = trim($_POST['prod_desc_en'] ?? '');
         $descAr = trim($_POST['prod_desc_ar'] ?? '');
         $descKu = trim($_POST['prod_desc_ku'] ?? '');
+        $modelGroup = trim($_POST['prod_model_group'] ?? '');
+        $colorName = trim($_POST['prod_color_name'] ?? '');
+        $colorHex = trim($_POST['prod_color_hex'] ?? '');
+        $linkedProducts = isset($_POST['prod_linked_products']) && is_array($_POST['prod_linked_products']) 
+            ? array_map('intval', $_POST['prod_linked_products']) 
+            : [];
 
         $productData = [
             'title' => [
@@ -123,7 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
             'sizes' => ['S', 'M', 'L', 'XL'],
-            'colors' => ['Default Edition'],
+            'colors' => !empty($colorName) ? [$colorName] : ['Default Edition'],
+            'model_group' => $modelGroup,
+            'color_name' => $colorName,
+            'color_hex' => $colorHex,
+            'linked_products' => $linkedProducts,
             'description' => [
                 'en' => $descEn,
                 'ar' => $descAr,
@@ -294,6 +314,55 @@ require_once __DIR__ . '/../header.php';
                     <textarea name="prod_gallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
                 </div>
 
+                <!-- SECTION: Product Linking & Color Variants (For linking multiple shirts/colors of same model) -->
+                <div style="background:var(--bg-subtle); padding:18px 20px; border-radius:var(--radius-sm); border:1.5px solid var(--accent-gold); margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span style="font-weight:800; font-size:14px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                                🔗 Link Product as a Color/Model Variant
+                            </span>
+                            <small class="text-muted">
+                                If this is another color of an existing piece (e.g. Black shirt and White shirt of the same model), connect them here so customers can switch colors on the product page!
+                            </small>
+                        </div>
+                        <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Variants Engine</span>
+                    </div>
+
+                    <div class="form-row-3 mb-16">
+                        <div class="form-group">
+                            <label>Model Group Identifier <span class="text-muted">(Optional)</span></label>
+                            <input type="text" name="prod_model_group" id="prodModelGroup" class="form-control" placeholder="e.g. royal-blazer-2026 or classic-silk-shirt">
+                            <small class="text-muted" style="font-size:11px;">Any products sharing this same identifier are automatically grouped.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>This Item's Color Name <span class="text-danger">*</span></label>
+                            <input type="text" name="prod_color_name" id="prodColorName" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black, Pure White">
+                        </div>
+                        <div class="form-group">
+                            <label>Color Swatch Hex / Visual</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="color" id="prodColorPicker" value="#1e3a8a" style="width:40px; height:38px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="document.getElementById('prodColorHex').value = this.value;">
+                                <input type="text" name="prod_color_hex" id="prodColorHex" class="form-control" placeholder="#1e3a8a" value="#1e3a8a" onchange="document.getElementById('prodColorPicker').value = this.value;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Or Directly Link to Existing Catalog Item(s):</label>
+                        <div style="max-height:160px; overflow-y:auto; background:var(--bg-surface); padding:10px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px;">
+                            <?php foreach ($productsList as $existingP): 
+                                $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
+                            ?>
+                                <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
+                                    <input type="checkbox" name="prod_linked_products[]" value="<?php echo $existingP['id']; ?>">
+                                    <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:24px; height:24px; object-fit:cover; border-radius:4px;">
+                                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-row-3 mb-20">
                     <div class="form-group">
                         <label>Description (English)</label>
@@ -366,12 +435,23 @@ require_once __DIR__ . '/../header.php';
                                         <img src="<?php echo htmlspecialchars($p['image']); ?>" alt="" class="admin-prod-thumb" id="adminThumb_<?php echo $p['id']; ?>">
                                         <div>
                                             <strong><a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" style="color:var(--text-primary);"><?php echo htmlspecialchars($pTitle); ?></a></strong><br>
-                                            <?php if (!empty($p['badge'])): ?>
-                                                <small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;"><?php echo htmlspecialchars($p['badge']); ?></small>
-                                            <?php endif; ?>
-                                            <?php if (!empty($p['featured'])): ?>
-                                                <small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>
-                                            <?php endif; ?>
+                                            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:3px; align-items:center;">
+                                                <?php if (!empty($p['color_name'])): ?>
+                                                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; background:var(--bg-subtle); padding:2px 6px; border-radius:4px; border:1px solid var(--border-color);">
+                                                        <span style="width:8px; height:8px; border-radius:50%; background:<?php echo htmlspecialchars(!empty($p['color_hex']) ? $p['color_hex'] : '#d4af37'); ?>; display:inline-block;"></span>
+                                                        <?php echo htmlspecialchars($p['color_name']); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($p['model_group'])): ?>
+                                                    <small class="badge-tag" style="background:rgba(168,85,247,0.12); color:#c084fc; border-color:#a855f7; font-size:10.5px;">🔗 Group: <?php echo htmlspecialchars($p['model_group']); ?></small>
+                                                <?php endif; ?>
+                                                <?php if (!empty($p['badge'])): ?>
+                                                    <small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;"><?php echo htmlspecialchars($p['badge']); ?></small>
+                                                <?php endif; ?>
+                                                <?php if (!empty($p['featured'])): ?>
+                                                    <small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -565,6 +645,52 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
+            <!-- Section 4.5: Color Variations & Model Linking -->
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1.5px solid var(--accent-gold); margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                    <div>
+                        <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                            🔗 Linked Colors & Model Grouping
+                        </span>
+                        <small class="text-muted">Connect multiple colors/editions of this same shirt or piece so buyers can pick variations easily on the product page</small>
+                    </div>
+                    <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Multi-Color Linking</span>
+                </div>
+                
+                <div class="form-row-3 mb-16">
+                    <div class="form-group">
+                        <label>Model Group Identifier <span class="text-muted">(Auto-links matching pieces)</span></label>
+                        <input type="text" name="edit_prod_model_group" id="editProdModelGroup" class="form-control" placeholder="e.g. royal-blazer-2026 or oxford-shirt">
+                    </div>
+                    <div class="form-group">
+                        <label>This Item's Color Name</label>
+                        <input type="text" name="edit_prod_color_name" id="editProdColorName" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black">
+                    </div>
+                    <div class="form-group">
+                        <label>Color Swatch Hex / Visual</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="color" id="editProdColorPicker" value="#d4af37" style="width:40px; height:38px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="document.getElementById('editProdColorHex').value = this.value;">
+                            <input type="text" name="edit_prod_color_hex" id="editProdColorHex" class="form-control" placeholder="#d4af37" onchange="document.getElementById('editProdColorPicker').value = this.value;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Or Directly Link to Catalog Items:</label>
+                    <div id="editProdLinkedContainer" style="max-height:150px; overflow-y:auto; background:var(--bg-surface); padding:10px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px;">
+                        <?php foreach ($productsList as $existingP): 
+                            $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
+                        ?>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
+                                <input type="checkbox" name="edit_prod_linked_products[]" value="<?php echo $existingP['id']; ?>" class="edit-linked-cb" id="editLinkedCb_<?php echo $existingP['id']; ?>">
+                                <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:24px; height:24px; object-fit:cover; border-radius:4px;">
+                                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
             <!-- Section 5: Sizes, Colors & Descriptions -->
             <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:24px;">
                 <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 Attributes & Trilingual Descriptions</span>
@@ -663,6 +789,24 @@ function openEditProductModal(product) {
 
     const colors = Array.isArray(product.colors) ? product.colors.join(', ') : (product.colors || '');
     document.getElementById('editProdColors').value = colors;
+
+    // Color Variations & Model Grouping
+    document.getElementById('editProdModelGroup').value = product.model_group || '';
+    document.getElementById('editProdColorName').value = product.color_name || '';
+    const colHex = product.color_hex || '#d4af37';
+    document.getElementById('editProdColorHex').value = colHex;
+    document.getElementById('editProdColorPicker').value = colHex;
+
+    // Clear and check linked product checkboxes
+    const linkedIds = Array.isArray(product.linked_products) ? product.linked_products.map(Number) : [];
+    document.querySelectorAll('.edit-linked-cb').forEach(cb => {
+        const val = Number(cb.value);
+        cb.checked = linkedIds.includes(val);
+        // Hide the checkbox for the current product itself
+        if (cb.closest('label')) {
+            cb.closest('label').style.display = (val === Number(product.id)) ? 'none' : 'flex';
+        }
+    });
 
     const pDescEn = typeof product.description === 'object' ? (product.description.en || '') : (product.description || '');
     const pDescAr = typeof product.description === 'object' ? (product.description.ar || pDescEn) : pDescEn;

@@ -22,6 +22,8 @@ $relatedProducts = array_filter($allProducts, function($p) use ($product) {
 });
 $relatedProducts = array_slice($relatedProducts, 0, 4);
 
+$linkedVariants = get_linked_color_variants($product);
+
 // Prepare Size Measurements map
 $sizeMeasurements = $product['size_measurements'] ?? [];
 if (is_string($sizeMeasurements)) {
@@ -135,6 +137,47 @@ if (!empty($product['colors'])) {
                 <div class="product-short-desc">
                     <p><?php echo htmlspecialchars($descText); ?></p>
                 </div>
+
+                <!-- Linked Color / Model Variations (For multi-color editions of the same shirt/item) -->
+                <?php if (!empty($linkedVariants)): ?>
+                    <div class="option-select-group linked-variants-group" id="linkedVariantsGroup">
+                        <div class="option-header-row">
+                            <label class="option-label">
+                                <strong><?php echo $lang === 'ku' ? '🎨 رەنگێن دی یێن ڤی مۆدێلی:' : ($lang === 'ar' ? '🎨 ألوان وإصدارات هذا الموديل:' : '🎨 Colors & Variations of this Model:'); ?></strong> 
+                                <span class="selected-val-badge selected">
+                                    <?php echo htmlspecialchars(!empty($product['color_name']) ? $product['color_name'] : (!empty($product['colors']) ? $product['colors'][0] : 'Current Color')); ?>
+                                </span>
+                            </label>
+                            <span style="font-size:12px; color:var(--text-muted); font-weight:600;"><?php echo count($linkedVariants); ?> <?php echo $lang === 'ku' ? 'رەنگ بەردەستن' : ($lang === 'ar' ? 'ألوان متوفرة' : 'colors available'); ?></span>
+                        </div>
+                        
+                        <div class="linked-variants-grid">
+                            <?php foreach ($linkedVariants as $v): 
+                                $vTitle = is_array($v['title']) ? ($v['title'][$lang] ?? $v['title']['en']) : $v['title'];
+                                $isCurrent = !empty($v['is_current']);
+                                $vHex = !empty($v['color_hex']) ? $v['color_hex'] : '#d4af37';
+                            ?>
+                                <a href="<?php echo $isCurrent ? 'javascript:void(0)' : 'product.php?id=' . $v['id']; ?>" 
+                                   class="linked-variant-card <?php echo $isCurrent ? 'active' : ''; ?>"
+                                   title="<?php echo htmlspecialchars($vTitle); ?> — <?php echo htmlspecialchars($v['color_name']); ?>">
+                                    <div class="variant-img-wrap">
+                                        <img src="<?php echo htmlspecialchars($v['image']); ?>" alt="<?php echo htmlspecialchars($v['color_name']); ?>">
+                                        <?php if ($isCurrent): ?>
+                                            <span class="current-variant-tag" title="Currently Viewing">✓</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="variant-info">
+                                        <div class="variant-color-row">
+                                            <span class="variant-dot" style="background-color: <?php echo htmlspecialchars($vHex); ?>;"></span>
+                                            <strong class="variant-name"><?php echo htmlspecialchars($v['color_name']); ?></strong>
+                                        </div>
+                                        <span class="variant-price"><?php echo number_format($v['price']); ?> IQD</span>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Sizes Selector (Manual selection required, not chosen by default) -->
                 <?php if (!empty($product['sizes'])): ?>

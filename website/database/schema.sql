@@ -34,11 +34,16 @@ CREATE TABLE `products` (
   `description_ar` TEXT DEFAULT NULL,
   `description_ku` TEXT DEFAULT NULL,
   `featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `model_group` VARCHAR(150) DEFAULT NULL,
+  `color_name` VARCHAR(100) DEFAULT NULL,
+  `color_hex` VARCHAR(30) DEFAULT NULL,
+  `linked_products` LONGTEXT DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_category` (`category`),
-  KEY `idx_featured` (`featured`)
+  KEY `idx_featured` (`featured`),
+  KEY `idx_model_group` (`model_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
