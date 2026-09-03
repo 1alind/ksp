@@ -409,19 +409,6 @@ require_once __DIR__ . '/../header.php';
                         <span class="badge-tag" style="background:var(--accent-gold); color:#0a0c10; font-weight:800; padding:6px 12px; font-size:12px; border-radius:6px;">🎨 MULTI-COLOR ENGINE</span>
                     </div>
 
-                    <!-- Quick Preset Color Pills -->
-                    <div style="margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <span style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">+ Quick Add Color:</span>
-                        <button type="button" class="btn btn-xs" style="background:#111827; color:#fff; border:1px solid #374151; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Obsidian Black', '#111827')">⚫ Black</button>
-                        <button type="button" class="btn btn-xs" style="background:#ffffff; color:#111; border:1px solid #cbd5e1; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Pure White', '#ffffff')">⚪ White</button>
-                        <button type="button" class="btn btn-xs" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Royal Navy Blue', '#1e3a8a')">🔵 Navy Blue</button>
-                        <button type="button" class="btn btn-xs" style="background:#065f46; color:#fff; border:1px solid #10b981; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Emerald Green', '#065f46')">🟢 Emerald Green</button>
-                        <button type="button" class="btn btn-xs" style="background:#881337; color:#fff; border:1px solid #f43f5e; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Burgundy Wine', '#881337')">🍷 Burgundy</button>
-                        <button type="button" class="btn btn-xs" style="background:#d4af37; color:#0a0c10; border:1px solid #eab308; font-size:11.5px; border-radius:20px; padding:4px 10px; font-weight:700;" onclick="addPresetColor('addColorVariantsList', 'Imperial Gold', '#d4af37')">✨ Imperial Gold</button>
-                        <button type="button" class="btn btn-xs" style="background:#f5f5dc; color:#333; border:1px solid #d1d5db; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Pearl Beige', '#f5f5dc')">🍨 Pearl Beige</button>
-                        <button type="button" class="btn btn-xs" style="background:#64748b; color:#fff; border:1px solid #94a3b8; font-size:11.5px; border-radius:20px; padding:4px 10px;" onclick="addPresetColor('addColorVariantsList', 'Slate Grey', '#64748b')">🔘 Slate Grey</button>
-                    </div>
-
                     <!-- Dynamic List of Colors for this Product -->
                     <div id="addColorVariantsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
                         <!-- Row 1: Default Color 1 -->
@@ -628,11 +615,8 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                                        <button type="button" class="btn btn-outline btn-xs" onclick='openEditProductModal(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' title="Edit Product Details & Badges">
+                                        <button type="button" class="btn btn-outline btn-xs" onclick='openEditProductModal(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' title="Edit Product Details & Colors">
                                             ✏️ Edit
-                                        </button>
-                                        <button type="button" class="btn btn-outline btn-xs" onclick='quickAddColorVariant(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' style="border-color:var(--accent-gold); color:var(--accent-gold);" title="Add Another Color for this Product">
-                                            🎨 + Color
                                         </button>
                                         <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="View in Boutique">👁️</a>
                                         <form action="/admin/products.php" method="POST" onsubmit="return confirm('Delete this product permanently?')" style="display:inline;">
@@ -811,18 +795,6 @@ require_once __DIR__ . '/../header.php';
                     <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Multi-Color Options</span>
                 </div>
 
-                <!-- Quick Preset Color Pills for Edit Modal -->
-                <div style="margin-bottom:12px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                    <span style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">+ Quick Add:</span>
-                    <button type="button" class="btn btn-xs" style="background:#111827; color:#fff; border:1px solid #374151; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Obsidian Black', '#111827')">⚫ Black</button>
-                    <button type="button" class="btn btn-xs" style="background:#ffffff; color:#111; border:1px solid #cbd5e1; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Pure White', '#ffffff')">⚪ White</button>
-                    <button type="button" class="btn btn-xs" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Royal Navy Blue', '#1e3a8a')">🔵 Navy Blue</button>
-                    <button type="button" class="btn btn-xs" style="background:#065f46; color:#fff; border:1px solid #10b981; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Emerald Green', '#065f46')">🟢 Emerald</button>
-                    <button type="button" class="btn btn-xs" style="background:#881337; color:#fff; border:1px solid #f43f5e; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Burgundy Wine', '#881337')">🍷 Burgundy</button>
-                    <button type="button" class="btn btn-xs" style="background:#d4af37; color:#0a0c10; border:1px solid #eab308; font-size:11px; border-radius:20px; padding:3px 8px; font-weight:700;" onclick="addPresetColor('editColorVariantsList', 'Imperial Gold', '#d4af37')">✨ Gold</button>
-                    <button type="button" class="btn btn-xs" style="background:#f5f5dc; color:#333; border:1px solid #d1d5db; font-size:11px; border-radius:20px; padding:3px 8px;" onclick="addPresetColor('editColorVariantsList', 'Pearl Beige', '#f5f5dc')">🍨 Beige</button>
-                </div>
-
                 <!-- Dynamic Container for Edit Modal Colors -->
                 <div id="editColorVariantsList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
                     <!-- Populated dynamically via JS openEditProductModal -->
@@ -977,13 +949,6 @@ function removeColorVariantRow(btn) {
     row.remove();
 }
 
-function addPresetColor(containerId, name, hex) {
-    addColorVariantRow(containerId, name, hex, '');
-    if (window.AdminApp && window.AdminApp.toast) {
-        window.AdminApp.toast('Added "' + name + '" color option!', 'success');
-    }
-}
-
 function escapeHtmlAttr(str) {
     if (!str) return '';
     return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1095,42 +1060,6 @@ function setEditBadgePreset(en, ar, ku) {
     document.getElementById('editProdBadge').value = en;
     document.getElementById('editProdBadgeAr').value = ar;
     document.getElementById('editProdBadgeKu').value = ku;
-}
-
-function quickAddColorVariant(product) {
-    const pTitleEn = typeof product.title === 'object' ? (product.title.en || '') : product.title;
-    const pTitleAr = typeof product.title === 'object' ? (product.title.ar || pTitleEn) : pTitleEn;
-    const pTitleKu = typeof product.title === 'object' ? (product.title.ku || pTitleEn) : pTitleEn;
-
-    const groupSlug = product.model_group || ('model-' + pTitleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
-    
-    // Make sure addProductCard is visible
-    const addCard = document.getElementById('addProductCard');
-    if (addCard) addCard.style.display = 'block';
-
-    // Fill Add Product Form fields
-    document.getElementById('prodModelGroup').value = groupSlug;
-    document.getElementById('prodColorName').value = '';
-    
-    // Add a new color row to the Add Product colors list
-    addColorVariantRow('addColorVariantsList', 'New Color Edition', '#1e3a8a', '');
-
-    // Check the box for the source product in the add form
-    document.querySelectorAll('input[name="prod_linked_products[]"]').forEach(cb => {
-        cb.checked = (Number(cb.value) === Number(product.id));
-    });
-
-    // Scroll to the Color Variants section
-    const section = document.getElementById('colorVariantsSection');
-    if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        section.style.animation = 'pulseBorder 1.5s ease-out';
-        setTimeout(() => { section.style.animation = ''; }, 2000);
-    }
-    
-    if (window.AdminApp && window.AdminApp.toast) {
-        window.AdminApp.toast('Ready to add a new color for "' + pTitleEn + '"! Configure the new color row.', 'info');
-    }
 }
 
 function calculateDiscountPreview() {
