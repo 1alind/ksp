@@ -426,14 +426,15 @@ window.selectedProductColor = null;
 window.productSizeMeasurements = <?php echo json_encode($sizeMeasurements); ?>;
 window.productColorImages = <?php echo json_encode($colorImages); ?>;
 
-function switchProductTab(tabId, btn) {
+window.switchProductTab = function(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    btn.classList.add('active');
-}
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+    if (btn) btn.classList.add('active');
+};
 
-function switchMainImage(imgUrl, thumbBtn) {
+window.switchMainImage = function(imgUrl, thumbBtn) {
     const mainImg = document.getElementById('mainProductImage');
     if (!mainImg || !imgUrl) return;
 
@@ -449,9 +450,9 @@ function switchMainImage(imgUrl, thumbBtn) {
         document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
         thumbBtn.classList.add('active');
     }
-}
+};
 
-function extractDimensionValues(mStr, sizeName) {
+window.extractDimensionValues = function(mStr, sizeName) {
     let height = '';
     let width = '';
 
@@ -486,7 +487,7 @@ function extractDimensionValues(mStr, sizeName) {
                 else if (sz === '36' || sz === 'XL') { if (!height) height = '108cm'; if (!width) width = '92cm'; }
                 else if (sz === '38' || sz === 'XXL') { if (!height) height = '110cm'; if (!width) width = '98cm'; }
                 else { if (!height) height = '104cm'; if (!width) width = '82cm'; }
-            } else if (variant === 'shoes') {
+            } else if (variant === 'feet' || variant === 'shoes') {
                 const num = parseFloat(sz);
                 if (num && num >= 35 && num <= 48) {
                     if (!height) height = (25.0 + (num - 39) * 0.6).toFixed(1) + 'cm';
@@ -528,12 +529,12 @@ function extractDimensionValues(mStr, sizeName) {
     if (!width) width = '50cm';
 
     return { height, width };
-}
+};
 
-function onSizeSelected(btn, sizeName) {
+window.onSizeSelected = function(btn, sizeName) {
     // 1. Remove active state from all size buttons
     document.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     
     window.selectedProductSize = sizeName;
     
@@ -553,8 +554,8 @@ function onSizeSelected(btn, sizeName) {
     }
 
     // 4. Update simple Height: ... Width: ... lines
-    const mStr = btn.getAttribute('data-measurement') || '';
-    const dims = extractDimensionValues(mStr, sizeName);
+    const mStr = btn ? (btn.getAttribute('data-measurement') || '') : '';
+    const dims = window.extractDimensionValues(mStr, sizeName);
 
     const hEl = document.getElementById('displaySizeHeight');
     const wEl = document.getElementById('displaySizeWidth');
@@ -577,20 +578,20 @@ function onSizeSelected(btn, sizeName) {
         const variant = '<?php echo $guideVariant; ?>';
         specsCard.href = `size_guide.php?v=${variant}&pid=${pid}&size=${encodeURIComponent(sizeName)}&h=${encodeURIComponent(dims.height)}&w=${encodeURIComponent(dims.width)}&from=${currentUrl}`;
     }
-}
+};
 
-function selectColor(colorName, btn) {
+window.selectColor = function(colorName, btn) {
     const colorBtn = document.querySelector(`.color-badge-pill[data-color="${colorName}"]`);
     if (colorBtn) {
         const img = colorBtn.getAttribute('data-image') || '';
-        onColorSelected(colorBtn, colorName, img);
+        window.onColorSelected(colorBtn, colorName, img);
     }
-}
+};
 
-function onColorSelected(btn, colorName, imageUrl) {
+window.onColorSelected = function(btn, colorName, imageUrl) {
     // 1. Remove active state from all color buttons
     document.querySelectorAll('.color-badge-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     
     window.selectedProductColor = colorName;
     
@@ -638,9 +639,9 @@ function onColorSelected(btn, colorName, imageUrl) {
     if (window.AuraStore && window.AuraStore.showToast) {
         window.AuraStore.showToast(msg, 'info');
     }
-}
+};
 
-function handleProductAction(buyNow = false) {
+window.handleProductAction = function(buyNow = false) {
     const isOutOfStock = <?php echo $isOutOfStock ? 'true' : 'false'; ?>;
     const isKu = window.AURA_LANG === 'ku';
     const isAr = window.AURA_LANG === 'ar';
@@ -658,9 +659,6 @@ function handleProductAction(buyNow = false) {
     
     const sizeGroup = document.getElementById('sizeSelectGroup');
     const colorGroup = document.getElementById('colorSelectGroup');
-    
-    const isKu = window.AURA_LANG === 'ku';
-    const isAr = window.AURA_LANG === 'ar';
 
     if (hasSizes && !window.selectedProductSize) {
         if (sizeGroup) {
@@ -701,7 +699,7 @@ function handleProductAction(buyNow = false) {
             window.location.href = 'checkout.php';
         }, 300);
     }
-}
+};
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
