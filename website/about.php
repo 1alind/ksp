@@ -4,17 +4,7 @@ $pageTitle = 'Our Heritage & Craftsmanship';
 require_once __DIR__ . '/header.php';
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">Maison Aura</span>
-            <h1 class="page-banner-title"><?php echo t('nav_about', $lang); ?></h1>
-            <p class="page-banner-subtitle"><?php echo t('site_tagline', $lang); ?></p>
-        </div>
-    </div>
-</div>
-
-<section class="about-story-section">
+<section class="about-story-section" style="padding: 60px 0 80px;">
     <div class="container">
         <div class="about-grid">
             <div class="about-text-col">

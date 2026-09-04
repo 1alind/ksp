@@ -32,18 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
 }
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">Maison Aura</span>
-            <h1 class="page-banner-title"><?php echo t('nav_contact', $lang); ?></h1>
-            <p class="page-banner-subtitle">
-                <?php echo $lang === 'ku' ? 'تەخا تایبەت یا پەیوەندیکرنێ و ڕاژەیا موشتەریان' : ($lang === 'ar' ? 'خدمة العملاء الرفيعة والاستفسارات الخاصة' : 'Bespoke Concierge & Dedicated Client Advisory'); ?>
-            </p>
-        </div>
-    </div>
-</div>
-
 <section class="contact-section py-60">
     <div class="container">
         <?php if (!empty($actionMsg)): ?>

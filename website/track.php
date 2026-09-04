@@ -50,15 +50,6 @@ if (!empty($searchOrderId)) {
 }
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <h1 class="page-banner-title"><?php echo t('track_title', $lang); ?></h1>
-            <p class="page-banner-subtitle"><?php echo t('track_subtitle', $lang); ?></p>
-        </div>
-    </div>
-</div>
-
 <section class="track-section">
     <div class="container">
 

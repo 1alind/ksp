@@ -4,15 +4,6 @@ $pageTitle = 'Shopping Bag';
 require_once __DIR__ . '/header.php';
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">Aura Concierge</span>
-            <h1 class="page-banner-title"><?php echo t('cart', $lang); ?></h1>
-        </div>
-    </div>
-</div>
-
 <section class="cart-section">
     <div class="container">
         

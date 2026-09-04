@@ -187,23 +187,7 @@ $dimHeightLabel = ($lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارت
 $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' : 'Width'));
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">Maison Aura Atelier</span>
-            <h1 class="page-banner-title"><?php echo t('how_to_measure_title', $lang); ?></h1>
-            <p class="page-banner-subtitle">
-                <?php 
-                if ($lang === 'ku') echo 'رێبەرێ پێشکەفتی یێ قیاسێن دروست بۆ دەستکەفتنا قیاسێ ١٠٠٪ ڕاستەقینە';
-                elseif ($lang === 'ar') echo 'دليل المقاسات الهندسي الدقيق لاختيار مقاسك المثالي بدقة متناهية';
-                else echo 'Precision sizing blueprints and dimension guide';
-                ?>
-            </p>
-        </div>
-    </div>
-</div>
-
-<section class="size-guide-page-section" style="padding-top: 60px; padding-bottom: 120px; margin-bottom: 30px;">
+<section class="size-guide-page-section" style="padding-top: 50px; padding-bottom: 120px; margin-bottom: 30px;">
     <div class="container">
         
         <!-- Category Navigation Tabs -->

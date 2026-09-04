@@ -49,25 +49,6 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
 });
 ?>
 
-<!-- Shop Page Header -->
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker"><?php echo t('shop_title', $lang); ?></span>
-            <h1 class="page-banner-title">
-                <?php 
-                if ($selectedCat === 'clothes') echo t('cat_clothes', $lang);
-                elseif ($selectedCat === 'watches') echo t('cat_watches', $lang);
-                elseif ($selectedCat === 'perfumes') echo t('cat_perfumes', $lang);
-                elseif ($selectedCat === 'accessories') echo t('cat_accessories', $lang);
-                else echo t('site_tagline', $lang);
-                ?>
-            </h1>
-            <p class="page-banner-subtitle"><?php echo t('shop_subtitle', $lang); ?></p>
-        </div>
-    </div>
-</div>
-
 <div class="shop-catalog-section">
     <div class="container">
         <div class="shop-layout-grid">

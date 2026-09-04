@@ -77,20 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 }
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">Aura Secure Gateway • Iraq & Kurdistan</span>
-            <h1 class="page-banner-title"><?php echo t('checkout_title', $lang); ?></h1>
-            <p class="page-banner-subtitle">
-                <?php echo $lang === 'ku' ? 'خزمەتگوزاریا گەهاندنێ: ٤,٠٠٠ دینار بۆ دهۆک • ٥,٠٠٠ دینار بۆ هەمی باژێر و پارێزگەهێن دی.' : 
-                              ($lang === 'ar' ? 'رسوم التوصيل السريع: 4,000 د.ع لدهوك • 5,000 د.ع لكافة المحافظات الأخرى.' : 
-                              'Express Delivery: 4,000 IQD for Duhok • 5,000 IQD for all other Governorates.'); ?>
-            </p>
-        </div>
-    </div>
-</div>
-
 <section class="checkout-section">
     <div class="container">
         <?php if ($orderPlaced && $confirmedOrder): ?>
