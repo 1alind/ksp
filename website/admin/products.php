@@ -373,14 +373,15 @@ require_once __DIR__ . '/../header.php';
                     </div>
                 </div>
 
+                <!-- Primary Image Uploader (x02.me API + WebP Compression) -->
                 <div class="form-group mb-16">
-                    <label><?php echo adm_t('admin_field_main_image', 'Main Product Image URL'); ?> <span class="text-danger">*</span></label>
-                    <input type="url" name="prod_image" required class="form-control" placeholder="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80">
+                    <div id="addMainImageUploaderBox"></div>
                 </div>
 
+                <!-- Additional Gallery Images Multi-Uploader (x02.me API + WebP Compression) -->
                 <div class="form-group mb-16">
-                    <label><?php echo adm_t('admin_field_gallery_images', 'Additional Gallery Images (Comma-separated URLs)'); ?></label>
-                    <textarea name="prod_gallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
+                    <textarea name="prod_gallery" id="addProdGalleryTextarea" rows="2" style="display:none;"></textarea>
+                    <div id="addGalleryUploaderBox"></div>
                 </div>
 
                 <!-- SECTION: Product Colors & Swatches (Add 2 or More Colors Directly) -->
@@ -414,7 +415,12 @@ require_once __DIR__ . '/../header.php';
                             </div>
                             <div>
                                 <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
-                                <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px;">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                                    <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
+                                        <span>☁️</span> Upload
+                                    </button>
+                                </div>
                             </div>
                             <div style="padding-top:16px; text-align:center;">
                                 <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="<?php echo adm_t('admin_btn_remove_color', 'Remove color'); ?>">✕</button>
@@ -436,7 +442,12 @@ require_once __DIR__ . '/../header.php';
                             </div>
                             <div>
                                 <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
-                                <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px;">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                                    <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
+                                        <span>☁️</span> Upload
+                                    </button>
+                                </div>
                             </div>
                             <div style="padding-top:16px; text-align:center;">
                                 <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="<?php echo adm_t('admin_btn_remove_color', 'Remove color'); ?>">✕</button>
@@ -685,13 +696,12 @@ require_once __DIR__ . '/../header.php';
 
                     <div>
                         <div class="form-group mb-12">
-                            <label><?php echo adm_t('admin_field_main_image', 'Primary Cover Image URL'); ?> <span class="text-danger">*</span></label>
-                            <input type="url" name="edit_prod_image" id="editProdImage" required class="form-control" oninput="updateEditImagePreview()">
+                            <div id="editMainImageUploaderBox"></div>
                         </div>
 
                         <div class="form-group">
-                            <label><?php echo adm_t('admin_field_gallery_images', 'Additional Gallery Images (Comma-Separated URLs)'); ?></label>
-                            <textarea name="edit_prod_gallery" id="editProdGallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
+                            <textarea name="edit_prod_gallery" id="editProdGalleryTextarea" rows="2" style="display:none;"></textarea>
+                            <div id="editGalleryUploaderBox"></div>
                         </div>
                     </div>
                 </div>
@@ -769,6 +779,7 @@ require_once __DIR__ . '/../header.php';
     </div>
 </div>
 
+<script src="/admin/x02_uploader.js"></script>
 <script>
 function toggleAddProductForm() {
     const card = document.getElementById('addProductCard');
@@ -825,7 +836,12 @@ function addColorVariantRow(containerId, colorName = '', colorHex = '#1e3a8a', i
         </div>
         <div>
             <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">${lblPhoto}</label>
-            <input type="url" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px;">
+            <div style="display:flex; gap:6px; align-items:center;">
+                <input type="url" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
+                    <span>☁️</span> Upload
+                </button>
+            </div>
         </div>
         <div style="padding-top:16px; text-align:center;">
             <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="${lblRemove}">✕</button>
@@ -880,10 +896,14 @@ function openEditProductModal(product) {
     document.getElementById('editProdBadgeKu').value = product.badge_ku || product.badge || '';
 
     const mainImg = product.image || '';
-    document.getElementById('editProdImage').value = mainImg;
-    const gallery = Array.isArray(product.images) ? product.images.join(', ') : (mainImg || '');
-    document.getElementById('editProdGallery').value = gallery;
-    updateEditImagePreview();
+    if (window.editMainUploader) {
+        window.editMainUploader.setUrl(mainImg);
+    }
+    const galleryArr = Array.isArray(product.images) ? product.images : (mainImg ? [mainImg] : []);
+    if (window.editGalleryUploader) {
+        window.editGalleryUploader.setUrls(galleryArr);
+    }
+    updateEditImagePreview(mainImg);
 
     const sizes = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || '');
     document.getElementById('editProdSizes').value = sizes;
@@ -940,8 +960,8 @@ function closeEditProductModal() {
     document.getElementById('editProductModalOverlay').classList.remove('open');
 }
 
-function updateEditImagePreview() {
-    const url = document.getElementById('editProdImage').value;
+function updateEditImagePreview(customUrl) {
+    const url = customUrl || (window.editMainUploader ? window.editMainUploader.getUrl() : '') || '';
     const imgEl = document.getElementById('editImageLivePreview');
     if (imgEl && url) {
         imgEl.src = url;
@@ -949,12 +969,18 @@ function updateEditImagePreview() {
 }
 
 function setEditImagePreset(url) {
-    document.getElementById('editProdImage').value = url;
-    const galleryEl = document.getElementById('editProdGallery');
-    if (!galleryEl.value || galleryEl.value.indexOf(url) === -1) {
-        galleryEl.value = url;
+    if (window.editMainUploader) {
+        window.editMainUploader.setUrl(url);
     }
-    updateEditImagePreview();
+    const galleryEl = document.getElementById('editProdGalleryTextarea');
+    if (galleryEl && (!galleryEl.value || galleryEl.value.indexOf(url) === -1)) {
+        const cur = galleryEl.value ? galleryEl.value.split(',').map(s=>s.trim()).filter(Boolean) : [];
+        cur.push(url);
+        if (window.editGalleryUploader) {
+            window.editGalleryUploader.setUrls(cur);
+        }
+    }
+    updateEditImagePreview(url);
 }
 
 function setEditBadgePreset(en, ar, ku) {
@@ -976,6 +1002,40 @@ function calculateDiscountPreview() {
         badgeEl.style.display = 'none';
     }
 }
+
+// Initialize x02.me WebP Image Uploaders
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.X02Uploader) {
+        window.addMainUploader = window.X02Uploader.initSingleUploader({
+            containerId: 'addMainImageUploaderBox',
+            inputName: 'prod_image',
+            initialUrl: '',
+            label: "<?php echo adm_t('admin_field_main_image', 'Main Product Image'); ?>"
+        });
+
+        window.addGalleryUploader = window.X02Uploader.initGalleryUploader({
+            containerId: 'addGalleryUploaderBox',
+            textareaId: 'addProdGalleryTextarea',
+            initialUrls: []
+        });
+
+        window.editMainUploader = window.X02Uploader.initSingleUploader({
+            containerId: 'editMainImageUploaderBox',
+            inputName: 'edit_prod_image',
+            initialUrl: '',
+            label: "<?php echo adm_t('admin_field_main_image', 'Primary Cover Image'); ?>",
+            onChange: function(url) {
+                updateEditImagePreview(url);
+            }
+        });
+
+        window.editGalleryUploader = window.X02Uploader.initGalleryUploader({
+            containerId: 'editGalleryUploaderBox',
+            textareaId: 'editProdGalleryTextarea',
+            initialUrls: []
+        });
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/../footer.php'; ?>

@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_website_branding
     $settingsDb['boutique_location_ar'] = trim($_POST['boutique_location_ar'] ?? '');
     $settingsDb['boutique_location_ku'] = trim($_POST['boutique_location_ku'] ?? '');
 
+    $settingsDb['x02_api_key'] = trim($_POST['x02_api_key'] ?? '');
+
     save_settings($settingsDb);
     $flashMsg = "✓ Store branding, trilingual identity, and delivery rules updated successfully!";
 }
@@ -248,6 +250,31 @@ require_once __DIR__ . '/../header.php';
                         <label><?php echo adm_t('admin_brand_location_ku', 'Boutique Location (Kurdish - کوردی)'); ?></label>
                         <input type="text" name="boutique_location_ku" value="<?php echo htmlspecialchars($s['boutique_location_ku'] ?? 'بۆلیڤاردا دریم سیتی، هەولێر • جادا گولان'); ?>" class="form-control">
                     </div>
+                </div>
+            </div>
+
+            <!-- Section 6: x02.me Image Hosting & WebP Compression API -->
+            <div class="admin-form-card mb-24">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 class="admin-card-title" style="margin:0; font-size:17px; display:flex; align-items:center; gap:8px;">
+                            <span>☁️</span> x02.me Image Cloud & WebP Compression
+                        </h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">
+                            Images uploaded in the product manager are automatically compressed to high-efficiency <strong>.webp</strong> format and hosted on <strong>https://x02.me/</strong>.
+                        </p>
+                    </div>
+                    <span class="badge-tag" style="background:#10b98120; color:#10b981; font-weight:700; padding:6px 12px; font-size:12px; border-radius:6px;">
+                        ✓ Active & Integrated
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label>x02.me API Key (Optional)</label>
+                    <input type="text" name="x02_api_key" value="<?php echo htmlspecialchars($s['x02_api_key'] ?? ''); ?>" class="form-control" placeholder="Optional: Leave blank for standard anonymous uploads, or enter your personal x02 API Key" style="font-family:monospace;">
+                    <small class="text-muted" style="display:block; margin-top:6px; font-size:12px;">
+                        If left blank, uploads are automatically handled using standard anonymous API access with full WebP compression.
+                    </small>
                 </div>
             </div>
 
