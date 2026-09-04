@@ -230,24 +230,41 @@ if (!empty($product['colors'])) {
 
 <?php
                         $guideVariant = 'tshirt';
-                        $titleLower = strtolower($titleText . ' ' . ($product['category'] ?? ''));
-                        if (str_contains($titleLower, 'jean') || str_contains($titleLower, 'pant') || str_contains($titleLower, 'trousers')) {
+                        $pCategory = strtolower($product['category'] ?? '');
+                        $titleLower = strtolower($titleText . ' ' . $pCategory);
+                        if (str_contains($titleLower, 'watch') || str_contains($titleLower, 'timepiece') || $pCategory === 'watches') {
+                            $guideVariant = 'watches';
+                        } elseif (str_contains($titleLower, 'shoe') || str_contains($titleLower, 'sneaker') || str_contains($titleLower, 'boot') || $pCategory === 'shoes') {
+                            $guideVariant = 'shoes';
+                        } elseif (str_contains($titleLower, 'jean') || str_contains($titleLower, 'pant') || str_contains($titleLower, 'trousers')) {
                             $guideVariant = 'jeans';
                         } elseif (str_contains($titleLower, 'jacket') || str_contains($titleLower, 'hoodie') || str_contains($titleLower, 'coat') || str_contains($titleLower, 'blazer')) {
                             $guideVariant = 'jacket';
-                        } elseif (str_contains($titleLower, 'shoe') || str_contains($titleLower, 'sneaker') || str_contains($titleLower, 'boot')) {
-                            $guideVariant = 'shoes';
+                        }
+
+                        // Localized dynamic dimension labels
+                        $dim1Label = ($lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'));
+                        $dim2Label = ($lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'));
+                        if ($guideVariant === 'watches') {
+                            $dim1Label = ($lang === 'ku' ? 'قەبارە:' : ($lang === 'ar' ? 'القطر:' : 'Diameter:'));
+                            $dim2Label = ($lang === 'ku' ? 'قایش:' : ($lang === 'ar' ? 'السوار:' : 'Strap:'));
+                        } elseif ($guideVariant === 'jeans') {
+                            $dim1Label = ($lang === 'ku' ? 'درێژی:' : ($lang === 'ar' ? 'الطول:' : 'Length:'));
+                            $dim2Label = ($lang === 'ku' ? 'کەمەر:' : ($lang === 'ar' ? 'الخصر:' : 'Waist:'));
+                        } elseif ($guideVariant === 'shoes') {
+                            $dim1Label = ($lang === 'ku' ? 'درێژیا پێی:' : ($lang === 'ar' ? 'طول القدم:' : 'Foot Len:'));
+                            $dim2Label = ($lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'));
                         }
                         ?>
                         <!-- Simple & Clean Height & Width Display Directly Under Size (Clickable to navigate to standalone size guide page) -->
                         <a href="size_guide.php?v=<?php echo $guideVariant; ?>&pid=<?php echo (int)$productId; ?>&size=<?php echo urlencode($firstSize); ?>&h=<?php echo urlencode($initialHeight); ?>&w=<?php echo urlencode($initialWidth); ?>&from=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="size-simple-specs-card" id="sizeSpecsCard" title="<?php echo $lang === 'ku' ? 'کلیک بکە بۆ دیتنا رێبەرێ قیاسان' : ($lang === 'ar' ? 'انقر لعرض دليل القياسات' : 'Click to view size guide'); ?>">
                             <div class="size-specs-display">
                                 <div class="size-spec-row">
-                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'); ?></span>
+                                    <span class="size-spec-label"><?php echo $dim1Label; ?></span>
                                     <span class="size-spec-val" id="displaySizeHeight"><?php echo htmlspecialchars($initialHeight); ?></span>
                                 </div>
                                 <div class="size-spec-row">
-                                    <span class="size-spec-label"><?php echo $lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'); ?></span>
+                                    <span class="size-spec-label"><?php echo $dim2Label; ?></span>
                                     <span class="size-spec-val" id="displaySizeWidth"><?php echo htmlspecialchars($initialWidth); ?></span>
                                 </div>
                             </div>
@@ -424,37 +441,76 @@ function extractDimensionValues(mStr, sizeName) {
     let width = '';
 
     if (mStr) {
-        const hMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+        const hMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول|قطر|قەبارە)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
         if (hMatch) {
             height = hMatch[1].replace(/\s+/g, '').toLowerCase();
-            if (!height.endsWith('cm') && !height.endsWith('mm')) height += 'cm';
+            if (!height.endsWith('cm') && !height.endsWith('mm')) {
+                height += (height.includes('4') && parseFloat(height) <= 50) ? 'mm' : 'cm';
+            }
         }
 
-        const wMatch = mStr.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
+        const wMatch = mStr.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض|سوار|قایش)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
         if (wMatch) {
             width = wMatch[1].replace(/\s+/g, '').toLowerCase();
-            if (!width.endsWith('cm') && !width.endsWith('mm')) width += 'cm';
+            if (!width.endsWith('cm') && !width.endsWith('mm')) {
+                width += (width.includes('2') && parseFloat(width) <= 30) ? 'mm' : 'cm';
+            }
         }
     }
 
     if (!height || !width) {
         if (sizeName) {
             const sz = String(sizeName).toUpperCase().trim();
-            if (sz === 'XS') { if (!height) height = '62cm'; if (!width) width = '42cm'; }
-            else if (sz === 'S') { if (!height) height = '65cm'; if (!width) width = '45cm'; }
-            else if (sz === 'M') { if (!height) height = '70cm'; if (!width) width = '50cm'; }
-            else if (sz === 'L') { if (!height) height = '73cm'; if (!width) width = '54cm'; }
-            else if (sz === 'XL') { if (!height) height = '76cm'; if (!width) width = '58cm'; }
-            else if (sz === 'XXL' || sz === '2XL') { if (!height) height = '79cm'; if (!width) width = '62cm'; }
-            else if (sz === '3XL' || sz === 'XXXL') { if (!height) height = '82cm'; if (!width) width = '66cm'; }
-            else if (sz === '4XL') { if (!height) height = '85cm'; if (!width) width = '70cm'; }
-            else if (sz === '5XL') { if (!height) height = '88cm'; if (!width) width = '74cm'; }
-            else if (sz.includes('MM')) { if (!height) height = sz.toLowerCase(); if (!width) width = '20mm'; }
+            const variant = '<?php echo $guideVariant; ?>';
+            
+            if (variant === 'jeans') {
+                if (sz === '28' || sz === 'XS') { if (!height) height = '98cm'; if (!width) width = '72cm'; }
+                else if (sz === '30' || sz === 'S') { if (!height) height = '102cm'; if (!width) width = '78cm'; }
+                else if (sz === '32' || sz === 'M') { if (!height) height = '104cm'; if (!width) width = '82cm'; }
+                else if (sz === '34' || sz === 'L') { if (!height) height = '106cm'; if (!width) width = '86cm'; }
+                else if (sz === '36' || sz === 'XL') { if (!height) height = '108cm'; if (!width) width = '92cm'; }
+                else if (sz === '38' || sz === 'XXL') { if (!height) height = '110cm'; if (!width) width = '98cm'; }
+                else { if (!height) height = '104cm'; if (!width) width = '82cm'; }
+            } else if (variant === 'shoes') {
+                const num = parseFloat(sz);
+                if (num && num >= 35 && num <= 48) {
+                    if (!height) height = (25.0 + (num - 39) * 0.6).toFixed(1) + 'cm';
+                    if (!width) width = '9.8cm';
+                } else {
+                    if (!height) height = '27.0cm';
+                    if (!width) width = '9.8cm';
+                }
+            } else if (variant === 'watches') {
+                if (sz.includes('38')) { if (!height) height = '38mm'; if (!width) width = '20mm'; }
+                else if (sz.includes('40')) { if (!height) height = '40mm'; if (!width) width = '20mm'; }
+                else if (sz.includes('42')) { if (!height) height = '42mm'; if (!width) width = '22mm'; }
+                else if (sz.includes('44')) { if (!height) height = '44mm'; if (!width) width = '24mm'; }
+                else if (sz.includes('46')) { if (!height) height = '46mm'; if (!width) width = '24mm'; }
+                else { if (!height) height = '42mm'; if (!width) width = '22mm'; }
+            } else if (variant === 'jacket') {
+                if (sz === 'S' || sz === '38R') { if (!height) height = '68cm'; if (!width) width = '52cm'; }
+                else if (sz === 'M' || sz === '40R') { if (!height) height = '71cm'; if (!width) width = '55cm'; }
+                else if (sz === 'L' || sz === '42R') { if (!height) height = '74cm'; if (!width) width = '58cm'; }
+                else if (sz === 'XL' || sz === '44R') { if (!height) height = '77cm'; if (!width) width = '62cm'; }
+                else if (sz === 'XXL' || sz === '46R') { if (!height) height = '80cm'; if (!width) width = '66cm'; }
+                else { if (!height) height = '71cm'; if (!width) width = '55cm'; }
+            } else {
+                if (sz === 'XS') { if (!height) height = '62cm'; if (!width) width = '42cm'; }
+                else if (sz === 'S') { if (!height) height = '65cm'; if (!width) width = '45cm'; }
+                else if (sz === 'M') { if (!height) height = '70cm'; if (!width) width = '50cm'; }
+                else if (sz === 'L') { if (!height) height = '73cm'; if (!width) width = '54cm'; }
+                else if (sz === 'XL') { if (!height) height = '76cm'; if (!width) width = '58cm'; }
+                else if (sz === 'XXL' || sz === '2XL') { if (!height) height = '79cm'; if (!width) width = '62cm'; }
+                else if (sz === '3XL' || sz === 'XXXL') { if (!height) height = '82cm'; if (!width) width = '66cm'; }
+                else if (sz === '4XL') { if (!height) height = '85cm'; if (!width) width = '70cm'; }
+                else if (sz === '5XL') { if (!height) height = '88cm'; if (!width) width = '74cm'; }
+                else if (sz.includes('MM')) { if (!height) height = sz.toLowerCase(); if (!width) width = '20mm'; }
+            }
         }
     }
 
-    if (!height) height = '65cm';
-    if (!width) width = '45cm';
+    if (!height) height = '70cm';
+    if (!width) width = '50cm';
 
     return { height, width };
 }
