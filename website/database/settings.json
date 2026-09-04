@@ -1,4 +1,6 @@
 {
+    "x02_api_key": "36f36ce6fa844e93bda76bb9255070b4",
+    "x02_upload_url": "https://up.x02.me/api/upload?format=json",
     "gateways": {
         "fib": {
             "access_token": "fib_bearer_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgudGVzdC5maWIuaXEiLCJhdWQiOiJodHRwczovL2FwaS5maWIuaXEvdjEiLCJzdWIiOiJmaWJfY2xpZW50X2xpdmUiLCJhY2NvdW50X2liYW4iOiJJUTQ0RklCUTAwMDAwMDEwMDkyODM3NDEiLCJzY29wZSI6InBheW1lbnRzOmNyZWF0ZSBwYXltZW50czpyZWFkIHBheW1lbnRzOnJlZnVuZCB3ZWJob29rczpsaXN0ZW4iLCJpYXQiOjE3ODgyNzg3MDAsImV4cCI6MTc4ODM2NTEwMH0.ZmliX3NpZ19xNDZmeGlkMXd3"

@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_website_branding
     $settingsDb['boutique_location_ar'] = trim($_POST['boutique_location_ar'] ?? '');
     $settingsDb['boutique_location_ku'] = trim($_POST['boutique_location_ku'] ?? '');
 
-    $settingsDb['x02_api_key'] = trim($_POST['x02_api_key'] ?? '');
+    $settingsDb['x02_api_key'] = trim($_POST['x02_api_key'] ?? '') ?: '36f36ce6fa844e93bda76bb9255070b4';
+    $settingsDb['x02_upload_url'] = trim($_POST['x02_upload_url'] ?? '') ?: 'https://up.x02.me/api/upload';
 
     save_settings($settingsDb);
     $flashMsg = "✓ Store branding, trilingual identity, and delivery rules updated successfully!";
@@ -258,10 +259,10 @@ require_once __DIR__ . '/../header.php';
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                     <div>
                         <h3 class="admin-card-title" style="margin:0; font-size:17px; display:flex; align-items:center; gap:8px;">
-                            <span>☁️</span> x02.me Image Cloud & WebP Compression
+                            <span>☁️</span> X02 Image Uploader & WebP Compression API
                         </h3>
                         <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">
-                            Images uploaded in the product manager are automatically compressed to high-efficiency <strong>.webp</strong> format and hosted on <strong>https://x02.me/</strong>.
+                            Images uploaded in the product manager are automatically compressed to high-efficiency <strong>.webp</strong> format and uploaded via the official REST API to <strong>https://up.x02.me/api/upload?format=json</strong>.
                         </p>
                     </div>
                     <span class="badge-tag" style="background:#10b98120; color:#10b981; font-weight:700; padding:6px 12px; font-size:12px; border-radius:6px;">
@@ -269,12 +270,15 @@ require_once __DIR__ . '/../header.php';
                     </span>
                 </div>
 
-                <div class="form-group">
-                    <label>x02.me API Key (Optional)</label>
-                    <input type="text" name="x02_api_key" value="<?php echo htmlspecialchars($s['x02_api_key'] ?? ''); ?>" class="form-control" placeholder="Optional: Leave blank for standard anonymous uploads, or enter your personal x02 API Key" style="font-family:monospace;">
-                    <small class="text-muted" style="display:block; margin-top:6px; font-size:12px;">
-                        If left blank, uploads are automatically handled using standard anonymous API access with full WebP compression.
-                    </small>
+                <div class="form-row-2 mb-16">
+                    <div class="form-group">
+                        <label>X02 Upload Endpoint URL</label>
+                        <input type="text" name="x02_upload_url" value="<?php echo htmlspecialchars($s['x02_upload_url'] ?? 'https://up.x02.me/api/upload?format=json'); ?>" class="form-control" style="font-family:monospace;">
+                    </div>
+                    <div class="form-group">
+                        <label>X02 API Key (x-api-key Header)</label>
+                        <input type="text" name="x02_api_key" value="<?php echo htmlspecialchars($s['x02_api_key'] ?? '36f36ce6fa844e93bda76bb9255070b4'); ?>" class="form-control" placeholder="36f36ce6fa844e93bda76bb9255070b4" style="font-family:monospace;">
+                    </div>
                 </div>
             </div>
 

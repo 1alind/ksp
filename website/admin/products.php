@@ -140,6 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $titleEn = trim($_POST['prod_title_en'] ?? '');
         $titleAr = trim($_POST['prod_title_ar'] ?? '');
         $titleKu = trim($_POST['prod_title_ku'] ?? '');
+        if (empty($titleEn)) $titleEn = !empty($titleAr) ? $titleAr : (!empty($titleKu) ? $titleKu : 'New Luxury Item');
+        if (empty($titleAr)) $titleAr = $titleEn;
+        if (empty($titleKu)) $titleKu = $titleEn;
         $category = trim($_POST['prod_category'] ?? 'clothes');
         $price = floatval($_POST['prod_price'] ?? 0);
         $oldPrice = !empty($_POST['prod_old_price']) ? floatval($_POST['prod_old_price']) : null;
@@ -329,12 +332,12 @@ require_once __DIR__ . '/../header.php';
                         <input type="text" name="prod_title_en" required class="form-control" placeholder="e.g. Royal Midnight Velvet Blazer">
                     </div>
                     <div class="form-group">
-                        <label><?php echo adm_t('admin_field_title_ar', 'Product Title (Arabic / عربي)'); ?> <span class="text-danger">*</span></label>
-                        <input type="text" name="prod_title_ar" required class="form-control" placeholder="مثال: بليزر ملكي كحلي مخملي">
+                        <label><?php echo adm_t('admin_field_title_ar', 'Product Title (Arabic / عربي)'); ?></label>
+                        <input type="text" name="prod_title_ar" class="form-control" placeholder="مثال: بليزر ملكي كحلي مخملي (اختياري)">
                     </div>
                     <div class="form-group">
-                        <label><?php echo adm_t('admin_field_title_ku', 'Product Title (Kurdish / کوردی بادینی)'); ?> <span class="text-danger">*</span></label>
-                        <input type="text" name="prod_title_ku" required class="form-control" placeholder="وەکی: قاتی مخملی یێ شاهانە">
+                        <label><?php echo adm_t('admin_field_title_ku', 'Product Title (Kurdish / کوردی بادینی)'); ?></label>
+                        <input type="text" name="prod_title_ku" class="form-control" placeholder="وەکی: قاتی مخملی یێ شاهانە (بژارده)">
                     </div>
                 </div>
 
@@ -779,6 +782,10 @@ require_once __DIR__ . '/../header.php';
     </div>
 </div>
 
+<script>
+window.X02_API_KEY = <?php echo json_encode(get_setting('x02_api_key', '36f36ce6fa844e93bda76bb9255070b4')); ?>;
+window.X02_UPLOAD_URL = <?php echo json_encode(get_setting('x02_upload_url', 'https://up.x02.me/api/upload?format=json')); ?>;
+</script>
 <script src="/admin/x02_uploader.js"></script>
 <script>
 function toggleAddProductForm() {

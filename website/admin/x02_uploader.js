@@ -101,16 +101,20 @@
     }
 
     /**
-     * Upload a WebP file to https://x02.me/ via server API proxy or direct fallback
+     * Upload a WebP file to https://up.x02.me/api/upload via server API proxy or direct ShareX-compatible API
      * @param {File} webpFile - The compressed WebP File
      * @param {Function} onProgress - Optional progress callback
      * @returns {Promise<Object>} Upload response with x02.me file URL
      */
     async function uploadToX02(webpFile, onProgress) {
+        const apiKey = window.X02_API_KEY || '36f36ce6fa844e93bda76bb9255070b4';
+
         // 1. Try local server-side handler first (handles server-to-server curl with correct headers)
         try {
             const formData = new FormData();
-            formData.append('file', webpFile);
+            formData.append('file', webpFile, webpFile.name || 'image.webp');
+            formData.append('expiry', '');
+            formData.append('x02_api_key', apiKey);
 
             const res = await fetch('/admin/api_upload_x02.php', {
                 method: 'POST',
@@ -123,34 +127,34 @@
                     return data;
                 }
                 if (data.error) {
-                    console.warn('API handler returned error, attempting direct fallback:', data.error);
+                    console.warn('API proxy returned error, trying direct up.x02.me upload:', data.error);
                 }
             }
         } catch (err) {
-            console.warn('Server proxy failed, attempting direct x02.me upload:', err);
+            console.warn('Server proxy failed, trying direct up.x02.me upload:', err);
         }
 
-        // 2. Direct fallback to https://x02.me/api/upload with Origin / Referer
+        // 2. Direct upload to https://up.x02.me/api/upload?format=json using JSON API method
         try {
             const directForm = new FormData();
-            directForm.append('file', webpFile);
+            directForm.append('file', webpFile, webpFile.name || 'image.webp');
+            directForm.append('expiry', '');
 
-            const directRes = await fetch('https://x02.me/api/upload', {
+            const directRes = await fetch('https://up.x02.me/api/upload?format=json', {
                 method: 'POST',
+                headers: {
+                    'x-api-key': apiKey
+                },
                 body: directForm
             });
 
-            const directText = await directRes.text();
-            let parsedUrl = null;
-
-            if (directText.startsWith('http://') || directText.startsWith('https://')) {
-                parsedUrl = directText.trim();
-            } else {
-                try {
-                    const json = JSON.parse(directText);
-                    parsedUrl = json.url || (json.file && json.file.url) || json.direct_url || json.link;
-                } catch (e) {}
-            }
+            const directJson = await directRes.json();
+            const parsedUrl = directJson.url ||
+                (directJson.file && (typeof directJson.file === 'string' ? directJson.file : directJson.file.url)) ||
+                directJson.direct_url ||
+                directJson.link ||
+                (directJson.data && directJson.data.url) ||
+                (directJson.files && directJson.files[0] && (typeof directJson.files[0] === 'string' ? directJson.files[0] : directJson.files[0].url));
 
             if (parsedUrl) {
                 return {
@@ -161,9 +165,13 @@
                 };
             }
 
-            throw new Error('x02.me direct upload response did not contain a valid URL: ' + directText.substring(0, 100));
+            if (directJson.error) {
+                throw new Error(directJson.error + (directJson.message ? ': ' + directJson.message : ''));
+            }
+
+            throw new Error('x02 upload response did not contain a valid URL');
         } catch (directErr) {
-            throw new Error('Upload to x02.me failed: ' + directErr.message);
+            throw new Error('Upload to x02 failed: ' + directErr.message);
         }
     }
 

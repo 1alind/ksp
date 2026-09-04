@@ -145,11 +145,29 @@ function save_product($new_product) {
         'ar' => $new_product['title_ar'] ?? ($new_product['title'] ?? ''),
         'ku' => $new_product['title_ku'] ?? ($new_product['title'] ?? '')
     ];
+    if (empty($title['en'])) $title['en'] = !empty($title['ar']) ? $title['ar'] : (!empty($title['ku']) ? $title['ku'] : 'New Luxury Item');
+    if (empty($title['ar'])) $title['ar'] = $title['en'];
+    if (empty($title['ku'])) $title['ku'] = $title['en'];
+
     $description = is_array($new_product['description'] ?? null) ? $new_product['description'] : [
         'en' => $new_product['desc_en'] ?? ($new_product['description_en'] ?? ($new_product['description'] ?? '')),
         'ar' => $new_product['desc_ar'] ?? ($new_product['description_ar'] ?? ($new_product['description'] ?? '')),
         'ku' => $new_product['desc_ku'] ?? ($new_product['description_ku'] ?? ($new_product['description'] ?? ''))
     ];
+    if (empty($description['ar'])) $description['ar'] = $description['en'] ?? '';
+    if (empty($description['ku'])) $description['ku'] = $description['en'] ?? '';
+
+    $mainImg = trim($new_product['image'] ?? '');
+    $imagesList = is_array($new_product['images'] ?? null) ? $new_product['images'] : (is_string($new_product['images'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['images']))) : []);
+    if (empty($mainImg) && !empty($imagesList[0])) {
+        $mainImg = $imagesList[0];
+    }
+    if (empty($mainImg)) {
+        $mainImg = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
+    }
+    if (empty($imagesList)) {
+        $imagesList = [$mainImg];
+    }
 
     $productFormatted = [
         'id' => (int)$new_product['id'],
@@ -163,8 +181,8 @@ function save_product($new_product) {
         'badge_ar' => $new_product['badge_ar'] ?? '',
         'badge_ku' => $new_product['badge_ku'] ?? '',
         'stock' => isset($new_product['stock']) ? (int)$new_product['stock'] : 10,
-        'image' => $new_product['image'] ?? '',
-        'images' => is_array($new_product['images'] ?? null) ? $new_product['images'] : (is_string($new_product['images'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['images']))) : []),
+        'image' => $mainImg,
+        'images' => array_values($imagesList),
         'colors' => is_array($new_product['colors'] ?? null) ? $new_product['colors'] : (is_string($new_product['colors'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['colors']))) : []),
         'sizes' => is_array($new_product['sizes'] ?? null) ? $new_product['sizes'] : (is_string($new_product['sizes'] ?? null) ? array_filter(array_map('trim', explode(',', $new_product['sizes']))) : []),
         'size_measurements' => is_array($new_product['size_measurements'] ?? null) ? $new_product['size_measurements'] : ($new_product['size_measurements'] ?? new stdClass()),
@@ -188,7 +206,7 @@ function save_product($new_product) {
     } else {
         $data['products'][] = $productFormatted;
     }
-    @file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 
     // Save to MySQL if available
     $pdo = get_mysql_pdo();
@@ -946,5 +964,20 @@ function get_product_reviews($productId) {
     } catch (Exception $e) {
         return [];
     }
+}
+
+// ==============================================================================
+// 7. SETTINGS OPERATIONS
+// ==============================================================================
+function get_settings() {
+    $file = __DIR__ . '/settings.json';
+    if (!file_exists($file)) return [];
+    $data = json_decode(file_get_contents($file), true);
+    return is_array($data) ? $data : [];
+}
+
+function get_setting($key, $default = null) {
+    $settings = get_settings();
+    return $settings[$key] ?? $default;
 }
 ?>
