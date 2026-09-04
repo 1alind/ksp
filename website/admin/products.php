@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['edit_prod_image'] ?? '');
         $galleryRaw = trim($_POST['edit_prod_gallery'] ?? '');
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
-        // Process Sizes & Measurements for Edit
+        // Process Sizes & Measurements for Edit (Multi-Category Adaptive Dimensions)
         $sizes = [];
         $sizeMeasurements = [];
         if (!empty($_POST['edit_prod_sizes']) && is_array($_POST['edit_prod_sizes'])) {
@@ -58,14 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sz = trim($sz);
                 if ($sz !== '') {
                     $sizes[] = $sz;
-                    $h = trim($_POST['edit_prod_size_height'][$sz] ?? '');
-                    $w = trim($_POST['edit_prod_size_width'][$sz] ?? '');
-                    if ($h !== '' || $w !== '') {
-                        $hClean = preg_replace('/[^0-9.]/', '', $h);
-                        $wClean = preg_replace('/[^0-9.]/', '', $w);
-                        if ($hClean === '') $hClean = '70';
-                        if ($wClean === '') $wClean = '50';
-                        $sizeMeasurements[$sz] = "Height: {$hClean}cm • Width: {$wClean}cm";
+                    $dim1Val = trim($_POST['edit_prod_size_dim1'][$sz] ?? $_POST['edit_prod_size_height'][$sz] ?? '');
+                    $dim2Val = trim($_POST['edit_prod_size_dim2'][$sz] ?? $_POST['edit_prod_size_width'][$sz] ?? '');
+                    $dim1Label = trim($_POST['edit_prod_size_dim1_label'][$sz] ?? 'Height');
+                    $dim2Label = trim($_POST['edit_prod_size_dim2_label'][$sz] ?? 'Width');
+                    $dim1Unit = trim($_POST['edit_prod_size_dim1_unit'][$sz] ?? 'cm');
+                    $dim2Unit = trim($_POST['edit_prod_size_dim2_unit'][$sz] ?? 'cm');
+                    
+                    if ($dim1Val !== '' || $dim2Val !== '') {
+                        $dim1Clean = preg_replace('/[^0-9.]/', '', $dim1Val);
+                        $dim2Clean = preg_replace('/[^0-9.]/', '', $dim2Val);
+                        if ($dim1Clean === '') $dim1Clean = '70';
+                        if ($dim2Clean === '') $dim2Clean = '50';
+                        $sizeMeasurements[$sz] = "{$dim1Label}: {$dim1Clean}{$dim1Unit} • {$dim2Label}: {$dim2Clean}{$dim2Unit}";
                     }
                 }
             }
@@ -182,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $galleryRaw = trim($_POST['prod_gallery'] ?? '');
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
 
-        // Process Sizes & Measurements for Add
+        // Process Sizes & Measurements for Add (Multi-Category Adaptive Dimensions)
         $sizes = [];
         $sizeMeasurements = [];
         if (!empty($_POST['prod_sizes']) && is_array($_POST['prod_sizes'])) {
@@ -190,14 +195,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sz = trim($sz);
                 if ($sz !== '') {
                     $sizes[] = $sz;
-                    $h = trim($_POST['prod_size_height'][$sz] ?? '');
-                    $w = trim($_POST['prod_size_width'][$sz] ?? '');
-                    if ($h !== '' || $w !== '') {
-                        $hClean = preg_replace('/[^0-9.]/', '', $h);
-                        $wClean = preg_replace('/[^0-9.]/', '', $w);
-                        if ($hClean === '') $hClean = '70';
-                        if ($wClean === '') $wClean = '50';
-                        $sizeMeasurements[$sz] = "Height: {$hClean}cm • Width: {$wClean}cm";
+                    $dim1Val = trim($_POST['prod_size_dim1'][$sz] ?? $_POST['prod_size_height'][$sz] ?? '');
+                    $dim2Val = trim($_POST['prod_size_dim2'][$sz] ?? $_POST['prod_size_width'][$sz] ?? '');
+                    $dim1Label = trim($_POST['prod_size_dim1_label'][$sz] ?? 'Height');
+                    $dim2Label = trim($_POST['prod_size_dim2_label'][$sz] ?? 'Width');
+                    $dim1Unit = trim($_POST['prod_size_dim1_unit'][$sz] ?? 'cm');
+                    $dim2Unit = trim($_POST['prod_size_dim2_unit'][$sz] ?? 'cm');
+                    
+                    if ($dim1Val !== '' || $dim2Val !== '') {
+                        $dim1Clean = preg_replace('/[^0-9.]/', '', $dim1Val);
+                        $dim2Clean = preg_replace('/[^0-9.]/', '', $dim2Val);
+                        if ($dim1Clean === '') $dim1Clean = '70';
+                        if ($dim2Clean === '') $dim2Clean = '50';
+                        $sizeMeasurements[$sz] = "{$dim1Label}: {$dim1Clean}{$dim1Unit} • {$dim2Label}: {$dim2Clean}{$dim2Unit}";
                     }
                 }
             }
@@ -553,7 +563,7 @@ require_once __DIR__ . '/../header.php';
                     </details>
                 </div>
 
-                <!-- Sizes & Dimensions Engine -->
+                <!-- Section 4.5: Sizes & Dimensions Engine (Multi-Category Adaptive) -->
                 <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
                         <div>
@@ -561,17 +571,40 @@ require_once __DIR__ . '/../header.php';
                                 📏 <?php echo adm_t('admin_field_sizes_measurements', 'Available Sizes & Dimension Measurements'); ?>
                             </span>
                             <span style="font-size:12px; color:var(--text-muted);">
-                                <?php echo adm_t('admin_sizes_help', 'Select which sizes are available (from XS to 5XL) and customize height & width in centimeters for each.'); ?>
+                                <?php echo adm_t('admin_sizes_help_multi', 'Select garment type (Shirts, Jeans, Jackets, Shoes, Watches) to load tailored sizes & custom measurement dimensions.'); ?>
                             </span>
                         </div>
                         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                             <span id="addActiveSizesCount" style="font-size:12px; font-weight:700; color:var(--accent-gold); background:rgba(212,175,55,0.1); padding:4px 10px; border-radius:12px;">
                                 4 sizes selected
                             </span>
-                            <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'standard')" style="padding:4px 10px; font-size:11.5px;">S–XXL</button>
-                            <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'full')" style="padding:4px 10px; font-size:11.5px;">XS–5XL</button>
+                            <div id="addQuickPresetsContainer" style="display:flex; gap:6px;">
+                                <!-- Populated dynamically by preset -->
+                            </div>
                             <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'clear')" style="padding:4px 10px; font-size:11.5px; color:var(--text-muted);">Clear</button>
                         </div>
+                    </div>
+
+                    <!-- Category Preset Tabs (Shirts, Jeans, Jackets, Shoes, Watches) -->
+                    <div style="margin-bottom:14px; background:var(--bg-card); padding:8px 10px; border-radius:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                        <span style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-inline-end:6px;">
+                            Apparel / Item Blueprint:
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline size-cat-tab-add" data-preset="shirts" onclick="switchCategoryPreset('add', 'shirts')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                            👕 Shirts & Tops
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline size-cat-tab-add" data-preset="jeans" onclick="switchCategoryPreset('add', 'jeans')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                            👖 Jeans & Pants
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline size-cat-tab-add" data-preset="jackets" onclick="switchCategoryPreset('add', 'jackets')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                            🧥 Jackets & Coats
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline size-cat-tab-add" data-preset="shoes" onclick="switchCategoryPreset('add', 'shoes')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                            👟 Shoes & Footwear
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline size-cat-tab-add" data-preset="watches" onclick="switchCategoryPreset('add', 'watches')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                            ⌚ Watches & Straps
+                        </button>
                     </div>
 
                     <!-- Size Pill Buttons (Click to toggle) -->
@@ -585,19 +618,19 @@ require_once __DIR__ . '/../header.php';
                     </div>
 
                     <!-- Add Custom Size Form -->
-                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:280px;">
-                        <input type="text" id="addCustomSizeInput" class="form-control" placeholder="e.g. 6XL or 42MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('add');}">
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:320px;">
+                        <input type="text" id="addCustomSizeInput" class="form-control" placeholder="e.g. 36W or 48 EU or 44MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('add');}">
                         <button type="button" class="btn btn-sm btn-outline" onclick="addCustomSize('add')" style="padding:6px 12px; font-size:12px; white-space:nowrap; font-weight:700;">
                             + Add Size
                         </button>
                     </div>
 
-                    <!-- Active Size Measurement Cards Grid (Height & Width for each) -->
+                    <!-- Active Size Measurement Cards Grid (Height & Width / Waist & Inseam / Foot Length for each) -->
                     <div style="border-top:1px dashed var(--border-color); padding-top:14px;">
                         <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:10px;">
-                            📐 Size Dimensions (Height & Width):
+                            📐 Size Dimension Measurements (<span id="addActiveBlueprintLabel">Shirts & Tops</span>):
                         </label>
-                        <div id="addSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+                        <div id="addSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">
                             <!-- Dynamic Measurement inputs for each active size -->
                         </div>
                     </div>
@@ -872,7 +905,7 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
-            <!-- Section 4.8: Sizes & Dimensions Engine (Edit Modal) -->
+            <!-- Section 4.8: Sizes & Dimensions Engine (Edit Modal - Multi-Category Adaptive) -->
             <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
                     <div>
@@ -880,17 +913,40 @@ require_once __DIR__ . '/../header.php';
                             📏 <?php echo adm_t('admin_field_sizes_measurements', 'Available Sizes & Dimension Measurements'); ?>
                         </span>
                         <span style="font-size:12px; color:var(--text-muted);">
-                            <?php echo adm_t('admin_sizes_help', 'Select which sizes are available (from XS to 5XL) and customize height & width in centimeters for each.'); ?>
+                            <?php echo adm_t('admin_sizes_help_multi', 'Select garment type (Shirts, Jeans, Jackets, Shoes, Watches) to load tailored sizes & custom measurement dimensions.'); ?>
                         </span>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                         <span id="editActiveSizesCount" style="font-size:12px; font-weight:700; color:var(--accent-gold); background:rgba(212,175,55,0.1); padding:4px 10px; border-radius:12px;">
                             4 sizes selected
                         </span>
-                        <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'standard')" style="padding:4px 10px; font-size:11.5px;">S–XXL</button>
-                        <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'full')" style="padding:4px 10px; font-size:11.5px;">XS–5XL</button>
+                        <div id="editQuickPresetsContainer" style="display:flex; gap:6px;">
+                            <!-- Populated dynamically by preset -->
+                        </div>
                         <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'clear')" style="padding:4px 10px; font-size:11.5px; color:var(--text-muted);">Clear</button>
                     </div>
+                </div>
+
+                <!-- Category Preset Tabs (Shirts, Jeans, Jackets, Shoes, Watches) -->
+                <div style="margin-bottom:14px; background:var(--bg-card); padding:8px 10px; border-radius:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                    <span style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-inline-end:6px;">
+                        Apparel / Item Blueprint:
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline size-cat-tab-edit" data-preset="shirts" onclick="switchCategoryPreset('edit', 'shirts')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                        👕 Shirts & Tops
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline size-cat-tab-edit" data-preset="jeans" onclick="switchCategoryPreset('edit', 'jeans')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                        👖 Jeans & Pants
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline size-cat-tab-edit" data-preset="jackets" onclick="switchCategoryPreset('edit', 'jackets')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                        🧥 Jackets & Coats
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline size-cat-tab-edit" data-preset="shoes" onclick="switchCategoryPreset('edit', 'shoes')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                        👟 Shoes & Footwear
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline size-cat-tab-edit" data-preset="watches" onclick="switchCategoryPreset('edit', 'watches')" style="padding:5px 11px; font-size:12px; font-weight:700;">
+                        ⌚ Watches & Straps
+                    </button>
                 </div>
 
                 <!-- Size Pill Buttons (Click to toggle) -->
@@ -904,19 +960,19 @@ require_once __DIR__ . '/../header.php';
                 </div>
 
                 <!-- Add Custom Size Form -->
-                <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:280px;">
-                    <input type="text" id="editCustomSizeInput" class="form-control" placeholder="e.g. 6XL or 42MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('edit');}">
+                <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:320px;">
+                    <input type="text" id="editCustomSizeInput" class="form-control" placeholder="e.g. 36W or 48 EU or 44MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('edit');}">
                     <button type="button" class="btn btn-sm btn-outline" onclick="addCustomSize('edit')" style="padding:6px 12px; font-size:12px; white-space:nowrap; font-weight:700;">
                         + Add Size
                     </button>
                 </div>
 
-                <!-- Active Size Measurement Cards Grid (Height & Width for each) -->
+                <!-- Active Size Measurement Cards Grid (Height & Width / Waist & Inseam / Foot Length for each) -->
                 <div style="border-top:1px dashed var(--border-color); padding-top:14px;">
                     <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:10px;">
-                        📐 Size Dimensions (Height & Width):
+                        📐 Size Dimension Measurements (<span id="editActiveBlueprintLabel">Shirts & Tops</span>):
                     </label>
-                    <div id="editSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+                    <div id="editSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">
                         <!-- Dynamic Measurement inputs for each active size -->
                     </div>
                 </div>
@@ -1041,53 +1097,237 @@ function removeColorVariantRow(btn) {
     row.remove();
 }
 
-// -------------------------------------------------------------
-// Interactive Sizes & Measurements Engine (XS to 5XL + Custom)
-// -------------------------------------------------------------
-const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+// -------------------------------------------------------------------------
+// Multi-Category Interactive Sizes & Measurements Engine (Shirts, Jeans, Shoes, etc.)
+// -------------------------------------------------------------------------
+const SIZE_CATALOG_PRESETS = {
+    shirts: {
+        id: 'shirts',
+        name: 'Shirts & Tops (T-Shirts, Polos, Hoodies)',
+        icon: '👕',
+        dim1Key: 'Height',
+        dim1Label: 'Height / بلندی / الارتفاع',
+        dim1Unit: 'cm',
+        dim2Key: 'Width',
+        dim2Label: 'Width (Chest) / پانی / الصدر',
+        dim2Unit: 'cm',
+        defaultSizes: ['S', 'M', 'L', 'XL'],
+        sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'],
+        quickPresets: [
+            { label: 'S–XXL', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+            { label: 'XS–5XL', sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] }
+        ],
+        defaults: {
+            'XS': { dim1: '62', dim2: '42' },
+            'S': { dim1: '65', dim2: '45' },
+            'M': { dim1: '70', dim2: '50' },
+            'L': { dim1: '73', dim2: '54' },
+            'XL': { dim1: '76', dim2: '58' },
+            'XXL': { dim1: '79', dim2: '62' },
+            '2XL': { dim1: '79', dim2: '62' },
+            '3XL': { dim1: '82', dim2: '66' },
+            '4XL': { dim1: '85', dim2: '70' },
+            '5XL': { dim1: '88', dim2: '74' }
+        }
+    },
+    jeans: {
+        id: 'jeans',
+        name: 'Jeans & Trousers (Pants, Chinos, Denim)',
+        icon: '👖',
+        dim1Key: 'Waist',
+        dim1Label: 'Waist / کەمەر / الخصر',
+        dim1Unit: 'cm',
+        dim2Key: 'Length',
+        dim2Label: 'Length (Inseam) / درێژی / الطول',
+        dim2Unit: 'cm',
+        defaultSizes: ['30', '32', '34', '36'],
+        sizes: ['28', '29', '30', '31', '32', '33', '34', '36', '38', '40', 'S', 'M', 'L', 'XL', 'XXL'],
+        quickPresets: [
+            { label: '30–36 (US)', sizes: ['30', '32', '34', '36'] },
+            { label: '28–40 (Full)', sizes: ['28', '29', '30', '31', '32', '33', '34', '36', '38', '40'] },
+            { label: 'S–XXL', sizes: ['S', 'M', 'L', 'XL', 'XXL'] }
+        ],
+        defaults: {
+            '28': { dim1: '71', dim2: '98' },
+            '29': { dim1: '74', dim2: '100' },
+            '30': { dim1: '76', dim2: '102' },
+            '31': { dim1: '79', dim2: '103' },
+            '32': { dim1: '81', dim2: '104' },
+            '33': { dim1: '84', dim2: '105' },
+            '34': { dim1: '86', dim2: '106' },
+            '36': { dim1: '91', dim2: '108' },
+            '38': { dim1: '96', dim2: '110' },
+            '40': { dim1: '101', dim2: '112' },
+            'S': { dim1: '76', dim2: '102' },
+            'M': { dim1: '81', dim2: '104' },
+            'L': { dim1: '86', dim2: '106' },
+            'XL': { dim1: '91', dim2: '108' },
+            'XXL': { dim1: '96', dim2: '110' }
+        }
+    },
+    jackets: {
+        id: 'jackets',
+        name: 'Jackets, Blazers & Winter Coats',
+        icon: '🧥',
+        dim1Key: 'Length',
+        dim1Label: 'Jacket Length / درێژی / الطول',
+        dim1Unit: 'cm',
+        dim2Key: 'Chest',
+        dim2Label: 'Chest (Width) / سنگ و پانی / الصدر',
+        dim2Unit: 'cm',
+        defaultSizes: ['S', 'M', 'L', 'XL'],
+        sizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '38R', '40R', '42R', '44R', '46R'],
+        quickPresets: [
+            { label: 'S–XXL', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+            { label: 'S–4XL (Full)', sizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'] },
+            { label: '38R–46R (Tailored)', sizes: ['38R', '40R', '42R', '44R', '46R'] }
+        ],
+        defaults: {
+            'S': { dim1: '68', dim2: '52' },
+            'M': { dim1: '71', dim2: '55' },
+            'L': { dim1: '74', dim2: '58' },
+            'XL': { dim1: '77', dim2: '61' },
+            'XXL': { dim1: '80', dim2: '64' },
+            '3XL': { dim1: '83', dim2: '67' },
+            '4XL': { dim1: '86', dim2: '70' },
+            '38R': { dim1: '72', dim2: '53' },
+            '40R': { dim1: '74', dim2: '56' },
+            '42R': { dim1: '76', dim2: '59' },
+            '44R': { dim1: '78', dim2: '62' },
+            '46R': { dim1: '80', dim2: '65' }
+        }
+    },
+    shoes: {
+        id: 'shoes',
+        name: 'Shoes, Sneakers & Boots',
+        icon: '👟',
+        dim1Key: 'Foot Length',
+        dim1Label: 'Foot Length / درێژیا پێی / طول القدم',
+        dim1Unit: 'cm',
+        dim2Key: 'Width',
+        dim2Label: 'Insole Width / پانی / العرض',
+        dim2Unit: 'cm',
+        defaultSizes: ['40', '41', '42', '43', '44'],
+        sizes: ['39', '40', '41', '42', '43', '44', '45', '46', '47', '7 US', '8 US', '9 US', '10 US', '11 US', '12 US'],
+        quickPresets: [
+            { label: '40–45 (EU Common)', sizes: ['40', '41', '42', '43', '44', '45'] },
+            { label: '39–47 (EU Full)', sizes: ['39', '40', '41', '42', '43', '44', '45', '46', '47'] },
+            { label: '8–12 (US)', sizes: ['8 US', '9 US', '10 US', '11 US', '12 US'] }
+        ],
+        defaults: {
+            '39': { dim1: '24.5', dim2: '9.2' },
+            '40': { dim1: '25.0', dim2: '9.4' },
+            '41': { dim1: '25.5', dim2: '9.6' },
+            '42': { dim1: '26.0', dim2: '9.8' },
+            '43': { dim1: '26.5', dim2: '10.0' },
+            '44': { dim1: '27.0', dim2: '10.2' },
+            '45': { dim1: '27.5', dim2: '10.4' },
+            '46': { dim1: '28.0', dim2: '10.6' },
+            '47': { dim1: '28.5', dim2: '10.8' },
+            '7 US': { dim1: '25.0', dim2: '9.4' },
+            '8 US': { dim1: '26.0', dim2: '9.8' },
+            '9 US': { dim1: '27.0', dim2: '10.2' },
+            '10 US': { dim1: '28.0', dim2: '10.6' },
+            '11 US': { dim1: '29.0', dim2: '11.0' },
+            '12 US': { dim1: '30.0', dim2: '11.4' }
+        }
+    },
+    watches: {
+        id: 'watches',
+        name: 'Watches & Timepiece Straps',
+        icon: '⌚',
+        dim1Key: 'Case',
+        dim1Label: 'Case Diameter / قەبارێ دەمژمێرێ / قطر الساعة',
+        dim1Unit: 'mm',
+        dim2Key: 'Strap',
+        dim2Label: 'Strap Width / پانییا قایشی / عرض السوار',
+        dim2Unit: 'mm',
+        defaultSizes: ['40mm', '42mm', '44mm'],
+        sizes: ['38mm', '40mm', '41mm', '42mm', '44mm', '45mm', '46mm'],
+        quickPresets: [
+            { label: '40–44mm', sizes: ['40mm', '42mm', '44mm'] },
+            { label: '38–46mm (Full)', sizes: ['38mm', '40mm', '41mm', '42mm', '44mm', '45mm', '46mm'] }
+        ],
+        defaults: {
+            '38mm': { dim1: '38', dim2: '18' },
+            '40mm': { dim1: '40', dim2: '20' },
+            '41mm': { dim1: '41', dim2: '20' },
+            '42mm': { dim1: '42', dim2: '22' },
+            '44mm': { dim1: '44', dim2: '22' },
+            '45mm': { dim1: '45', dim2: '24' },
+            '46mm': { dim1: '46', dim2: '24' }
+        }
+    }
+};
 
-function getDefaultDimensions(sizeName) {
-    const sz = String(sizeName || '').toUpperCase().trim();
-    if (sz === 'XS') return { height: '62', width: '42' };
-    if (sz === 'S') return { height: '65', width: '45' };
-    if (sz === 'M') return { height: '70', width: '50' };
-    if (sz === 'L') return { height: '73', width: '54' };
-    if (sz === 'XL') return { height: '76', width: '58' };
-    if (sz === 'XXL' || sz === '2XL') return { height: '79', width: '62' };
-    if (sz === '3XL' || sz === 'XXXL') return { height: '82', width: '66' };
-    if (sz === '4XL') return { height: '85', width: '70' };
-    if (sz === '5XL') return { height: '88', width: '74' };
-    return { height: '70', width: '50' };
+function detectCategoryPreset(title, category, sizes, measurements) {
+    const text = ((title || '') + ' ' + (category || '')).toLowerCase();
+    const sizesStr = Array.isArray(sizes) ? sizes.join(' ') : String(sizes || '');
+    const mStr = typeof measurements === 'object' ? JSON.stringify(measurements) : String(measurements || '');
+
+    if (text.includes('shoe') || text.includes('sneaker') || text.includes('boot') || text.includes('loafer') || text.includes('heel') || (sizesStr.match(/\b(39|40|41|42|43|44|45|46|47)\b/) && !sizesStr.match(/\b(28|29|30|31|32|33|34)\b/))) {
+        return 'shoes';
+    }
+    if (text.includes('jean') || text.includes('pant') || text.includes('trouser') || text.includes('denim') || mStr.includes('Waist') || sizesStr.match(/\b(28|29|30|31|32|33|34|36|38|40)\b/)) {
+        return 'jeans';
+    }
+    if (text.includes('jacket') || text.includes('coat') || text.includes('blazer') || text.includes('hoodie') || text.includes('suit') || mStr.includes('Chest') || mStr.includes('Jacket') || sizesStr.match(/\b(38R|40R|42R|44R)\b/)) {
+        return 'jackets';
+    }
+    if (category === 'watches' || text.includes('watch') || text.includes('timepiece') || sizesStr.includes('mm') || mStr.includes('Case')) {
+        return 'watches';
+    }
+    return 'shirts';
 }
 
-function parseDimensions(str, sizeName) {
-    let h = '';
-    let w = '';
+function parseDimensions(str, sizeName, activePresetKey = 'shirts') {
+    const preset = SIZE_CATALOG_PRESETS[activePresetKey] || SIZE_CATALOG_PRESETS.shirts;
+    let dim1 = '';
+    let dim2 = '';
+
     if (str && typeof str === 'string') {
-        const hm = str.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+)/i);
-        if (hm) h = hm[1];
-        const wm = str.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+)/i);
-        if (wm) w = wm[1];
+        const d1Match = str.match(/(?:Foot Length|Foot|Waist|Case|Diameter|Length|Height|Jacket|بلندی|درێژی|کەمەر|درێژیا پێی|قەبارە|الارتفاع|الطول|الخصر|طول القدم)[:\s]*([0-9.]+)/i);
+        if (d1Match) dim1 = d1Match[1];
+
+        const d2Match = str.match(/(?:Foot Width|Strap|Band|Chest|Inseam|Trousers|Width|پانی|الصدر|العرض|قایش)[:\s]*([0-9.]+)/i);
+        if (d2Match) dim2 = d2Match[1];
     }
-    const def = getDefaultDimensions(sizeName);
-    return {
-        height: h || def.height,
-        width: w || def.width
-    };
+
+    if (!dim1 || !dim2) {
+        if (preset.defaults && preset.defaults[sizeName]) {
+            if (!dim1) dim1 = preset.defaults[sizeName].dim1;
+            if (!dim2) dim2 = preset.defaults[sizeName].dim2;
+        } else {
+            // Check cross-preset defaults
+            for (const key in SIZE_CATALOG_PRESETS) {
+                const other = SIZE_CATALOG_PRESETS[key];
+                if (other.defaults && other.defaults[sizeName]) {
+                    if (!dim1) dim1 = other.defaults[sizeName].dim1;
+                    if (!dim2) dim2 = other.defaults[sizeName].dim2;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!dim1) dim1 = preset.dim1Unit === 'mm' ? '42' : '70';
+    if (!dim2) dim2 = preset.dim2Unit === 'mm' ? '22' : '50';
+
+    return { dim1, dim2 };
 }
 
 window.sizeSelectorState = {
-    add: { sizes: [], measurements: {}, allOptions: [...STANDARD_SIZES] },
-    edit: { sizes: [], measurements: {}, allOptions: [...STANDARD_SIZES] }
+    add: { activePreset: 'shirts', sizes: [], measurements: {}, allOptions: [] },
+    edit: { activePreset: 'shirts', sizes: [], measurements: {}, allOptions: [] }
 };
 
-function initSizeSelector(prefix, initialSizes = ['S', 'M', 'L', 'XL'], initialMeasurements = {}) {
-    const state = {
-        sizes: [],
-        measurements: (typeof initialMeasurements === 'object' && initialMeasurements !== null) ? { ...initialMeasurements } : {},
-        allOptions: [...STANDARD_SIZES]
-    };
-    
+function initSizeSelector(prefix, initialSizes = null, initialMeasurements = {}, forcedPreset = null) {
+    let detectedPreset = forcedPreset;
+    if (!detectedPreset) {
+        detectedPreset = detectCategoryPreset('', '', initialSizes, initialMeasurements);
+    }
+    const presetConfig = SIZE_CATALOG_PRESETS[detectedPreset] || SIZE_CATALOG_PRESETS.shirts;
+
     // Normalize initial sizes
     let sizesArr = [];
     if (Array.isArray(initialSizes)) {
@@ -1095,27 +1335,111 @@ function initSizeSelector(prefix, initialSizes = ['S', 'M', 'L', 'XL'], initialM
     } else if (typeof initialSizes === 'string' && initialSizes.trim()) {
         sizesArr = initialSizes.split(',').map(s => s.trim()).filter(Boolean);
     }
+
     if (sizesArr.length === 0) {
-        sizesArr = ['S', 'M', 'L', 'XL'];
+        sizesArr = [...presetConfig.defaultSizes];
     }
 
-    state.sizes = [...sizesArr];
-    
-    // Ensure any custom sizes are present in allOptions
+    const allOpts = [...presetConfig.sizes];
     sizesArr.forEach(s => {
-        if (!state.allOptions.includes(s)) {
-            state.allOptions.push(s);
-        }
+        if (!allOpts.includes(s)) allOpts.push(s);
     });
+
+    const state = {
+        activePreset: detectedPreset,
+        sizes: [...sizesArr],
+        measurements: (typeof initialMeasurements === 'object' && initialMeasurements !== null) ? { ...initialMeasurements } : {},
+        allOptions: allOpts
+    };
 
     window.sizeSelectorState[prefix] = state;
     renderSizeSelectorUI(prefix);
 }
 
+function switchCategoryPreset(prefix, presetKey, preserveExistingSizes = false) {
+    const preset = SIZE_CATALOG_PRESETS[presetKey];
+    if (!preset) return;
+
+    const state = window.sizeSelectorState[prefix];
+    state.activePreset = presetKey;
+    state.allOptions = [...preset.sizes];
+
+    if (!preserveExistingSizes) {
+        state.sizes = [...preset.defaultSizes];
+        // Populate default measurements for this preset
+        state.sizes.forEach(sz => {
+            const dims = parseDimensions('', sz, presetKey);
+            state.measurements[sz] = `${preset.dim1Key}: ${dims.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${dims.dim2}${preset.dim2Unit}`;
+        });
+    } else {
+        // Keep active sizes but ensure all options include them
+        state.sizes.forEach(sz => {
+            if (!state.allOptions.includes(sz)) state.allOptions.push(sz);
+        });
+    }
+
+    renderSizeSelectorUI(prefix);
+}
+
 function renderSizeSelectorUI(prefix) {
+    updateCategoryTabStyles(prefix);
+    renderQuickPresetButtons(prefix);
     renderSizePills(prefix);
     renderMeasurementCards(prefix);
     updateSizesCountBadge(prefix);
+
+    const preset = SIZE_CATALOG_PRESETS[window.sizeSelectorState[prefix].activePreset] || SIZE_CATALOG_PRESETS.shirts;
+    const labelEl = document.getElementById(prefix + 'ActiveBlueprintLabel');
+    if (labelEl) {
+        labelEl.innerText = preset.name;
+    }
+}
+
+function updateCategoryTabStyles(prefix) {
+    const activePreset = window.sizeSelectorState[prefix].activePreset;
+    const tabs = document.querySelectorAll('.size-cat-tab-' + prefix);
+    tabs.forEach(tab => {
+        const pKey = tab.getAttribute('data-preset');
+        if (pKey === activePreset) {
+            tab.style.background = 'var(--accent-gold)';
+            tab.style.borderColor = 'var(--accent-gold)';
+            tab.style.color = '#000';
+            tab.style.boxShadow = '0 2px 6px rgba(212,175,55,0.25)';
+        } else {
+            tab.style.background = 'transparent';
+            tab.style.borderColor = 'var(--border-color)';
+            tab.style.color = 'var(--text-secondary)';
+            tab.style.boxShadow = 'none';
+        }
+    });
+}
+
+function renderQuickPresetButtons(prefix) {
+    const container = document.getElementById(prefix + 'QuickPresetsContainer');
+    if (!container) return;
+    const state = window.sizeSelectorState[prefix];
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
+
+    container.innerHTML = '';
+    (preset.quickPresets || []).forEach(qp => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-outline';
+        btn.style.cssText = 'padding:4px 10px; font-size:11.5px; font-weight:600;';
+        btn.innerText = qp.label;
+        btn.onclick = () => {
+            state.sizes = [...qp.sizes];
+            qp.sizes.forEach(sz => {
+                if (!state.allOptions.includes(sz)) state.allOptions.push(sz);
+                if (!state.measurements[sz]) {
+                    const dims = parseDimensions('', sz, state.activePreset);
+                    state.measurements[sz] = `${preset.dim1Key}: ${dims.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${dims.dim2}${preset.dim2Unit}`;
+                }
+            });
+            renderSizeSelectorUI(prefix);
+        };
+        container.appendChild(btn);
+    });
 }
 
 function renderSizePills(prefix) {
@@ -1147,19 +1471,20 @@ function renderMeasurementCards(prefix) {
     if (!container) return;
 
     const state = window.sizeSelectorState[prefix];
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
     const formPrefix = prefix === 'add' ? 'prod' : 'edit_prod';
     container.innerHTML = '';
 
     if (state.sizes.length === 0) {
         container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:18px; color:var(--text-muted); font-size:13px; background:var(--bg-surface); border-radius:8px;">
-            ⚠️ No sizes selected yet. Click the size buttons above to add available sizes (e.g. XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL).
+            ⚠️ No sizes selected yet. Click the size buttons above to add available sizes (e.g. ${preset.defaultSizes.join(', ')}).
         </div>`;
         return;
     }
 
     state.sizes.forEach(size => {
         const currentMeasurement = state.measurements[size] || '';
-        const dims = parseDimensions(currentMeasurement, size);
+        const dims = parseDimensions(currentMeasurement, size, state.activePreset);
 
         const card = document.createElement('div');
         card.className = 'size-measurement-card';
@@ -1169,6 +1494,11 @@ function renderMeasurementCards(prefix) {
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <input type="hidden" name="${formPrefix}_sizes[]" value="${escapeHtmlAttr(size)}">
+                    <input type="hidden" name="${formPrefix}_size_dim1_label[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(preset.dim1Key)}">
+                    <input type="hidden" name="${formPrefix}_size_dim2_label[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(preset.dim2Key)}">
+                    <input type="hidden" name="${formPrefix}_size_dim1_unit[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(preset.dim1Unit)}">
+                    <input type="hidden" name="${formPrefix}_size_dim2_unit[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(preset.dim2Unit)}">
+                    
                     <span style="background:var(--accent-gold); color:#000; font-weight:800; font-size:13px; padding:3px 10px; border-radius:5px; letter-spacing:0.5px; display:inline-block;">${escapeHtmlAttr(size)}</span>
                     <span style="font-size:12px; font-weight:700; color:var(--text-primary);">${escapeHtmlAttr(size)} <?php echo adm_t('admin_size_available_badge', 'Available'); ?></span>
                 </div>
@@ -1177,20 +1507,20 @@ function renderMeasurementCards(prefix) {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div>
                     <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:3px;">
-                        Height / بلندی / الارتفاع
+                        ${preset.dim1Label}
                     </label>
                     <div style="position:relative; display:flex; align-items:center;">
-                        <input type="number" name="${formPrefix}_size_height[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.height)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="70" min="10" max="250" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'height', this.value)">
-                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">cm</span>
+                        <input type="number" step="0.1" name="${formPrefix}_size_dim1[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.dim1)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="70" min="1" max="500" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'dim1', this.value)">
+                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">${preset.dim1Unit}</span>
                     </div>
                 </div>
                 <div>
                     <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:3px;">
-                        Width / پانی / العرض
+                        ${preset.dim2Label}
                     </label>
                     <div style="position:relative; display:flex; align-items:center;">
-                        <input type="number" name="${formPrefix}_size_width[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.width)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="50" min="10" max="250" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'width', this.value)">
-                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">cm</span>
+                        <input type="number" step="0.1" name="${formPrefix}_size_dim2[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.dim2)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="50" min="1" max="500" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'dim2', this.value)">
+                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">${preset.dim2Unit}</span>
                     </div>
                 </div>
             </div>
@@ -1200,18 +1530,20 @@ function renderMeasurementCards(prefix) {
     });
 }
 
-function updateStoredDimension(prefix, size, dimType, val) {
+function updateStoredDimension(prefix, size, dimKey, val) {
     const state = window.sizeSelectorState[prefix];
     if (!state) return;
-    const current = parseDimensions(state.measurements[size] || '', size);
-    if (dimType === 'height') current.height = val;
-    if (dimType === 'width') current.width = val;
-    state.measurements[size] = `Height: ${current.height}cm • Width: ${current.width}cm`;
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
+    const current = parseDimensions(state.measurements[size] || '', size, state.activePreset);
+    if (dimKey === 'dim1') current.dim1 = val;
+    if (dimKey === 'dim2') current.dim2 = val;
+    state.measurements[size] = `${preset.dim1Key}: ${current.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${current.dim2}${preset.dim2Unit}`;
 }
 
 function toggleSize(prefix, size, forceState = null) {
     const state = window.sizeSelectorState[prefix];
     if (!state) return;
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
 
     const idx = state.sizes.indexOf(size);
     const shouldBeActive = forceState !== null ? forceState : (idx === -1);
@@ -1219,8 +1551,8 @@ function toggleSize(prefix, size, forceState = null) {
     if (shouldBeActive && idx === -1) {
         state.sizes.push(size);
         if (!state.measurements[size]) {
-            const def = getDefaultDimensions(size);
-            state.measurements[size] = `Height: ${def.height}cm • Width: ${def.width}cm`;
+            const dims = parseDimensions('', size, state.activePreset);
+            state.measurements[size] = `${preset.dim1Key}: ${dims.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${dims.dim2}${preset.dim2Unit}`;
         }
     } else if (!shouldBeActive && idx !== -1) {
         state.sizes.splice(idx, 1);
@@ -1232,21 +1564,19 @@ function toggleSize(prefix, size, forceState = null) {
 function applySizePreset(prefix, presetType) {
     const state = window.sizeSelectorState[prefix];
     if (!state) return;
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
 
-    if (presetType === 'standard') {
-        state.sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-    } else if (presetType === 'full') {
-        state.sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
-    } else if (presetType === 'clear') {
+    if (presetType === 'clear') {
         state.sizes = [];
+    } else {
+        state.sizes = [...preset.defaultSizes];
+        state.sizes.forEach(sz => {
+            if (!state.measurements[sz]) {
+                const dims = parseDimensions('', sz, state.activePreset);
+                state.measurements[sz] = `${preset.dim1Key}: ${dims.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${dims.dim2}${preset.dim2Unit}`;
+            }
+        });
     }
-
-    state.sizes.forEach(sz => {
-        if (!state.measurements[sz]) {
-            const def = getDefaultDimensions(sz);
-            state.measurements[sz] = `Height: ${def.height}cm • Width: ${def.width}cm`;
-        }
-    });
 
     renderSizeSelectorUI(prefix);
 }
@@ -1258,13 +1588,15 @@ function addCustomSize(prefix) {
     if (!val) return;
 
     const state = window.sizeSelectorState[prefix];
+    const preset = SIZE_CATALOG_PRESETS[state.activePreset] || SIZE_CATALOG_PRESETS.shirts;
+
     if (!state.allOptions.includes(val)) {
         state.allOptions.push(val);
     }
     if (!state.sizes.includes(val)) {
         state.sizes.push(val);
-        const def = getDefaultDimensions(val);
-        state.measurements[val] = `Height: ${def.height}cm • Width: ${def.width}cm`;
+        const dims = parseDimensions('', val, state.activePreset);
+        state.measurements[val] = `${preset.dim1Key}: ${dims.dim1}${preset.dim1Unit} • ${preset.dim2Key}: ${dims.dim2}${preset.dim2Unit}`;
     }
 
     input.value = '';
@@ -1317,12 +1649,13 @@ function openEditProductModal(product) {
     }
     updateEditImagePreview(mainImg);
 
-    // Initialize Interactive Sizes & Measurements in Edit Modal
+    // Initialize Interactive Sizes & Measurements in Edit Modal (Auto-detect Category Blueprint)
     let prodMeasurements = product.size_measurements || {};
     if (typeof prodMeasurements === 'string') {
         try { prodMeasurements = JSON.parse(prodMeasurements); } catch(e) { prodMeasurements = {}; }
     }
-    initSizeSelector('edit', product.sizes, prodMeasurements);
+    const detectedPreset = detectCategoryPreset(pTitleEn, product.category, product.sizes, prodMeasurements);
+    initSizeSelector('edit', product.sizes, prodMeasurements, detectedPreset);
 
     // Populate Multi-Color Variants in Edit Modal
     const editColorsList = document.getElementById('editColorVariantsList');
@@ -1421,7 +1754,30 @@ function calculateDiscountPreview() {
 
 // Initialize x02.me WebP Image Uploaders & Size Selectors
 document.addEventListener('DOMContentLoaded', function() {
-    initSizeSelector('add', ['S', 'M', 'L', 'XL'], {});
+    initSizeSelector('add', ['S', 'M', 'L', 'XL'], {}, 'shirts');
+
+    // Auto-switch size preset if admin changes product category or types in title
+    const addCatSelect = document.getElementById('prodCategory');
+    if (addCatSelect) {
+        addCatSelect.addEventListener('change', function() {
+            const catVal = this.value;
+            if (catVal === 'watches') {
+                switchCategoryPreset('add', 'watches');
+            } else if (catVal === 'shoes' || catVal === 'footwear') {
+                switchCategoryPreset('add', 'shoes');
+            }
+        });
+    }
+
+    const editCatSelect = document.getElementById('editProdCategory');
+    if (editCatSelect) {
+        editCatSelect.addEventListener('change', function() {
+            const catVal = this.value;
+            if (catVal === 'watches' && window.sizeSelectorState.edit.activePreset !== 'watches') {
+                switchCategoryPreset('edit', 'watches');
+            }
+        });
+    }
 
     if (window.X02Uploader) {
         window.addMainUploader = window.X02Uploader.initSingleUploader({
