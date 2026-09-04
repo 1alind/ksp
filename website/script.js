@@ -398,7 +398,8 @@
 
                 cards.forEach(card => {
                     const cat = card.getAttribute('data-category');
-                    if (filter === 'all' || cat === filter) {
+                    const isNew = card.getAttribute('data-is-new') === 'true';
+                    if (filter === 'all' || (filter === 'new' && isNew) || cat === filter) {
                         card.style.display = 'flex';
                     } else {
                         card.style.display = 'none';

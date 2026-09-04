@@ -52,7 +52,7 @@ function get_all_products() {
 
     if ($pdo) {
         try {
-            $stmt = $pdo->query("SELECT * FROM products ORDER BY id ASC");
+            $stmt = $pdo->query("SELECT * FROM products ORDER BY id DESC");
             $rows = $stmt->fetchAll();
             if (!empty($rows)) {
                 foreach ($rows as $row) {
@@ -88,7 +88,8 @@ function get_all_products() {
                         'model_group' => $row['model_group'] ?? '',
                         'color_name' => $row['color_name'] ?? '',
                         'color_hex' => $row['color_hex'] ?? '',
-                        'linked_products' => is_string($row['linked_products'] ?? null) ? json_decode($row['linked_products'], true) : ($row['linked_products'] ?? [])
+                        'linked_products' => is_string($row['linked_products'] ?? null) ? json_decode($row['linked_products'], true) : ($row['linked_products'] ?? []),
+                        'created_at' => $row['created_at'] ?? null
                     ];
                 }
             }
@@ -103,17 +104,23 @@ function get_all_products() {
         $data = json_decode(file_get_contents($jsonFile), true);
         if (!empty($data['products']) && is_array($data['products'])) {
             if (empty($products)) {
-                return $data['products'];
-            }
-            foreach ($data['products'] as $jp) {
-                $jId = (int)($jp['id'] ?? 0);
-                if ($jId > 0 && empty($seenIds[$jId])) {
-                    $seenIds[$jId] = true;
-                    $products[] = $jp;
+                $products = $data['products'];
+            } else {
+                foreach ($data['products'] as $jp) {
+                    $jId = (int)($jp['id'] ?? 0);
+                    if ($jId > 0 && empty($seenIds[$jId])) {
+                        $seenIds[$jId] = true;
+                        $products[] = $jp;
+                    }
                 }
             }
         }
     }
+
+    // Sort products from newest to oldest (highest ID to lowest ID)
+    usort($products, function($a, $b) {
+        return (int)($b['id'] ?? 0) <=> (int)($a['id'] ?? 0);
+    });
 
     return $products;
 }
@@ -126,6 +133,31 @@ function get_product_by_id($id) {
         }
     }
     return null;
+}
+
+/**
+ * Check if a product is new (added within the last 7 days, explicitly marked, or has a New badge)
+ */
+function is_product_new($product) {
+    if (empty($product)) return false;
+    
+    if (!empty($product['created_at'])) {
+        $createdAt = strtotime($product['created_at']);
+        if ($createdAt && (time() - $createdAt) <= 604800) { // 7 days = 604,800 seconds
+            return true;
+        }
+    }
+    
+    if (!empty($product['is_new'])) {
+        return true;
+    }
+    
+    $badge = is_array($product['badge'] ?? '') ? ($product['badge']['en'] ?? '') : ($product['badge'] ?? '');
+    if (!empty($badge) && stripos($badge, 'new') !== false) {
+        return true;
+    }
+    
+    return false;
 }
 
 function save_product($new_product) {
@@ -213,6 +245,21 @@ function save_product($new_product) {
         $imagesList = [$mainImg];
     }
 
+    // Assign created_at timestamp and automatic New badge for new products
+    $createdAt = $new_product['created_at'] ?? null;
+    if (!$isUpdate && empty($createdAt)) {
+        $createdAt = date('Y-m-d H:i:s');
+    }
+    
+    $badgeEn = $new_product['badge'] ?? ($new_product['badge_en'] ?? '');
+    $badgeAr = $new_product['badge_ar'] ?? '';
+    $badgeKu = $new_product['badge_ku'] ?? '';
+    if (!$isUpdate && empty($badgeEn)) {
+        $badgeEn = 'New';
+        $badgeAr = 'جديد';
+        $badgeKu = 'نوی';
+    }
+
     $productFormatted = [
         'id' => $finalId,
         'title' => $title,
@@ -221,9 +268,9 @@ function save_product($new_product) {
         'old_price' => !empty($new_product['old_price']) ? (float)$new_product['old_price'] : null,
         'rating' => isset($new_product['rating']) ? (float)$new_product['rating'] : 5.0,
         'reviews_count' => isset($new_product['reviews_count']) ? (int)$new_product['reviews_count'] : 24,
-        'badge' => $new_product['badge'] ?? ($new_product['badge_en'] ?? ''),
-        'badge_ar' => $new_product['badge_ar'] ?? '',
-        'badge_ku' => $new_product['badge_ku'] ?? '',
+        'badge' => $badgeEn,
+        'badge_ar' => $badgeAr,
+        'badge_ku' => $badgeKu,
         'stock' => isset($new_product['stock']) ? (int)$new_product['stock'] : 10,
         'image' => $mainImg,
         'images' => array_values($imagesList),
@@ -237,7 +284,8 @@ function save_product($new_product) {
         'color_hex' => trim($new_product['color_hex'] ?? ''),
         'linked_products' => is_array($new_product['linked_products'] ?? null) 
             ? array_values(array_map('intval', array_filter($new_product['linked_products']))) 
-            : (is_string($new_product['linked_products'] ?? null) ? array_values(array_filter(array_map('intval', explode(',', $new_product['linked_products'])))) : [])
+            : (is_string($new_product['linked_products'] ?? null) ? array_values(array_filter(array_map('intval', explode(',', $new_product['linked_products'])))) : []),
+        'created_at' => $createdAt
     ];
 
     if (empty($productFormatted['images']) && !empty($productFormatted['image'])) {

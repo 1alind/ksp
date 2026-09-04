@@ -4,6 +4,7 @@ $pageTitle = 'Collection & Catalog';
 require_once __DIR__ . '/header.php';
 
 $allProducts = get_all_products();
+$maxId = !empty($allProducts) ? max(array_column($allProducts, 'id')) : 0;
 $selectedCat = $_GET['cat'] ?? 'all';
 $searchQuery = trim($_GET['q'] ?? '');
 $sortOrder = $_GET['sort'] ?? 'featured';
@@ -12,8 +13,12 @@ $maxPriceFilter = floatval($_GET['max_price'] ?? 1500000);
 // Filter logic
 $filteredProducts = array_filter($allProducts, function($p) use ($selectedCat, $searchQuery, $maxPriceFilter, $lang) {
     // 1. Category check
-    if ($selectedCat !== 'all' && $p['category'] !== $selectedCat) {
-        return false;
+    if ($selectedCat !== 'all') {
+        if ($selectedCat === 'new') {
+            if (!is_product_new($p)) return false;
+        } elseif ($p['category'] !== $selectedCat) {
+            return false;
+        }
     }
     // 2. Price check
     if ($p['price'] > $maxPriceFilter) {
@@ -34,7 +39,7 @@ $filteredProducts = array_filter($allProducts, function($p) use ($selectedCat, $
     return true;
 });
 
-// Sort logic
+// Sort logic (Newest first as default)
 usort($filteredProducts, function($a, $b) use ($sortOrder) {
     if ($sortOrder === 'price_low') {
         return $a['price'] <=> $b['price'];
@@ -42,10 +47,9 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
         return $b['price'] <=> $a['price'];
     } elseif ($sortOrder === 'rating') {
         return $b['rating'] <=> $a['rating'];
-    } elseif ($sortOrder === 'newest') {
-        return $b['id'] <=> $a['id'];
     }
-    return 0; // Default order
+    // Default or 'newest' sort: new first until old
+    return (int)($b['id'] ?? 0) <=> (int)($a['id'] ?? 0);
 });
 ?>
 
@@ -62,6 +66,12 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                             <a href="shop.php?cat=all" class="cat-filter-link <?php echo $selectedCat === 'all' ? 'active' : ''; ?>">
                                 <span><?php echo t('filter_all', $lang); ?></span>
                                 <span class="badge-count"><?php echo count($allProducts); ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.php?cat=new" class="cat-filter-link <?php echo $selectedCat === 'new' ? 'active' : ''; ?>">
+                                <span><?php echo t('filter_new', $lang); ?></span>
+                                <span class="badge-count"><?php echo count(array_filter($allProducts, fn($p) => is_product_new($p))); ?></span>
                             </a>
                         </li>
                         <li>
@@ -147,8 +157,12 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                             $badgeText = $item[$badgeKey] ?? $item['badge'] ?? '';
                             $itemStock = isset($item['stock']) ? (int)$item['stock'] : 0;
                             $itemOutOfStock = ($itemStock <= 0);
+                            $isNewItem = is_product_new($item);
+                            if (empty($badgeText) && $isNewItem) {
+                                $badgeText = t('filter_new', $lang);
+                            }
                         ?>
-                        <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-id="<?php echo $item['id']; ?>">
+                        <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-is-new="<?php echo $isNewItem ? 'true' : 'false'; ?>" data-id="<?php echo $item['id']; ?>">
                             <div class="product-image-container">
                                 <?php if ($itemOutOfStock): ?>
                                     <span class="product-badge-tag out-of-stock-badge"><?php echo t('out_of_stock', $lang); ?></span>

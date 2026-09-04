@@ -4,6 +4,7 @@ $pageTitle = null; // Will use default site title
 require_once __DIR__ . '/header.php';
 
 $products = get_all_products();
+$maxId = !empty($products) ? max(array_column($products, 'id')) : 0;
 $featuredProducts = array_filter($products, function($p) {
     return !empty($p['featured']);
 });
@@ -21,6 +22,7 @@ $featuredProducts = array_filter($products, function($p) {
             <!-- Category Filter Tabs -->
             <div class="category-tabs-nav" id="homeFilterTabs">
                 <button class="cat-tab-btn active" data-filter="all"><?php echo t('filter_all', $lang); ?></button>
+                <button class="cat-tab-btn" data-filter="new"><?php echo t('filter_new', $lang); ?></button>
                 <button class="cat-tab-btn" data-filter="clothes"><?php echo t('filter_clothes', $lang); ?></button>
                 <button class="cat-tab-btn" data-filter="watches"><?php echo t('filter_watches', $lang); ?></button>
                 <button class="cat-tab-btn" data-filter="perfumes"><?php echo t('filter_perfumes', $lang); ?></button>
@@ -35,8 +37,12 @@ $featuredProducts = array_filter($products, function($p) {
                 $badgeText = $item[$badgeKey] ?? $item['badge'] ?? '';
                 $itemStock = isset($item['stock']) ? (int)$item['stock'] : 0;
                 $itemOutOfStock = ($itemStock <= 0);
+                $isNewItem = is_product_new($item);
+                if (empty($badgeText) && $isNewItem) {
+                    $badgeText = t('filter_new', $lang);
+                }
             ?>
-            <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-id="<?php echo $item['id']; ?>">
+            <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-is-new="<?php echo $isNewItem ? 'true' : 'false'; ?>" data-id="<?php echo $item['id']; ?>">
                 <div class="product-image-container">
                     <?php if ($itemOutOfStock): ?>
                         <span class="product-badge-tag out-of-stock-badge"><?php echo t('out_of_stock', $lang); ?></span>
