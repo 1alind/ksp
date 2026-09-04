@@ -50,8 +50,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['edit_prod_image'] ?? '');
         $galleryRaw = trim($_POST['edit_prod_gallery'] ?? '');
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
-        $sizesRaw = trim($_POST['edit_prod_sizes'] ?? '');
-        $sizes = array_values(array_filter(array_map('trim', explode(',', $sizesRaw))));
+        // Process Sizes & Measurements for Edit
+        $sizes = [];
+        $sizeMeasurements = [];
+        if (!empty($_POST['edit_prod_sizes']) && is_array($_POST['edit_prod_sizes'])) {
+            foreach ($_POST['edit_prod_sizes'] as $sz) {
+                $sz = trim($sz);
+                if ($sz !== '') {
+                    $sizes[] = $sz;
+                    $h = trim($_POST['edit_prod_size_height'][$sz] ?? '');
+                    $w = trim($_POST['edit_prod_size_width'][$sz] ?? '');
+                    if ($h !== '' || $w !== '') {
+                        $hClean = preg_replace('/[^0-9.]/', '', $h);
+                        $wClean = preg_replace('/[^0-9.]/', '', $w);
+                        if ($hClean === '') $hClean = '70';
+                        if ($wClean === '') $wClean = '50';
+                        $sizeMeasurements[$sz] = "Height: {$hClean}cm • Width: {$wClean}cm";
+                    }
+                }
+            }
+        } elseif (!empty($_POST['edit_prod_sizes_raw'])) {
+            $sizes = array_values(array_filter(array_map('trim', explode(',', $_POST['edit_prod_sizes_raw']))));
+        }
+
         // Process Color Variants for Edit
         $colors = [];
         $colorHexes = [];
@@ -118,6 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
             'sizes' => !empty($sizes) ? $sizes : ['S', 'M', 'L', 'XL'],
+            'size_measurements' => $sizeMeasurements,
             'colors' => $colors,
             'color_hexes' => $colorHexes,
             'color_images' => $colorImages,
@@ -159,6 +181,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['prod_image'] ?? '');
         $galleryRaw = trim($_POST['prod_gallery'] ?? '');
         $gallery = array_values(array_filter(array_map('trim', explode(',', $galleryRaw))));
+
+        // Process Sizes & Measurements for Add
+        $sizes = [];
+        $sizeMeasurements = [];
+        if (!empty($_POST['prod_sizes']) && is_array($_POST['prod_sizes'])) {
+            foreach ($_POST['prod_sizes'] as $sz) {
+                $sz = trim($sz);
+                if ($sz !== '') {
+                    $sizes[] = $sz;
+                    $h = trim($_POST['prod_size_height'][$sz] ?? '');
+                    $w = trim($_POST['prod_size_width'][$sz] ?? '');
+                    if ($h !== '' || $w !== '') {
+                        $hClean = preg_replace('/[^0-9.]/', '', $h);
+                        $wClean = preg_replace('/[^0-9.]/', '', $w);
+                        if ($hClean === '') $hClean = '70';
+                        if ($wClean === '') $wClean = '50';
+                        $sizeMeasurements[$sz] = "Height: {$hClean}cm • Width: {$wClean}cm";
+                    }
+                }
+            }
+        } elseif (!empty($_POST['prod_sizes_raw'])) {
+            $sizes = array_values(array_filter(array_map('trim', explode(',', $_POST['prod_sizes_raw']))));
+        }
+        if (empty($sizes)) {
+            $sizes = ['S', 'M', 'L', 'XL'];
+        }
 
         // Process Color Variants for Add
         $colors = [];
@@ -227,7 +275,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'badge_ku' => $badgeKu,
             'image' => $image,
             'images' => !empty($gallery) ? $gallery : (empty($image) ? [] : [$image]),
-            'sizes' => ['S', 'M', 'L', 'XL'],
+            'sizes' => !empty($sizes) ? $sizes : ['S', 'M', 'L', 'XL'],
+            'size_measurements' => $sizeMeasurements,
             'colors' => $colors,
             'color_hexes' => $colorHexes,
             'color_images' => $colorImages,
@@ -504,6 +553,56 @@ require_once __DIR__ . '/../header.php';
                     </details>
                 </div>
 
+                <!-- Sizes & Dimensions Engine -->
+                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                        <div>
+                            <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                                📏 <?php echo adm_t('admin_field_sizes_measurements', 'Available Sizes & Dimension Measurements'); ?>
+                            </span>
+                            <span style="font-size:12px; color:var(--text-muted);">
+                                <?php echo adm_t('admin_sizes_help', 'Select which sizes are available (from XS to 5XL) and customize height & width in centimeters for each.'); ?>
+                            </span>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <span id="addActiveSizesCount" style="font-size:12px; font-weight:700; color:var(--accent-gold); background:rgba(212,175,55,0.1); padding:4px 10px; border-radius:12px;">
+                                4 sizes selected
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'standard')" style="padding:4px 10px; font-size:11.5px;">S–XXL</button>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'full')" style="padding:4px 10px; font-size:11.5px;">XS–5XL</button>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('add', 'clear')" style="padding:4px 10px; font-size:11.5px; color:var(--text-muted);">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Size Pill Buttons (Click to toggle) -->
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:11.5px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px;">
+                            Click to toggle available sizes:
+                        </label>
+                        <div id="addSizePillsContainer" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                            <!-- Populated dynamically via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Add Custom Size Form -->
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:280px;">
+                        <input type="text" id="addCustomSizeInput" class="form-control" placeholder="e.g. 6XL or 42MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('add');}">
+                        <button type="button" class="btn btn-sm btn-outline" onclick="addCustomSize('add')" style="padding:6px 12px; font-size:12px; white-space:nowrap; font-weight:700;">
+                            + Add Size
+                        </button>
+                    </div>
+
+                    <!-- Active Size Measurement Cards Grid (Height & Width for each) -->
+                    <div style="border-top:1px dashed var(--border-color); padding-top:14px;">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:10px;">
+                            📐 Size Dimensions (Height & Width):
+                        </label>
+                        <div id="addSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+                            <!-- Dynamic Measurement inputs for each active size -->
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-row-3 mb-20">
                     <div class="form-group">
                         <label><?php echo adm_t('admin_field_desc_en', 'Description (English)'); ?></label>
@@ -773,6 +872,56 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
+            <!-- Section 4.8: Sizes & Dimensions Engine (Edit Modal) -->
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                    <div>
+                        <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block;">
+                            📏 <?php echo adm_t('admin_field_sizes_measurements', 'Available Sizes & Dimension Measurements'); ?>
+                        </span>
+                        <span style="font-size:12px; color:var(--text-muted);">
+                            <?php echo adm_t('admin_sizes_help', 'Select which sizes are available (from XS to 5XL) and customize height & width in centimeters for each.'); ?>
+                        </span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <span id="editActiveSizesCount" style="font-size:12px; font-weight:700; color:var(--accent-gold); background:rgba(212,175,55,0.1); padding:4px 10px; border-radius:12px;">
+                            4 sizes selected
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'standard')" style="padding:4px 10px; font-size:11.5px;">S–XXL</button>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'full')" style="padding:4px 10px; font-size:11.5px;">XS–5XL</button>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="applySizePreset('edit', 'clear')" style="padding:4px 10px; font-size:11.5px; color:var(--text-muted);">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Size Pill Buttons (Click to toggle) -->
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:11.5px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px;">
+                        Click to toggle available sizes:
+                    </label>
+                    <div id="editSizePillsContainer" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <!-- Populated dynamically via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Add Custom Size Form -->
+                <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; max-width:280px;">
+                    <input type="text" id="editCustomSizeInput" class="form-control" placeholder="e.g. 6XL or 42MM" style="font-size:12px; padding:6px 10px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomSize('edit');}">
+                    <button type="button" class="btn btn-sm btn-outline" onclick="addCustomSize('edit')" style="padding:6px 12px; font-size:12px; white-space:nowrap; font-weight:700;">
+                        + Add Size
+                    </button>
+                </div>
+
+                <!-- Active Size Measurement Cards Grid (Height & Width for each) -->
+                <div style="border-top:1px dashed var(--border-color); padding-top:14px;">
+                    <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:10px;">
+                        📐 Size Dimensions (Height & Width):
+                    </label>
+                    <div id="editSizesMeasurementsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+                        <!-- Dynamic Measurement inputs for each active size -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Section 5: Sizes & Descriptions -->
             <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:24px;">
                 <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 <?php echo adm_t('admin_field_desc_en', 'Descriptions'); ?></span>
@@ -892,6 +1041,243 @@ function removeColorVariantRow(btn) {
     row.remove();
 }
 
+// -------------------------------------------------------------
+// Interactive Sizes & Measurements Engine (XS to 5XL + Custom)
+// -------------------------------------------------------------
+const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+
+function getDefaultDimensions(sizeName) {
+    const sz = String(sizeName || '').toUpperCase().trim();
+    if (sz === 'XS') return { height: '62', width: '42' };
+    if (sz === 'S') return { height: '65', width: '45' };
+    if (sz === 'M') return { height: '70', width: '50' };
+    if (sz === 'L') return { height: '73', width: '54' };
+    if (sz === 'XL') return { height: '76', width: '58' };
+    if (sz === 'XXL' || sz === '2XL') return { height: '79', width: '62' };
+    if (sz === '3XL' || sz === 'XXXL') return { height: '82', width: '66' };
+    if (sz === '4XL') return { height: '85', width: '70' };
+    if (sz === '5XL') return { height: '88', width: '74' };
+    return { height: '70', width: '50' };
+}
+
+function parseDimensions(str, sizeName) {
+    let h = '';
+    let w = '';
+    if (str && typeof str === 'string') {
+        const hm = str.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+)/i);
+        if (hm) h = hm[1];
+        const wm = str.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+)/i);
+        if (wm) w = wm[1];
+    }
+    const def = getDefaultDimensions(sizeName);
+    return {
+        height: h || def.height,
+        width: w || def.width
+    };
+}
+
+window.sizeSelectorState = {
+    add: { sizes: [], measurements: {}, allOptions: [...STANDARD_SIZES] },
+    edit: { sizes: [], measurements: {}, allOptions: [...STANDARD_SIZES] }
+};
+
+function initSizeSelector(prefix, initialSizes = ['S', 'M', 'L', 'XL'], initialMeasurements = {}) {
+    const state = {
+        sizes: [],
+        measurements: (typeof initialMeasurements === 'object' && initialMeasurements !== null) ? { ...initialMeasurements } : {},
+        allOptions: [...STANDARD_SIZES]
+    };
+    
+    // Normalize initial sizes
+    let sizesArr = [];
+    if (Array.isArray(initialSizes)) {
+        sizesArr = initialSizes.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof initialSizes === 'string' && initialSizes.trim()) {
+        sizesArr = initialSizes.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (sizesArr.length === 0) {
+        sizesArr = ['S', 'M', 'L', 'XL'];
+    }
+
+    state.sizes = [...sizesArr];
+    
+    // Ensure any custom sizes are present in allOptions
+    sizesArr.forEach(s => {
+        if (!state.allOptions.includes(s)) {
+            state.allOptions.push(s);
+        }
+    });
+
+    window.sizeSelectorState[prefix] = state;
+    renderSizeSelectorUI(prefix);
+}
+
+function renderSizeSelectorUI(prefix) {
+    renderSizePills(prefix);
+    renderMeasurementCards(prefix);
+    updateSizesCountBadge(prefix);
+}
+
+function renderSizePills(prefix) {
+    const container = document.getElementById(prefix + 'SizePillsContainer');
+    if (!container) return;
+
+    const state = window.sizeSelectorState[prefix];
+    container.innerHTML = '';
+
+    state.allOptions.forEach(size => {
+        const isActive = state.sizes.includes(size);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm ' + (isActive ? 'btn-primary' : 'btn-outline');
+        btn.style.cssText = 'padding:6px 14px; font-size:13px; font-weight:700; border-radius:6px; transition:all 0.15s ease; display:inline-flex; align-items:center; gap:6px; cursor:pointer;';
+        if (isActive) {
+            btn.style.background = 'var(--accent-gold)';
+            btn.style.borderColor = 'var(--accent-gold)';
+            btn.style.color = '#000';
+        }
+        btn.innerHTML = (isActive ? '✓ ' : '+ ') + escapeHtmlAttr(size);
+        btn.onclick = () => toggleSize(prefix, size);
+        container.appendChild(btn);
+    });
+}
+
+function renderMeasurementCards(prefix) {
+    const container = document.getElementById(prefix + 'SizesMeasurementsList');
+    if (!container) return;
+
+    const state = window.sizeSelectorState[prefix];
+    const formPrefix = prefix === 'add' ? 'prod' : 'edit_prod';
+    container.innerHTML = '';
+
+    if (state.sizes.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:18px; color:var(--text-muted); font-size:13px; background:var(--bg-surface); border-radius:8px;">
+            ⚠️ No sizes selected yet. Click the size buttons above to add available sizes (e.g. XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL).
+        </div>`;
+        return;
+    }
+
+    state.sizes.forEach(size => {
+        const currentMeasurement = state.measurements[size] || '';
+        const dims = parseDimensions(currentMeasurement, size);
+
+        const card = document.createElement('div');
+        card.className = 'size-measurement-card';
+        card.style.cssText = 'background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);';
+
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="hidden" name="${formPrefix}_sizes[]" value="${escapeHtmlAttr(size)}">
+                    <span style="background:var(--accent-gold); color:#000; font-weight:800; font-size:13px; padding:3px 10px; border-radius:5px; letter-spacing:0.5px; display:inline-block;">${escapeHtmlAttr(size)}</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--text-primary);">${escapeHtmlAttr(size)} <?php echo adm_t('admin_size_available_badge', 'Available'); ?></span>
+                </div>
+                <button type="button" class="btn btn-sm" onclick="toggleSize('${prefix}', '${escapeHtmlAttr(size)}', false)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; padding:2px 6px;" title="Remove size">✕</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:3px;">
+                        Height / بلندی / الارتفاع
+                    </label>
+                    <div style="position:relative; display:flex; align-items:center;">
+                        <input type="number" name="${formPrefix}_size_height[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.height)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="70" min="10" max="250" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'height', this.value)">
+                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">cm</span>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:3px;">
+                        Width / پانی / العرض
+                    </label>
+                    <div style="position:relative; display:flex; align-items:center;">
+                        <input type="number" name="${formPrefix}_size_width[${escapeHtmlAttr(size)}]" value="${escapeHtmlAttr(dims.width)}" class="form-control" style="font-size:13px; padding:6px 8px; padding-right:32px; font-weight:700; width:100%;" placeholder="50" min="10" max="250" oninput="updateStoredDimension('${prefix}', '${escapeHtmlAttr(size)}', 'width', this.value)">
+                        <span style="position:absolute; right:8px; font-size:11px; color:var(--text-muted); font-weight:700; pointer-events:none;">cm</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function updateStoredDimension(prefix, size, dimType, val) {
+    const state = window.sizeSelectorState[prefix];
+    if (!state) return;
+    const current = parseDimensions(state.measurements[size] || '', size);
+    if (dimType === 'height') current.height = val;
+    if (dimType === 'width') current.width = val;
+    state.measurements[size] = `Height: ${current.height}cm • Width: ${current.width}cm`;
+}
+
+function toggleSize(prefix, size, forceState = null) {
+    const state = window.sizeSelectorState[prefix];
+    if (!state) return;
+
+    const idx = state.sizes.indexOf(size);
+    const shouldBeActive = forceState !== null ? forceState : (idx === -1);
+
+    if (shouldBeActive && idx === -1) {
+        state.sizes.push(size);
+        if (!state.measurements[size]) {
+            const def = getDefaultDimensions(size);
+            state.measurements[size] = `Height: ${def.height}cm • Width: ${def.width}cm`;
+        }
+    } else if (!shouldBeActive && idx !== -1) {
+        state.sizes.splice(idx, 1);
+    }
+
+    renderSizeSelectorUI(prefix);
+}
+
+function applySizePreset(prefix, presetType) {
+    const state = window.sizeSelectorState[prefix];
+    if (!state) return;
+
+    if (presetType === 'standard') {
+        state.sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+    } else if (presetType === 'full') {
+        state.sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+    } else if (presetType === 'clear') {
+        state.sizes = [];
+    }
+
+    state.sizes.forEach(sz => {
+        if (!state.measurements[sz]) {
+            const def = getDefaultDimensions(sz);
+            state.measurements[sz] = `Height: ${def.height}cm • Width: ${def.width}cm`;
+        }
+    });
+
+    renderSizeSelectorUI(prefix);
+}
+
+function addCustomSize(prefix) {
+    const input = document.getElementById(prefix + 'CustomSizeInput');
+    if (!input) return;
+    const val = input.value.trim().toUpperCase();
+    if (!val) return;
+
+    const state = window.sizeSelectorState[prefix];
+    if (!state.allOptions.includes(val)) {
+        state.allOptions.push(val);
+    }
+    if (!state.sizes.includes(val)) {
+        state.sizes.push(val);
+        const def = getDefaultDimensions(val);
+        state.measurements[val] = `Height: ${def.height}cm • Width: ${def.width}cm`;
+    }
+
+    input.value = '';
+    renderSizeSelectorUI(prefix);
+}
+
+function updateSizesCountBadge(prefix) {
+    const badge = document.getElementById(prefix + 'ActiveSizesCount');
+    if (!badge) return;
+    const count = window.sizeSelectorState[prefix].sizes.length;
+    badge.innerText = count === 1 ? '1 size selected' : `${count} sizes selected`;
+}
+
 function escapeHtmlAttr(str) {
     if (!str) return '';
     return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -931,8 +1317,12 @@ function openEditProductModal(product) {
     }
     updateEditImagePreview(mainImg);
 
-    const sizes = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || '');
-    document.getElementById('editProdSizes').value = sizes;
+    // Initialize Interactive Sizes & Measurements in Edit Modal
+    let prodMeasurements = product.size_measurements || {};
+    if (typeof prodMeasurements === 'string') {
+        try { prodMeasurements = JSON.parse(prodMeasurements); } catch(e) { prodMeasurements = {}; }
+    }
+    initSizeSelector('edit', product.sizes, prodMeasurements);
 
     // Populate Multi-Color Variants in Edit Modal
     const editColorsList = document.getElementById('editColorVariantsList');
@@ -1029,8 +1419,10 @@ function calculateDiscountPreview() {
     }
 }
 
-// Initialize x02.me WebP Image Uploaders
+// Initialize x02.me WebP Image Uploaders & Size Selectors
 document.addEventListener('DOMContentLoaded', function() {
+    initSizeSelector('add', ['S', 'M', 'L', 'XL'], {});
+
     if (window.X02Uploader) {
         window.addMainUploader = window.X02Uploader.initSingleUploader({
             containerId: 'addMainImageUploaderBox',

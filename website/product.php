@@ -35,18 +35,23 @@ if (!is_array($sizeMeasurements)) {
 if (!empty($product['sizes'])) {
     foreach ($product['sizes'] as $sz) {
         $cleanSz = strtoupper(trim($sz));
-        if ($product['category'] === 'clothes') {
-            if ($cleanSz === 'S') $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
-            elseif ($cleanSz === 'M') $sizeMeasurements[$sz] = 'Height: 70cm • Width: 50cm';
-            elseif ($cleanSz === 'L') $sizeMeasurements[$sz] = 'Height: 73cm • Width: 54cm';
-            elseif ($cleanSz === 'XL') $sizeMeasurements[$sz] = 'Height: 76cm • Width: 58cm';
-            elseif ($cleanSz === 'XXL' || $cleanSz === '2XL') $sizeMeasurements[$sz] = 'Height: 79cm • Width: 62cm';
-            elseif ($cleanSz === 'XS') $sizeMeasurements[$sz] = 'Height: 62cm • Width: 42cm';
-            else $sizeMeasurements[$sz] = 'Height: 68cm • Width: 48cm';
-        } elseif ($product['category'] === 'watches') {
-            $sizeMeasurements[$sz] = 'Height: ' . $sz . ' • Width: 20mm';
-        } else {
-            $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
+        if (empty($sizeMeasurements[$sz])) {
+            if ($product['category'] === 'clothes') {
+                if ($cleanSz === 'XS') $sizeMeasurements[$sz] = 'Height: 62cm • Width: 42cm';
+                elseif ($cleanSz === 'S') $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
+                elseif ($cleanSz === 'M') $sizeMeasurements[$sz] = 'Height: 70cm • Width: 50cm';
+                elseif ($cleanSz === 'L') $sizeMeasurements[$sz] = 'Height: 73cm • Width: 54cm';
+                elseif ($cleanSz === 'XL') $sizeMeasurements[$sz] = 'Height: 76cm • Width: 58cm';
+                elseif ($cleanSz === 'XXL' || $cleanSz === '2XL') $sizeMeasurements[$sz] = 'Height: 79cm • Width: 62cm';
+                elseif ($cleanSz === '3XL' || $cleanSz === 'XXXL') $sizeMeasurements[$sz] = 'Height: 82cm • Width: 66cm';
+                elseif ($cleanSz === '4XL') $sizeMeasurements[$sz] = 'Height: 85cm • Width: 70cm';
+                elseif ($cleanSz === '5XL') $sizeMeasurements[$sz] = 'Height: 88cm • Width: 74cm';
+                else $sizeMeasurements[$sz] = 'Height: 70cm • Width: 50cm';
+            } elseif ($product['category'] === 'watches') {
+                $sizeMeasurements[$sz] = 'Height: ' . $sz . ' • Width: 20mm';
+            } else {
+                $sizeMeasurements[$sz] = 'Height: 65cm • Width: 45cm';
+            }
         }
     }
 }
@@ -415,8 +420,8 @@ function switchMainImage(imgUrl, thumbBtn) {
 }
 
 function extractDimensionValues(mStr, sizeName) {
-    let height = '65cm';
-    let width = '45cm';
+    let height = '';
+    let width = '';
 
     if (mStr) {
         const hMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm|mm)?)/i);
@@ -432,16 +437,24 @@ function extractDimensionValues(mStr, sizeName) {
         }
     }
 
-    if (sizeName) {
-        const sz = String(sizeName).toUpperCase().trim();
-        if (sz === 'S') { height = '65cm'; width = '45cm'; }
-        else if (sz === 'M') { height = '70cm'; width = '50cm'; }
-        else if (sz === 'L') { height = '73cm'; width = '54cm'; }
-        else if (sz === 'XL') { height = '76cm'; width = '58cm'; }
-        else if (sz === 'XXL' || sz === '2XL') { height = '79cm'; width = '62cm'; }
-        else if (sz === 'XS') { height = '62cm'; width = '42cm'; }
-        else if (sz.includes('MM')) { height = sz.toLowerCase(); width = '20mm'; }
+    if (!height || !width) {
+        if (sizeName) {
+            const sz = String(sizeName).toUpperCase().trim();
+            if (sz === 'XS') { if (!height) height = '62cm'; if (!width) width = '42cm'; }
+            else if (sz === 'S') { if (!height) height = '65cm'; if (!width) width = '45cm'; }
+            else if (sz === 'M') { if (!height) height = '70cm'; if (!width) width = '50cm'; }
+            else if (sz === 'L') { if (!height) height = '73cm'; if (!width) width = '54cm'; }
+            else if (sz === 'XL') { if (!height) height = '76cm'; if (!width) width = '58cm'; }
+            else if (sz === 'XXL' || sz === '2XL') { if (!height) height = '79cm'; if (!width) width = '62cm'; }
+            else if (sz === '3XL' || sz === 'XXXL') { if (!height) height = '82cm'; if (!width) width = '66cm'; }
+            else if (sz === '4XL') { if (!height) height = '85cm'; if (!width) width = '70cm'; }
+            else if (sz === '5XL') { if (!height) height = '88cm'; if (!width) width = '74cm'; }
+            else if (sz.includes('MM')) { if (!height) height = sz.toLowerCase(); if (!width) width = '20mm'; }
+        }
     }
+
+    if (!height) height = '65cm';
+    if (!width) width = '45cm';
 
     return { height, width };
 }
