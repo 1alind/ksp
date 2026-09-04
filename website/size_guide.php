@@ -228,24 +228,15 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
 
         <div class="size-guide-content-card" dir="<?php echo $dir; ?>">
             
-            <!-- Top Header Bar -->
-            <div class="guide-controls-top-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 18px;">
-                <?php if ($product && $productMatchesVariant): ?>
+            <?php if ($product && $productMatchesVariant): ?>
+                <!-- Product Reference Badge -->
+                <div class="guide-controls-top-bar" style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
                     <div class="guide-product-badge-wrap" style="display: inline-flex; align-items: center; gap: 10px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px 18px; border-radius: 30px;">
                         <span style="color: #dcb348; font-size: 14px;">✦</span>
                         <span style="color: #f3f4f6; font-size: 14px; font-weight: 600;"><?php echo htmlspecialchars($productTitle); ?></span>
-                        <?php if (!empty($selectedSize)): ?>
-                            <span style="color: rgba(255,255,255,0.3);">|</span>
-                            <span style="color: #dcb348; font-size: 13.5px; font-weight: 700;"><?php echo $lang === 'ku' ? 'قیاس:' : ($lang === 'ar' ? 'المقاس:' : 'Size:'); ?> <span><?php echo htmlspecialchars($selectedSize); ?></span></span>
-                        <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <div style="display: inline-flex; align-items: center; gap: 8px; color: #dcb348; font-size: 14px; font-weight: 700;">
-                        <span style="font-size: 18px;"><?php echo $curCat['icon']; ?></span>
-                        <span><?php echo $curCat['name']; ?></span>
-                    </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
 
             <div class="guide-variant-header">
                 <h2><?php echo $curCat['icon']; ?> <?php echo $curCat['name']; ?></h2>
@@ -288,10 +279,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <line x1="195" y1="36" x2="305" y2="36" stroke="#dcb348" stroke-width="3" />
                                 <circle cx="195" cy="36" r="4.5" fill="#dcb348" />
                                 <circle cx="305" cy="36" r="4.5" fill="#dcb348" />
-                                <g transform="translate(180, 2)">
-                                    <rect width="140" height="28" rx="14" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
-                                    <text x="70" y="19" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
+                                <g transform="translate(195, 4)">
+                                    <rect width="110" height="26" rx="13" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
+                                    <text x="55" y="17" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimWidthLabel; ?>
                                     </text>
                                 </g>
 
@@ -301,10 +292,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <circle cx="130" cy="280" r="4" fill="#f43f5e" />
                                 <line x1="130" y1="40" x2="195" y2="40" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
                                 <line x1="130" y1="280" x2="172" y2="280" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
-                                <g transform="translate(10, 145)">
-                                    <rect width="145" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
-                                    <text x="72" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
+                                <g transform="translate(15, 145)">
+                                    <rect width="110" height="28" rx="14" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
+                                    <text x="55" y="18" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimHeightLabel; ?>
                                     </text>
                                 </g>
                             </svg>
@@ -336,10 +327,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <line x1="175" y1="140" x2="325" y2="140" stroke="#dcb348" stroke-width="3" />
                                 <circle cx="175" cy="140" r="5" fill="#dcb348" />
                                 <circle cx="325" cy="140" r="5" fill="#dcb348" />
-                                <g transform="translate(180, 95)">
-                                    <rect width="140" height="30" rx="15" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
-                                    <text x="70" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
+                                <g transform="translate(195, 95)">
+                                    <rect width="110" height="28" rx="14" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
+                                    <text x="55" y="18" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimWidthLabel; ?>
                                     </text>
                                 </g>
 
@@ -349,10 +340,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <circle cx="70" cy="288" r="4.5" fill="#f43f5e" />
                                 <line x1="70" y1="38" x2="230" y2="38" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
                                 <line x1="70" y1="288" x2="195" y2="288" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
-                                <g transform="translate(10, 148)">
-                                    <rect width="140" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
-                                    <text x="70" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
+                                <g transform="translate(15, 148)">
+                                    <rect width="110" height="28" rx="14" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
+                                    <text x="55" y="18" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimHeightLabel; ?>
                                     </text>
                                 </g>
                             </svg>
@@ -394,10 +385,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <line x1="280" y1="108" x2="280" y2="192" stroke="#dcb348" stroke-width="2.8" />
                                 <circle cx="280" cy="108" r="4.5" fill="#dcb348" />
                                 <circle cx="280" cy="192" r="4.5" fill="#dcb348" />
-                                <g transform="translate(205, 45)">
-                                    <rect width="150" height="30" rx="15" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
-                                    <text x="75" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
+                                <g transform="translate(225, 45)">
+                                    <rect width="110" height="28" rx="14" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
+                                    <text x="55" y="18" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimWidthLabel; ?>
                                     </text>
                                 </g>
 
@@ -408,10 +399,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <line x1="130" y1="150" x2="130" y2="285" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
                                 <line x1="375" y1="135" x2="375" y2="285" stroke="rgba(244,63,94,0.4)" stroke-width="1.2" stroke-dasharray="3 3" />
                                 
-                                <g transform="translate(175, 268)">
-                                    <rect width="160" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
-                                    <text x="80" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
+                                <g transform="translate(200, 268)">
+                                    <rect width="110" height="28" rx="14" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
+                                    <text x="55" y="18" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimHeightLabel; ?>
                                     </text>
                                 </g>
                             </svg>
@@ -445,10 +436,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <circle cx="200" cy="150" r="5" fill="#dcb348" />
                                 <circle cx="340" cy="150" r="5" fill="#dcb348" />
                                 
-                                <g transform="translate(195, 98)">
-                                    <rect width="150" height="30" rx="15" fill="#0a0d16" stroke="#dcb348" stroke-width="2" />
-                                    <text x="75" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
+                                <g transform="translate(215, 98)">
+                                    <rect width="110" height="28" rx="14" fill="#0a0d16" stroke="#dcb348" stroke-width="2" />
+                                    <text x="55" y="18" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimWidthLabel; ?>
                                     </text>
                                 </g>
 
@@ -460,10 +451,10 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                                 <circle cx="75" cy="36" r="4.5" fill="#f43f5e" />
                                 <circle cx="75" cy="290" r="4.5" fill="#f43f5e" />
 
-                                <g transform="translate(10, 145)">
-                                    <rect width="135" height="30" rx="15" fill="#0a0d16" stroke="#f43f5e" stroke-width="2" />
-                                    <text x="67" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
+                                <g transform="translate(20, 145)">
+                                    <rect width="110" height="28" rx="14" fill="#0a0d16" stroke="#f43f5e" stroke-width="2" />
+                                    <text x="55" y="18" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
+                                        <?php echo $dimHeightLabel; ?>
                                     </text>
                                 </g>
                             </svg>
