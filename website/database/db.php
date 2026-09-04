@@ -146,9 +146,11 @@ function is_product_new($product) {
         if ($createdAt && (time() - $createdAt) <= 2592000) { // 30 days = 2,592,000 seconds
             return true;
         }
+        return false;
     }
     
-    return false;
+    // Fallback for any products without created_at
+    return true;
 }
 
 function save_product($new_product) {
