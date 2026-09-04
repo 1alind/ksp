@@ -149,8 +149,16 @@ function is_product_new($product) {
         return false;
     }
     
-    // Fallback for any products without created_at
-    return true;
+    // Fallback for legacy products without created_at: consider top 5 newest IDs as new
+    $all = get_all_products();
+    if (!empty($all)) {
+        $maxId = max(array_column($all, 'id'));
+        if ($product['id'] >= ($maxId - 4)) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 function save_product($new_product) {
