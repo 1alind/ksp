@@ -3,17 +3,18 @@ $activePage = 'shop';
 $pageTitle = 'Size & Fit Guide';
 require_once __DIR__ . '/header.php';
 
-$variant = strtolower(trim($_GET['v'] ?? 'tshirt'));
-if ($variant === 'shirts' || $variant === 'top' || $variant === 'tops' || $variant === 't-shirt') {
-    $variant = 'tshirt';
-} elseif ($variant === 'pants' || $variant === 'trousers' || $variant === 'jean') {
+// Safe extraction and categorization of variant
+$rawV = strtolower(trim($_GET['v'] ?? ''));
+if (in_array($rawV, ['jeans', 'jean', 'pants', 'pant', 'trousers', 'trouser', 'denim'])) {
     $variant = 'jeans';
-} elseif ($variant === 'jackets' || $variant === 'coat' || $variant === 'blazer' || $variant === 'outerwear') {
+} elseif (in_array($rawV, ['jacket', 'jackets', 'coat', 'coats', 'blazer', 'blazers', 'outerwear', 'hoodie', 'hoodies'])) {
     $variant = 'jacket';
-} elseif ($variant === 'shoes' || $variant === 'shoe' || $variant === 'footwear' || $variant === 'sneakers' || $variant === 'foot' || $variant === 'feet') {
+} elseif (in_array($rawV, ['feet', 'foot', 'shoes', 'shoe', 'footwear', 'sneakers', 'sneaker', 'boots', 'boot'])) {
     $variant = 'feet';
-} else {
+} elseif (in_array($rawV, ['tshirt', 't-shirt', 'shirts', 'shirt', 'top', 'tops', 'tee'])) {
     $variant = 'tshirt';
+} else {
+    $variant = '';
 }
 
 $productId = intval($_GET['pid'] ?? ($_GET['id'] ?? 0));
@@ -24,100 +25,97 @@ $backUrl = trim($_GET['from'] ?? '');
 
 $product = null;
 $productTitle = '';
-$productSizes = [];
-$productMeasurements = [];
+$productMatchesVariant = false;
 
 if ($productId > 0 && function_exists('get_product_by_id')) {
     $product = get_product_by_id($productId);
     if ($product) {
         $productTitle = is_array($product['title']) ? ($product['title'][$lang] ?? $product['title']['en']) : $product['title'];
-        $productSizes = $product['sizes'] ?? [];
         
-        $rawMeasurements = $product['size_measurements'] ?? [];
-        if (is_string($rawMeasurements)) {
-            $productMeasurements = json_decode($rawMeasurements, true) ?: [];
-        } elseif (is_array($rawMeasurements)) {
-            $productMeasurements = $rawMeasurements;
+        $pCat = strtolower($product['category'] ?? '');
+        $pTitle = strtolower(is_array($product['title']) ? ($product['title']['en'] ?? '') : $product['title']);
+        
+        $detectedProductVariant = 'tshirt';
+        if (str_contains($pCat, 'shoe') || str_contains($pTitle, 'shoe') || str_contains($pTitle, 'sneaker') || str_contains($pTitle, 'boot') || str_contains($pCat, 'feet')) {
+            $detectedProductVariant = 'feet';
+        } elseif (str_contains($pTitle, 'jean') || str_contains($pTitle, 'pant') || str_contains($pTitle, 'trouser') || str_contains($pCat, 'pant')) {
+            $detectedProductVariant = 'jeans';
+        } elseif (str_contains($pTitle, 'jacket') || str_contains($pTitle, 'coat') || str_contains($pTitle, 'blazer') || str_contains($pTitle, 'hoodie')) {
+            $detectedProductVariant = 'jacket';
         }
 
-        // Auto-detect variant from product if not explicitly specified in URL
-        if (empty($_GET['v'])) {
-            $pCat = strtolower($product['category'] ?? '');
-            $pTitle = strtolower(is_array($product['title']) ? ($product['title']['en'] ?? '') : $product['title']);
-            if (str_contains($pCat, 'shoe') || str_contains($pTitle, 'shoe') || str_contains($pTitle, 'sneaker') || str_contains($pTitle, 'boot') || str_contains($pCat, 'feet')) {
-                $variant = 'feet';
-            } elseif (str_contains($pTitle, 'jean') || str_contains($pTitle, 'pant') || str_contains($pTitle, 'trouser') || str_contains($pCat, 'pant')) {
-                $variant = 'jeans';
-            } elseif (str_contains($pTitle, 'jacket') || str_contains($pTitle, 'coat') || str_contains($pTitle, 'blazer') || str_contains($pTitle, 'hoodie')) {
-                $variant = 'jacket';
-            } else {
-                $variant = 'tshirt';
-            }
+        if (empty($variant)) {
+            $variant = $detectedProductVariant;
+        }
+
+        $productMatchesVariant = ($variant === $detectedProductVariant);
+    }
+}
+
+if (empty($variant)) {
+    $variant = 'tshirt';
+}
+
+function clean_dim_number($val) {
+    if (empty($val)) return '';
+    $clean = preg_replace('/[^0-9.]/', '', (string)$val);
+    return trim($clean);
+}
+
+// Clean incoming dimension numbers (strip 'cm', text, etc.)
+$activeDimHeight = clean_dim_number($heightParam);
+$activeDimWidth = clean_dim_number($widthParam);
+
+// If product is provided and matches category, check if product has measurements
+if ((empty($activeDimHeight) || empty($activeDimWidth)) && $productMatchesVariant && !empty($product)) {
+    $rawMeasurements = $product['size_measurements'] ?? [];
+    if (is_string($rawMeasurements)) {
+        $rawMeasurements = json_decode($rawMeasurements, true) ?: [];
+    }
+    if (!empty($selectedSize) && isset($rawMeasurements[$selectedSize])) {
+        $mRaw = $rawMeasurements[$selectedSize];
+        if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+)/i', $mRaw, $mH)) {
+            $activeDimHeight = clean_dim_number($mH[1]);
+        }
+        if (preg_match('/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+)/i', $mRaw, $mW)) {
+            $activeDimWidth = clean_dim_number($mW[1]);
         }
     }
 }
 
-// Fallback dimensions logic based on category and size
-if (empty($selectedSize) && !empty($productSizes)) {
-    $selectedSize = $productSizes[0];
-}
-
-$activeDimHeight = $heightParam;
-$activeDimWidth = $widthParam;
-
-if (empty($activeDimHeight) || empty($activeDimWidth)) {
-    if (!empty($productMeasurements) && !empty($selectedSize) && isset($productMeasurements[$selectedSize])) {
-        $mRaw = $productMeasurements[$selectedSize];
-        if (preg_match('/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm)?)/i', $mRaw, $mH)) {
-            $activeDimHeight = trim($mH[1]);
-        }
-        if (preg_match('/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm)?)/i', $mRaw, $mW)) {
-            $activeDimWidth = trim($mW[1]);
-        }
-    }
-}
-
-// Category Default Dimensions in CM
+// Category Default Dimensions (Clean numbers without unit suffixes)
 if (empty($activeDimHeight) || empty($activeDimWidth)) {
     $sz = strtoupper($selectedSize ?: 'M');
     if ($variant === 'feet') {
         $num = floatval($sz);
         if ($num >= 35 && $num <= 48) {
-            $activeDimHeight = number_format(24.0 + ($num - 38) * 0.65, 1) . 'cm';
-            $activeDimWidth = '9.8cm';
+            $activeDimHeight = number_format(24.0 + ($num - 38) * 0.65, 1);
+            $activeDimWidth = '9.8';
         } else {
-            $activeDimHeight = !empty($activeDimHeight) ? $activeDimHeight : '27.0cm';
-            $activeDimWidth = !empty($activeDimWidth) ? $activeDimWidth : '9.8cm';
+            $activeDimHeight = '27.0';
+            $activeDimWidth = '9.8';
         }
     } elseif ($variant === 'jeans') {
-        if ($sz === '30' || $sz === 'S') { $activeDimHeight = '102cm'; $activeDimWidth = '78cm'; }
-        elseif ($sz === '32' || $sz === 'M') { $activeDimHeight = '104cm'; $activeDimWidth = '82cm'; }
-        elseif ($sz === '34' || $sz === 'L') { $activeDimHeight = '106cm'; $activeDimWidth = '86cm'; }
-        elseif ($sz === '36' || $sz === 'XL') { $activeDimHeight = '108cm'; $activeDimWidth = '92cm'; }
-        else { $activeDimHeight = '104cm'; $activeDimWidth = '82cm'; }
+        if ($sz === '30' || $sz === 'S') { $activeDimHeight = '102'; $activeDimWidth = '78'; }
+        elseif ($sz === '32' || $sz === 'M') { $activeDimHeight = '104'; $activeDimWidth = '82'; }
+        elseif ($sz === '34' || $sz === 'L') { $activeDimHeight = '106'; $activeDimWidth = '86'; }
+        elseif ($sz === '36' || $sz === 'XL') { $activeDimHeight = '108'; $activeDimWidth = '92'; }
+        else { $activeDimHeight = '104'; $activeDimWidth = '82'; }
     } elseif ($variant === 'jacket') {
-        if ($sz === 'S') { $activeDimHeight = '68cm'; $activeDimWidth = '52cm'; }
-        elseif ($sz === 'M') { $activeDimHeight = '71cm'; $activeDimWidth = '55cm'; }
-        elseif ($sz === 'L') { $activeDimHeight = '74cm'; $activeDimWidth = '58cm'; }
-        elseif ($sz === 'XL') { $activeDimHeight = '77cm'; $activeDimWidth = '62cm'; }
-        else { $activeDimHeight = '71cm'; $activeDimWidth = '55cm'; }
+        if ($sz === 'S') { $activeDimHeight = '68'; $activeDimWidth = '52'; }
+        elseif ($sz === 'M') { $activeDimHeight = '71'; $activeDimWidth = '55'; }
+        elseif ($sz === 'L') { $activeDimHeight = '74'; $activeDimWidth = '58'; }
+        elseif ($sz === 'XL') { $activeDimHeight = '77'; $activeDimWidth = '62'; }
+        else { $activeDimHeight = '71'; $activeDimWidth = '55'; }
     } else { // tshirt / tops
-        if ($sz === 'XS') { $activeDimHeight = '62cm'; $activeDimWidth = '42cm'; }
-        elseif ($sz === 'S') { $activeDimHeight = '65cm'; $activeDimWidth = '45cm'; }
-        elseif ($sz === 'M') { $activeDimHeight = '70cm'; $activeDimWidth = '50cm'; }
-        elseif ($sz === 'L') { $activeDimHeight = '73cm'; $activeDimWidth = '54cm'; }
-        elseif ($sz === 'XL') { $activeDimHeight = '76cm'; $activeDimWidth = '58cm'; }
-        elseif ($sz === 'XXL' || $sz === '2XL') { $activeDimHeight = '79cm'; $activeDimWidth = '62cm'; }
-        else { $activeDimHeight = '70cm'; $activeDimWidth = '50cm'; }
+        if ($sz === 'XS') { $activeDimHeight = '62'; $activeDimWidth = '42'; }
+        elseif ($sz === 'S') { $activeDimHeight = '65'; $activeDimWidth = '45'; }
+        elseif ($sz === 'M') { $activeDimHeight = '70'; $activeDimWidth = '50'; }
+        elseif ($sz === 'L') { $activeDimHeight = '73'; $activeDimWidth = '54'; }
+        elseif ($sz === 'XL') { $activeDimHeight = '76'; $activeDimWidth = '58'; }
+        elseif ($sz === 'XXL' || $sz === '2XL') { $activeDimHeight = '79'; $activeDimWidth = '62'; }
+        else { $activeDimHeight = '70'; $activeDimWidth = '50'; }
     }
-}
-
-// Clean up any non-cm suffixes
-if (!str_contains($activeDimHeight, 'cm') && is_numeric($activeDimHeight)) {
-    $activeDimHeight .= 'cm';
-}
-if (!str_contains($activeDimWidth, 'cm') && is_numeric($activeDimWidth)) {
-    $activeDimWidth .= 'cm';
 }
 
 // Smart Return Link Resolution
@@ -144,52 +142,49 @@ $backBtnLabel = $isReturningToProduct
     ? ($lang === 'ku' ? '← ڤەگەر بۆ بەرهەمی' : ($lang === 'ar' ? '← العودة للمنتج' : '← Back to Product'))
     : ($lang === 'ku' ? '← ڤەگەر بۆ فڕۆشگەهێ' : ($lang === 'ar' ? '← العودة للمتجر' : '← Back to Shop'));
 
-// Helper query string for tabs to preserve product context
+// Helper query string for tab navigation
 $tabQuery = '';
-if ($productId > 0) $tabQuery .= '&pid=' . $productId;
-if (!empty($backUrl)) $tabQuery .= '&from=' . urlencode($backUrl);
+if (!empty($backUrl)) {
+    $tabQuery .= '&from=' . urlencode($backUrl);
+}
 
-// Category localized titles & labels (Only Apparel & Feet Size)
+// Category localized metadata
 $catMeta = [
     'tshirt' => [
         'name' => ($lang === 'ku' ? 'تیشێرت و سەرپۆش' : ($lang === 'ar' ? 'تيشيرت وقمصان' : 'Shirts & Tops')),
         'icon' => '👕',
-        'dim1_label' => ($lang === 'ku' ? 'بلندی / درێژی' : ($lang === 'ar' ? 'الارتفاع / الطول' : 'Total Length')),
-        'dim2_label' => ($lang === 'ku' ? 'پانی / سینگ' : ($lang === 'ar' ? 'العرض / الصدر' : 'Chest Width')),
         'step1' => ($lang === 'ku' ? 'پارچەیێ بەردە ل سەر مێزەکا تەخت و بێ چەماندن ڕابکێشە.' : ($lang === 'ar' ? 'افرد القطعة بشكل مستوٍ على سطح صلب بدون طيات.' : 'Lay your favorite garment flat on a firm, smooth surface.')),
-        'step2' => ($lang === 'ku' ? 'پانیێ ژ ژێر ملێ چەپێ بۆ یێ ڕاستێ ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس المسافة الأفقية بين الإبطين بالسنتيمتر (cm).' : 'Measure horizontally from pit to pit in centimeters (cm).')),
-        'step3' => ($lang === 'ku' ? 'بلندیێ ژ بلندترین خالێ ملان هەتا بنێ جلوبەرگی ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس المسافة الرأسية من أعلى نقطة في الكتف إلى الحافة السفلية بالسنتيمتر (cm).' : 'Measure vertically from shoulder top to bottom hem in centimeters (cm).'))
+        'step2' => ($lang === 'ku' ? 'پانیێ ژ ژێر ملێ چەپێ بۆ یێ ڕاستێ بپێڤە.' : ($lang === 'ar' ? 'قس المسافة الأفقية بين الإبطين.' : 'Measure horizontally from pit to pit.')),
+        'step3' => ($lang === 'ku' ? 'بلندیێ ژ سەرێ ملان هەتا بنێ جلوبەرگی بپێڤە.' : ($lang === 'ar' ? 'قس المسافة الرأسية من أعلى نقطة في الكتف إلى الحافة السفلية.' : 'Measure vertically from shoulder top to bottom hem.'))
     ],
     'jeans' => [
         'name' => ($lang === 'ku' ? 'پانتۆل و جینز' : ($lang === 'ar' ? 'بناطيل وجينز' : 'Jeans & Pants')),
         'icon' => '👖',
-        'dim1_label' => ($lang === 'ku' ? 'درێژی / درێژیا قاچی' : ($lang === 'ar' ? 'طول البنطال الكامل' : 'Total Inseam / Length')),
-        'dim2_label' => ($lang === 'ku' ? 'کەمەر / ناڤتەنگ' : ($lang === 'ar' ? 'محيط الخصر' : 'Waist Width')),
-        'step1' => ($lang === 'ku' ? 'پانتۆلەکێ گونجای بەردە ل سەر مێزێ و قۆپچەی دابخە.' : ($lang === 'ar' ? 'افرد بنطالك المفضل مع إغلاق الزر والسحاب بالكامل.' : 'Button up and lay your trousers flat on a flat surface.')),
-        'step2' => ($lang === 'ku' ? 'پانییا کەمەرێ (Waist) ژ لایەکێ بۆ لایێ دی ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس عرض الخصر من الحافة إلى الحافة بالسنتيمتر (cm).' : 'Measure across the waistband from side edge to side edge in cm.')),
-        'step3' => ($lang === 'ku' ? 'درێژییا دروست ژ سەرێ کەمەرێ هەتا بنی ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس الطول من أعلى حزام الخصر إلى نهاية طرف البنطال بالسنتيمتر (cm).' : 'Measure along outseam from waistband top to hem leg opening in cm.'))
+        'step1' => ($lang === 'ku' ? 'پانتۆلەکێ بەردە ل سەر مێزێ و قۆپچەی دابخە.' : ($lang === 'ar' ? 'افرد بنطالك مع إغلاق الزر والسحاب بالكامل.' : 'Button up and lay your trousers flat on a flat surface.')),
+        'step2' => ($lang === 'ku' ? 'پانییا کەمەرێ ژ لایەکێ بۆ لایێ دی بپێڤە.' : ($lang === 'ar' ? 'قس عرض الخصر من الحافة إلى الحافة.' : 'Measure across the waistband from side edge to side edge.')),
+        'step3' => ($lang === 'ku' ? 'بلندیێ ژ سەرێ کەمەرێ هەتا بنی بپێڤە.' : ($lang === 'ar' ? 'قس الطول من أعلى حزام الخصر إلى نهاية طرف البنطال.' : 'Measure from waistband top down to hem leg opening.'))
     ],
     'jacket' => [
         'name' => ($lang === 'ku' ? 'چاکەت و قەمسەلە' : ($lang === 'ar' ? 'جاكيتات ومعاطف' : 'Jackets & Coats')),
         'icon' => '🧥',
-        'dim1_label' => ($lang === 'ku' ? 'درێژیا چاکەتی' : ($lang === 'ar' ? 'طول الجاكيت' : 'Jacket Length')),
-        'dim2_label' => ($lang === 'ku' ? 'پانییا سینگی' : ($lang === 'ar' ? 'عرض الصدر' : 'Chest Width')),
         'step1' => ($lang === 'ku' ? 'قۆپچەیێن چاکەتی دابخە و ل سەر ڕوویەک تەخت دابنێ.' : ($lang === 'ar' ? 'أغلق أزرار الجاكيت وافرده بسلاسة على سطح مستوٍ.' : 'Fasten buttons and lay the blazer flat on a level table.')),
-        'step2' => ($lang === 'ku' ? 'پانییا ژێر هەردوو ملان بەرفرەهی ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس عرض الصدر أفقياً بين منطقتي الإبطين بالسنتيمتر (cm).' : 'Measure pit-to-pit across chest with fabric smoothly spread in cm.')),
-        'step3' => ($lang === 'ku' ? 'درێژیا پشتا چاکەتی ژ بنێ یەخەی هەتا خوارێ ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس الطول من أسفل ياقة الرقبة حتى نهاية الجاكيت من الخلف بالسنتيمتر (cm).' : 'Measure center back length from below collar down to hem in cm.'))
+        'step2' => ($lang === 'ku' ? 'پانییا ژێر هەردوو ملان بەرفرەهی بپێڤە.' : ($lang === 'ar' ? 'قس عرض الصدر أفقياً بين منطقتي الإبطين.' : 'Measure pit-to-pit across chest with fabric smoothly spread.')),
+        'step3' => ($lang === 'ku' ? 'بلندیێ ژ بنێ یەخەی هەتا خوارێ بپێڤە.' : ($lang === 'ar' ? 'قس الطول من أسفل ياقة الرقبة حتى نهاية الجاكيت من الخلف.' : 'Measure center back length from below collar down to hem.'))
     ],
     'feet' => [
         'name' => ($lang === 'ku' ? 'قەبارێ پێیان' : ($lang === 'ar' ? 'مقاس وطول القدم' : 'Feet & Foot Size')),
         'icon' => '🦶',
-        'dim1_label' => ($lang === 'ku' ? 'درێژیا پێی (سم)' : ($lang === 'ar' ? 'طول القدم (سم)' : 'Foot Length (cm)')),
-        'dim2_label' => ($lang === 'ku' ? 'پانییا پێی (سم)' : ($lang === 'ar' ? 'عرض القدم (سم)' : 'Foot Width (cm)')),
-        'step1' => ($lang === 'ku' ? 'کاغەزەکێ ل سەر ئەردی دابنێ و پێیێ خۆ ب دورستی ل سەر ڕابگرە.' : ($lang === 'ar' ? 'ضع ورقة بيضاء على الأرض وقف عليها بوزنك الكامل وجورب مناسب.' : 'Place a white paper sheet on the floor and stand firmly on it with normal socks.')),
-        'step2' => ($lang === 'ku' ? 'ب قەلەمەکێ دۆروبەرێ پنیا پێی و سەرێ تلیا مەزن هێڵەکێ بکێشە.' : ($lang === 'ar' ? 'حدد بقلم أبعد نقطة في الكعب وأطول إصبع في قدمك.' : 'Mark the backmost edge of your heel and the tip of your longest toe.')),
-        'step3' => ($lang === 'ku' ? 'مەودایا ناڤبەرا هەردوو خالان ب سانتیمەتر (cm) بپێڤە.' : ($lang === 'ar' ? 'قس المسافة بين النقطتين بالسنتيمتر (cm) لمعرفة مقاس قدمك الدقيق.' : 'Measure the exact distance between the two points in centimeters (cm).'))
+        'step1' => ($lang === 'ku' ? 'کاغەزەکێ ل سەر ئەردی دابنێ و پێیێ خۆ ب دورستی ل سەر ڕابگرە.' : ($lang === 'ar' ? 'ضع ورقة بيضاء على الأرض وقف عليها بوزنك الكامل.' : 'Place a paper sheet on the floor and stand firmly on it.')),
+        'step2' => ($lang === 'ku' ? 'پانییا پێی ل بەرفرەهترین جهـ بپێڤە.' : ($lang === 'ar' ? 'قس عرض القدم عند أعرض نقطة.' : 'Measure the foot width across the widest part.')),
+        'step3' => ($lang === 'ku' ? 'بلندی / درێژیا پێی ژ پنیا پێی هەتا سەرێ تلیا مەزن بپێڤە.' : ($lang === 'ar' ? 'قس المسافة من الكعب إلى أطول إصبع في قدمك.' : 'Measure from the backmost heel point to the tip of your longest toe.'))
     ]
 ];
 
 $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
+
+// Strictly Width and Height labels
+$dimHeightLabel = ($lang === 'ku' ? 'بلندی' : ($lang === 'ar' ? 'الارتفاع' : 'Height'));
+$dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' : 'Width'));
 ?>
 
 <div class="page-banner">
@@ -199,9 +194,9 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
             <h1 class="page-banner-title"><?php echo t('how_to_measure_title', $lang); ?></h1>
             <p class="page-banner-subtitle">
                 <?php 
-                if ($lang === 'ku') echo 'رێبەرێ پێشکەفتی یێ قیاسێن دروست ب سانتیمەتر (cm) بۆ دەستکەفتنا قیاسێ ١٠٠٪ ڕاستەقینە';
-                elseif ($lang === 'ar') echo 'دليل المقاسات الهندسي الدقيق بوحدة السنتيمتر (سم) لاختيار مقاسك المثالي بدقة متناهية';
-                else echo 'Precision anatomical sizing blueprints and dimension guide measured in Centimeters (cm)';
+                if ($lang === 'ku') echo 'رێبەرێ پێشکەفتی یێ قیاسێن دروست بۆ دەستکەفتنا قیاسێ ١٠٠٪ ڕاستەقینە';
+                elseif ($lang === 'ar') echo 'دليل المقاسات الهندسي الدقيق لاختيار مقاسك المثالي بدقة متناهية';
+                else echo 'Precision sizing blueprints and dimension guide';
                 ?>
             </p>
         </div>
@@ -211,7 +206,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
 <section class="size-guide-page-section py-60">
     <div class="container">
         
-        <!-- Category Navigation Tabs (Apparel & Feet Size Only) -->
+        <!-- Category Navigation Tabs -->
         <div class="size-guide-tabs-nav">
             <a href="size_guide.php?v=tshirt<?php echo $tabQuery; ?>" class="size-tab-btn <?php echo $variant === 'tshirt' ? 'active' : ''; ?>">
                 <span class="tab-icon">👕</span>
@@ -233,16 +228,15 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
 
         <div class="size-guide-content-card" dir="<?php echo $dir; ?>">
             
-            <!-- Top Controls Bar: Active Product & Metric Standard Indicator -->
-            <div class="guide-controls-top-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px;">
-                
-                <?php if ($product): ?>
+            <!-- Top Header Bar -->
+            <div class="guide-controls-top-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 18px;">
+                <?php if ($product && $productMatchesVariant): ?>
                     <div class="guide-product-badge-wrap" style="display: inline-flex; align-items: center; gap: 10px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px 18px; border-radius: 30px;">
                         <span style="color: #dcb348; font-size: 14px;">✦</span>
                         <span style="color: #f3f4f6; font-size: 14px; font-weight: 600;"><?php echo htmlspecialchars($productTitle); ?></span>
                         <?php if (!empty($selectedSize)): ?>
                             <span style="color: rgba(255,255,255,0.3);">|</span>
-                            <span style="color: #dcb348; font-size: 13.5px; font-weight: 700;"><?php echo $lang === 'ku' ? 'قیاس:' : ($lang === 'ar' ? 'المقاس:' : 'Size:'); ?> <span id="currentActiveSizeBadge"><?php echo htmlspecialchars($selectedSize); ?></span></span>
+                            <span style="color: #dcb348; font-size: 13.5px; font-weight: 700;"><?php echo $lang === 'ku' ? 'قیاس:' : ($lang === 'ar' ? 'المقاس:' : 'Size:'); ?> <span><?php echo htmlspecialchars($selectedSize); ?></span></span>
                         <?php endif; ?>
                     </div>
                 <?php else: ?>
@@ -251,45 +245,14 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                         <span><?php echo $curCat['name']; ?></span>
                     </div>
                 <?php endif; ?>
-
-                <!-- Clear Metric Unit Tag (Strictly Centimeters cm) -->
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 6px 14px; font-size: 12.5px; font-weight: 700; color: #dcb348;">
-                    <span>📐</span>
-                    <span><?php echo $lang === 'ku' ? 'پیڤان ب سانتیمەتر (cm)' : ($lang === 'ar' ? 'القياسات بالسنتيمتر (cm)' : 'Dimensions in Centimeters (cm)'); ?></span>
-                </div>
-
             </div>
-
-            <!-- Product Interactive Size Selector (If viewing a product) -->
-            <?php if (!empty($productSizes) && count($productSizes) > 0): ?>
-                <div class="guide-product-size-selector-row" style="background: rgba(13, 15, 24, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
-                    <span style="font-size: 13.5px; font-weight: 700; color: #e5e7eb;">
-                        <?php echo $lang === 'ku' ? 'قیاسەکێ بەرهەمی تاقی بکە:' : ($lang === 'ar' ? 'اختر مقاساً لمعاينة أبعاده الهندسية:' : 'Select Size to View Blueprint:'); ?>
-                    </span>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <?php foreach ($productSizes as $sPill): 
-                            $isActivePill = (strtoupper(trim($sPill)) === strtoupper(trim($selectedSize)));
-                            $pillMeasurement = $productMeasurements[$sPill] ?? '';
-                        ?>
-                            <button type="button" 
-                                    class="guide-size-pill <?php echo $isActivePill ? 'active' : ''; ?>"
-                                    data-size="<?php echo htmlspecialchars($sPill); ?>"
-                                    data-measurement="<?php echo htmlspecialchars($pillMeasurement); ?>"
-                                    onclick="onGuideSizeClicked(this, '<?php echo htmlspecialchars(addslashes($sPill)); ?>')"
-                                    style="padding: 7px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer; border: 1px solid <?php echo $isActivePill ? '#dcb348' : 'rgba(255,255,255,0.15)'; ?>; background: <?php echo $isActivePill ? 'linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.1))' : 'rgba(255,255,255,0.04)'; ?>; color: <?php echo $isActivePill ? '#dcb348' : '#e5e7eb'; ?>; transition: all 0.2s;">
-                                <?php echo htmlspecialchars($sPill); ?>
-                            </button>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
 
             <div class="guide-variant-header">
-                <h2><?php echo $curCat['icon']; ?> <?php echo $curCat['name']; ?> — <?php echo $lang === 'ku' ? 'رێبەرێ پیڤانێن تەواو ب سانتیمەتر' : ($lang === 'ar' ? 'دليل القياسات والمخطط الهندسي' : 'Precision Fit Blueprint (cm)'); ?></h2>
-                <p><?php echo $lang === 'ku' ? 'بۆ دەستکەفتنا قیاسێ د دروستاهیێ دا، پیڤانێن خۆ ب دووڤ ڤی شێوازێ دیارکری بگرە:' : ($lang === 'ar' ? 'لضمان القياس المثالي الذي يلائمك، اتبع المخطط التوضيحي والخطوات التالية:' : 'Follow our tailored anatomical blueprint below to ensure absolute precision and flawless fit:'); ?></p>
+                <h2><?php echo $curCat['icon']; ?> <?php echo $curCat['name']; ?></h2>
+                <p><?php echo $lang === 'ku' ? 'بۆ دەستکەفتنا قیاسێ دروست، پیڤانێن خۆ ب دووڤ ڤی شێوازێ دیارکری بگرە:' : ($lang === 'ar' ? 'لضمان القياس المثالي الذي يلائمك، اتبع المخطط التوضيحي والخطوات التالية:' : 'Follow our tailored anatomical blueprint below to ensure absolute precision:'); ?></p>
             </div>
 
-            <!-- Grid Layout: Dynamic SVG Schematic + 3 Measurement Steps -->
+            <!-- Grid Layout: SVG Schematic + 3 Measurement Steps -->
             <div class="guide-grid-layout">
                 
                 <!-- Left Column: Interactive Vector Schematic -->
@@ -321,18 +284,18 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <path d="M 205 40 Q 220 70 200 95" stroke="#3a405a" stroke-width="1.5" fill="none" />
                                 <path d="M 295 40 Q 280 70 300 95" stroke="#3a405a" stroke-width="1.5" fill="none" />
 
-                                <!-- Waist Width Dimension Line & Badge -->
+                                <!-- Width Dimension Line & Badge -->
                                 <line x1="195" y1="36" x2="305" y2="36" stroke="#dcb348" stroke-width="3" />
                                 <circle cx="195" cy="36" r="4.5" fill="#dcb348" />
                                 <circle cx="305" cy="36" r="4.5" fill="#dcb348" />
                                 <g transform="translate(180, 2)">
                                     <rect width="140" height="28" rx="14" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
                                     <text x="70" y="19" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim2_label']; ?>: <tspan id="svgValWidth"><?php echo htmlspecialchars($activeDimWidth); ?></tspan>
+                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
                                     </text>
                                 </g>
 
-                                <!-- Total Length Dimension Line & Badge -->
+                                <!-- Height Dimension Line & Badge -->
                                 <line x1="130" y1="40" x2="130" y2="280" stroke="#f43f5e" stroke-width="2.6" stroke-dasharray="6 4" />
                                 <circle cx="130" cy="40" r="4" fill="#f43f5e" />
                                 <circle cx="130" cy="280" r="4" fill="#f43f5e" />
@@ -341,7 +304,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <g transform="translate(10, 145)">
                                     <rect width="145" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
                                     <text x="72" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim1_label']; ?>: <tspan id="svgValHeight"><?php echo htmlspecialchars($activeDimHeight); ?></tspan>
+                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
                                     </text>
                                 </g>
                             </svg>
@@ -369,18 +332,18 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <circle cx="250" cy="195" r="3" fill="#dcb348" />
                                 <circle cx="250" cy="225" r="3" fill="#dcb348" />
 
-                                <!-- Chest Width Dimension Line & Badge -->
+                                <!-- Width Dimension Line & Badge -->
                                 <line x1="175" y1="140" x2="325" y2="140" stroke="#dcb348" stroke-width="3" />
                                 <circle cx="175" cy="140" r="5" fill="#dcb348" />
                                 <circle cx="325" cy="140" r="5" fill="#dcb348" />
                                 <g transform="translate(180, 95)">
                                     <rect width="140" height="30" rx="15" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
                                     <text x="70" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim2_label']; ?>: <tspan id="svgValWidth"><?php echo htmlspecialchars($activeDimWidth); ?></tspan>
+                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
                                     </text>
                                 </g>
 
-                                <!-- Jacket Length Dimension Line & Badge -->
+                                <!-- Height Dimension Line & Badge -->
                                 <line x1="70" y1="38" x2="70" y2="288" stroke="#f43f5e" stroke-width="2.6" />
                                 <circle cx="70" cy="38" r="4.5" fill="#f43f5e" />
                                 <circle cx="70" cy="288" r="4.5" fill="#f43f5e" />
@@ -389,7 +352,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <g transform="translate(10, 148)">
                                     <rect width="140" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
                                     <text x="70" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim1_label']; ?>: <tspan id="svgValHeight"><?php echo htmlspecialchars($activeDimHeight); ?></tspan>
+                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
                                     </text>
                                 </g>
                             </svg>
@@ -413,38 +376,32 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <line x1="250" y1="30" x2="250" y2="270" stroke="rgba(212,175,55,0.15)" stroke-width="1" stroke-dasharray="4 4" />
 
                                 <!-- Clean Anatomical Foot Outline (Top View) -->
-                                <!-- Heel at Left (x=130), Ball of foot, Big Toe & Toes at Right (x=370) -->
                                 <path d="M 130 150 C 130 120, 155 110, 185 110 C 220 110, 240 125, 270 120 C 305 115, 335 110, 365 125 C 380 135, 380 160, 365 175 C 340 190, 310 185, 275 180 C 235 175, 215 190, 180 190 C 150 190, 130 180, 130 150 Z" 
                                       fill="url(#footGrad)" stroke="#dcb348" stroke-width="2.2" filter="url(#footGlow)" />
 
-                                <!-- Anatomical Foot Toes Visual Detailing -->
-                                <!-- Big toe -->
+                                <!-- Anatomical Foot Toes Detailing -->
                                 <ellipse cx="360" cy="135" rx="12" ry="10" fill="#323c57" stroke="#dcb348" stroke-width="1.5" />
-                                <!-- 2nd toe -->
                                 <ellipse cx="355" cy="152" rx="9" ry="7" fill="#283046" stroke="#3a405a" stroke-width="1.2" />
-                                <!-- 3rd toe -->
                                 <ellipse cx="346" cy="165" rx="8" ry="6" fill="#283046" stroke="#3a405a" stroke-width="1.2" />
-                                <!-- 4th toe -->
                                 <ellipse cx="335" cy="174" rx="7" ry="5.5" fill="#283046" stroke="#3a405a" stroke-width="1.2" />
-                                <!-- Pinky toe -->
                                 <ellipse cx="323" cy="180" rx="6" ry="5" fill="#283046" stroke="#3a405a" stroke-width="1.2" />
 
                                 <!-- Foot Arch & Heel Contour -->
                                 <path d="M 175 150 C 175 135, 200 130, 230 140" stroke="rgba(212,175,55,0.4)" stroke-width="1.5" stroke-dasharray="3 3" fill="none" />
                                 <circle cx="155" cy="150" r="14" fill="rgba(212,175,55,0.08)" stroke="rgba(212,175,55,0.3)" stroke-width="1.2" />
 
-                                <!-- Foot Width Dimension Line & Badge -->
+                                <!-- Width Dimension Line & Badge -->
                                 <line x1="280" y1="108" x2="280" y2="192" stroke="#dcb348" stroke-width="2.8" />
                                 <circle cx="280" cy="108" r="4.5" fill="#dcb348" />
                                 <circle cx="280" cy="192" r="4.5" fill="#dcb348" />
                                 <g transform="translate(205, 45)">
                                     <rect width="150" height="30" rx="15" fill="#0b0e17" stroke="#dcb348" stroke-width="1.8" />
                                     <text x="75" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim2_label']; ?>: <tspan id="svgValWidth"><?php echo htmlspecialchars($activeDimWidth); ?></tspan>
+                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
                                     </text>
                                 </g>
 
-                                <!-- Foot Length Dimension Line & Badge (Heel to Longest Toe) -->
+                                <!-- Height Dimension Line & Badge -->
                                 <line x1="130" y1="285" x2="375" y2="285" stroke="#f43f5e" stroke-width="3" />
                                 <circle cx="130" cy="285" r="4.5" fill="#f43f5e" />
                                 <circle cx="375" cy="285" r="4.5" fill="#f43f5e" />
@@ -454,7 +411,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <g transform="translate(175, 268)">
                                     <rect width="160" height="30" rx="15" fill="#0b0e17" stroke="#f43f5e" stroke-width="1.8" />
                                     <text x="80" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim1_label']; ?>: <tspan id="svgValHeight"><?php echo htmlspecialchars($activeDimHeight); ?></tspan>
+                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
                                     </text>
                                 </g>
                             </svg>
@@ -483,7 +440,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <path d="M 200 120 L 230 65" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
                                 <path d="M 340 120 L 310 65" stroke="#2a2e42" stroke-width="1.5" stroke-dasharray="4 4" />
                                 
-                                <!-- Chest Width Dimension & Badge -->
+                                <!-- Width Dimension & Badge -->
                                 <line x1="200" y1="150" x2="340" y2="150" stroke="#dcb348" stroke-width="3.5" />
                                 <circle cx="200" cy="150" r="5" fill="#dcb348" />
                                 <circle cx="340" cy="150" r="5" fill="#dcb348" />
@@ -491,11 +448,11 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <g transform="translate(195, 98)">
                                     <rect width="150" height="30" rx="15" fill="#0a0d16" stroke="#dcb348" stroke-width="2" />
                                     <text x="75" y="20" fill="#dcb348" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim2_label']; ?>: <tspan id="svgValWidth"><?php echo htmlspecialchars($activeDimWidth); ?></tspan>
+                                        <?php echo $dimWidthLabel; ?>: <?php echo htmlspecialchars($activeDimWidth); ?>
                                     </text>
                                 </g>
 
-                                <!-- Total Height / Length Dimension & Badge -->
+                                <!-- Height Dimension & Badge -->
                                 <line x1="75" y1="36" x2="270" y2="36" stroke="rgba(244,63,94,0.35)" stroke-width="1.2" stroke-dasharray="4 3" />
                                 <line x1="75" y1="290" x2="270" y2="290" stroke="rgba(244,63,94,0.35)" stroke-width="1.2" stroke-dasharray="4 3" />
 
@@ -506,7 +463,7 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                                 <g transform="translate(10, 145)">
                                     <rect width="135" height="30" rx="15" fill="#0a0d16" stroke="#f43f5e" stroke-width="2" />
                                     <text x="67" y="20" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui, sans-serif">
-                                        <?php echo $curCat['dim1_label']; ?>: <tspan id="svgValHeight"><?php echo htmlspecialchars($activeDimHeight); ?></tspan>
+                                        <?php echo $dimHeightLabel; ?>: <?php echo htmlspecialchars($activeDimHeight); ?>
                                     </text>
                                 </g>
                             </svg>
@@ -527,14 +484,14 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
                     <div class="measure-step-item width-accent">
                         <span class="step-num">2</span>
                         <div class="step-text">
-                            <strong><?php echo t('how_to_measure_step2_title', $lang); ?> (<?php echo $curCat['dim2_label']; ?>)</strong>
+                            <strong><?php echo $lang === 'ku' ? '٢. پانی' : ($lang === 'ar' ? '٢. العرض' : '2. Width'); ?></strong>
                             <span><?php echo $curCat['step2']; ?></span>
                         </div>
                     </div>
                     <div class="measure-step-item height-accent">
                         <span class="step-num">3</span>
                         <div class="step-text">
-                            <strong><?php echo t('how_to_measure_step3_title', $lang); ?> (<?php echo $curCat['dim1_label']; ?>)</strong>
+                            <strong><?php echo $lang === 'ku' ? '٣. بلندی' : ($lang === 'ar' ? '٣. الارتفاع' : '3. Height'); ?></strong>
                             <span><?php echo $curCat['step3']; ?></span>
                         </div>
                     </div>
@@ -555,113 +512,5 @@ $curCat = $catMeta[$variant] ?? $catMeta['tshirt'];
         </div>
     </div>
 </section>
-
-<script>
-// Interactive Size Guide Scripts (Pure Centimeter cm standard)
-const activeCategoryVariant = '<?php echo $variant; ?>';
-
-function parseDimNumber(str) {
-    if (!str) return 0;
-    const clean = String(str).replace(/[^0-9.]/g, '');
-    return parseFloat(clean) || 0;
-}
-
-function formatCm(val) {
-    if (!val || val <= 0) return '';
-    return `${val}cm`;
-}
-
-function updateSchematicDimensions() {
-    const hEl = document.getElementById('svgValHeight');
-    const wEl = document.getElementById('svgValWidth');
-
-    if (hEl && window.baseHeightVal) {
-        hEl.innerText = window.baseHeightVal;
-    }
-    if (wEl && window.baseWidthVal) {
-        wEl.innerText = window.baseWidthVal;
-    }
-}
-
-// Extract base dimension values initially
-document.addEventListener('DOMContentLoaded', function() {
-    window.baseHeightVal = '<?php echo addslashes($activeDimHeight); ?>';
-    window.baseWidthVal = '<?php echo addslashes($activeDimWidth); ?>';
-});
-
-function onGuideSizeClicked(btn, sizeName) {
-    // 1. Highlight pill
-    document.querySelectorAll('.guide-size-pill').forEach(b => {
-        b.style.borderColor = 'rgba(255,255,255,0.15)';
-        b.style.background = 'rgba(255,255,255,0.04)';
-        b.style.color = '#e5e7eb';
-        b.classList.remove('active');
-    });
-
-    btn.style.borderColor = '#dcb348';
-    btn.style.background = 'linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.1))';
-    btn.style.color = '#dcb348';
-    btn.classList.add('active');
-
-    // 2. Update badge
-    const badge = document.getElementById('currentActiveSizeBadge');
-    if (badge) badge.innerText = sizeName;
-
-    // 3. Extract dimensions (pure cm)
-    const mStr = btn.getAttribute('data-measurement') || '';
-    let height = '';
-    let width = '';
-
-    if (mStr) {
-        const hMatch = mStr.match(/(?:Length|Height|Jacket|بلندی|درێژی|الطول)[:\s]*([0-9.]+\s*(?:cm)?)/i);
-        if (hMatch) height = hMatch[1].trim();
-        const wMatch = mStr.match(/(?:Width|Chest|Trousers|پانی|الصدر|العرض)[:\s]*([0-9.]+\s*(?:cm)?)/i);
-        if (wMatch) width = wMatch[1].trim();
-    }
-
-    if (!height || !width) {
-        const sz = String(sizeName).toUpperCase().trim();
-        if (activeCategoryVariant === 'jeans') {
-            if (sz === '28' || sz === 'XS') { height = '98cm'; width = '72cm'; }
-            else if (sz === '30' || sz === 'S') { height = '102cm'; width = '78cm'; }
-            else if (sz === '32' || sz === 'M') { height = '104cm'; width = '82cm'; }
-            else if (sz === '34' || sz === 'L') { height = '106cm'; width = '86cm'; }
-            else if (sz === '36' || sz === 'XL') { height = '108cm'; width = '92cm'; }
-            else if (sz === '38' || sz === 'XXL') { height = '110cm'; width = '98cm'; }
-            else { height = '104cm'; width = '82cm'; }
-        } else if (activeCategoryVariant === 'feet') {
-            const num = parseFloat(sz);
-            if (num && num >= 35 && num <= 48) {
-                height = (24.0 + (num - 38) * 0.65).toFixed(1) + 'cm';
-                width = '9.8cm';
-            } else {
-                height = '27.0cm';
-                width = '9.8cm';
-            }
-        } else if (activeCategoryVariant === 'jacket') {
-            if (sz === 'S') { height = '68cm'; width = '52cm'; }
-            else if (sz === 'M') { height = '71cm'; width = '55cm'; }
-            else if (sz === 'L') { height = '74cm'; width = '58cm'; }
-            else if (sz === 'XL') { height = '77cm'; width = '62cm'; }
-            else { height = '71cm'; width = '55cm'; }
-        } else {
-            if (sz === 'XS') { height = '62cm'; width = '42cm'; }
-            else if (sz === 'S') { height = '65cm'; width = '45cm'; }
-            else if (sz === 'M') { height = '70cm'; width = '50cm'; }
-            else if (sz === 'L') { height = '73cm'; width = '54cm'; }
-            else if (sz === 'XL') { height = '76cm'; width = '58cm'; }
-            else if (sz === 'XXL' || sz === '2XL') { height = '79cm'; width = '62cm'; }
-            else { height = '70cm'; width = '50cm'; }
-        }
-    }
-
-    if (!height.includes('cm')) height += 'cm';
-    if (!width.includes('cm')) width += 'cm';
-
-    window.baseHeightVal = height;
-    window.baseWidthVal = width;
-    updateSchematicDimensions();
-}
-</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
