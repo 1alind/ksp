@@ -136,25 +136,16 @@ function get_product_by_id($id) {
 }
 
 /**
- * Check if a product is new (added within the last 7 days, explicitly marked, or has a New badge)
+ * Check if a product is new (added within the last 30 days)
  */
 function is_product_new($product) {
     if (empty($product)) return false;
     
     if (!empty($product['created_at'])) {
         $createdAt = strtotime($product['created_at']);
-        if ($createdAt && (time() - $createdAt) <= 604800) { // 7 days = 604,800 seconds
+        if ($createdAt && (time() - $createdAt) <= 2592000) { // 30 days = 2,592,000 seconds
             return true;
         }
-    }
-    
-    if (!empty($product['is_new'])) {
-        return true;
-    }
-    
-    $badge = is_array($product['badge'] ?? '') ? ($product['badge']['en'] ?? '') : ($product['badge'] ?? '');
-    if (!empty($badge) && stripos($badge, 'new') !== false) {
-        return true;
     }
     
     return false;
@@ -245,7 +236,7 @@ function save_product($new_product) {
         $imagesList = [$mainImg];
     }
 
-    // Assign created_at timestamp and automatic New badge for new products
+    // Assign created_at timestamp for new products
     $createdAt = $new_product['created_at'] ?? null;
     if (!$isUpdate && empty($createdAt)) {
         $createdAt = date('Y-m-d H:i:s');
@@ -254,11 +245,6 @@ function save_product($new_product) {
     $badgeEn = $new_product['badge'] ?? ($new_product['badge_en'] ?? '');
     $badgeAr = $new_product['badge_ar'] ?? '';
     $badgeKu = $new_product['badge_ku'] ?? '';
-    if (!$isUpdate && empty($badgeEn)) {
-        $badgeEn = 'New';
-        $badgeAr = 'جديد';
-        $badgeKu = 'نوی';
-    }
 
     $productFormatted = [
         'id' => $finalId,
