@@ -82,7 +82,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
             <div class="top-bar-actions">
                 <!-- Language Switcher -->
                 <div class="dropdown-wrapper">
-                    <button class="top-btn" id="langDropdownBtn" aria-label="Select Language" type="button">
+                    <button class="top-btn" id="langDropdownBtn" aria-label="Select Language" type="button" onclick="window.toggleLanguageDropdown(event);">
                         <span class="globe-icon">🌐</span>
                         <span class="current-lang-text">
                             <?php 
@@ -94,9 +94,9 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
                         <span class="chevron-down">▾</span>
                     </button>
                     <div class="dropdown-menu" id="langDropdown">
-                        <a href="?lang=en" class="dropdown-item <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en'); return false;">English (EN)</a>
-                        <a href="?lang=ar" class="dropdown-item <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar'); return false;">العربية (AR)</a>
-                        <a href="?lang=ku" class="dropdown-item <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku'); return false;">کوردی - بادینی (KU)</a>
+                        <a href="?lang=en" class="dropdown-item <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en', event);">English (EN)</a>
+                        <a href="?lang=ar" class="dropdown-item <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar', event);">العربية (AR)</a>
+                        <a href="?lang=ku" class="dropdown-item <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku', event);">کوردی - بادینی (KU)</a>
                     </div>
                 </div>
 

@@ -254,104 +254,36 @@
         }
     };
 
-    // Global Site Language Switcher Function
-    window.changeSiteLanguage = function (lang) {
-        if (!['en', 'ar', 'ku'].includes(lang)) return;
-        try {
-            localStorage.setItem('aura_lang', lang);
-        } catch (e) {}
-
-        // Root path cookie accessible across all pages and subfolders
-        document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=Lax`;
-        if (window.location.protocol === 'https:') {
-            document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=None;Secure`;
-        }
-
-        try {
-            const url = new URL(window.location.href);
-            url.searchParams.set('lang', lang);
-            window.location.href = url.toString();
-        } catch (e) {
-            window.location.href = `?lang=${lang}`;
-        }
-    };
-
     // Safely extend window.AuraStore without overwriting existing methods
     window.AuraStore = Object.assign(window.AuraStore || {}, window.AdminApp);
 
+    // Ensure changeSiteLanguage exists in Admin environment
+    if (typeof window.changeSiteLanguage !== 'function') {
+        window.changeSiteLanguage = function (lang, event) {
+            if (event && event.preventDefault) event.preventDefault();
+            if (!['en', 'ar', 'ku'].includes(lang)) return;
+            try {
+                localStorage.setItem('aura_lang', lang);
+            } catch (e) {}
+
+            document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=Lax`;
+            if (window.location.protocol === 'https:') {
+                document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=None;Secure`;
+            }
+
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('lang', lang);
+                window.location.href = url.toString();
+            } catch (e) {
+                window.location.href = `?lang=${lang}`;
+            }
+        };
+    }
+
     // Auto-initialize on DOM load
     document.addEventListener('DOMContentLoaded', function () {
-        // Sync language from localStorage if URL has no lang param and page lang is different
-        try {
-            const savedLang = localStorage.getItem('aura_lang');
-            const url = new URL(window.location.href);
-            const urlLang = url.searchParams.get('lang');
-            if (!urlLang && savedLang && ['en', 'ar', 'ku'].includes(savedLang)) {
-                const currentLang = document.documentElement.getAttribute('lang') || 'en';
-                if (savedLang !== currentLang) {
-                    url.searchParams.set('lang', savedLang);
-                    window.location.replace(url.toString());
-                    return;
-                }
-            }
-        } catch (e) {}
-
-        // 1. Language Dropdown Button in Header (#langDropdownBtn)
-        const langBtn = document.getElementById('langDropdownBtn');
-        const langDropdown = document.getElementById('langDropdown');
-        if (langBtn && langDropdown) {
-            langBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                langDropdown.classList.toggle('show');
-            });
-
-            document.addEventListener('click', function (e) {
-                if (!langDropdown.contains(e.target) && e.target !== langBtn && !langBtn.contains(e.target)) {
-                    langDropdown.classList.remove('show');
-                }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    langDropdown.classList.remove('show');
-                }
-            });
-        }
-
-        // 2. Click handler for any language switch trigger with [data-lang-set]
-        document.querySelectorAll('[data-lang-set]').forEach(el => {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                const lang = this.getAttribute('data-lang-set');
-                window.changeSiteLanguage(lang);
-            });
-        });
-
-        // 3. Theme Toggle Button in Header (#themeToggleBtn)
-        const themeBtn = document.getElementById('themeToggleBtn');
-        if (themeBtn) {
-            themeBtn.addEventListener('click', function () {
-                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-                const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', nextTheme);
-                try {
-                    localStorage.setItem('aura_theme', nextTheme);
-                } catch (e) {}
-                document.cookie = `aura_theme=${nextTheme};path=/;max-age=31536000;SameSite=Lax`;
-            });
-        }
-
-        // 4. Mobile Menu Toggle in Header (#mobileMenuToggle)
-        const mobToggle = document.getElementById('mobileMenuToggle');
-        const mobDrawer = document.getElementById('mobileDrawer');
-        if (mobToggle && mobDrawer) {
-            mobToggle.addEventListener('click', function () {
-                mobDrawer.classList.toggle('open');
-            });
-        }
-
-        // 5. Wire up logo inputs if on branding page
+        // Wire up logo inputs if on branding page
         const logoInputs = ['logoEmblemInput', 'logoMainInput', 'logoSubInput', 'logoImageInput', 'brandAccentInput'];
         logoInputs.forEach(id => {
             const el = document.getElementById(id);

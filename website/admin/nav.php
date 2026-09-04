@@ -30,13 +30,16 @@ $langParam = '?lang=' . urlencode($adminLang);
     </div>
 
     <!-- Quick Language Selector Pill inside Admin -->
-    <div class="admin-lang-selector-bar" style="display:flex; align-items:center; gap:6px; background:var(--bg-surface); padding:4px 8px; border-radius:20px; border:1px solid var(--border-color); font-size:12px; white-space:nowrap;">
-        <span style="color:var(--text-secondary); font-size:11px;">🌐</span>
-        <button type="button" class="admin-lang-btn <?php echo $adminLang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en');" style="cursor:pointer; border:none; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'en' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'en' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">EN</button>
+    <div class="admin-lang-selector-bar" style="display:flex; align-items:center; gap:6px; background:var(--bg-surface); padding:4px 10px; border-radius:20px; border:1px solid var(--border-color); font-size:12px; white-space:nowrap;">
+        <span style="color:var(--text-secondary); font-size:12px; display:inline-flex; align-items:center; gap:4px;">
+            <span>🌐</span>
+            <span style="font-size:11px; font-weight:600;"><?php echo adm_t('admin_language', 'Language'); ?>:</span>
+        </span>
+        <a href="?lang=en" class="admin-lang-btn <?php echo $adminLang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en', event);" style="text-decoration:none; cursor:pointer; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'en' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'en' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">English</a>
         <span style="color:var(--border-color);">|</span>
-        <button type="button" class="admin-lang-btn <?php echo $adminLang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar');" style="cursor:pointer; border:none; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'ar' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'ar' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">العربية</button>
+        <a href="?lang=ar" class="admin-lang-btn <?php echo $adminLang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar', event);" style="text-decoration:none; cursor:pointer; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'ar' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'ar' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">العربية</a>
         <span style="color:var(--border-color);">|</span>
-        <button type="button" class="admin-lang-btn <?php echo $adminLang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku');" style="cursor:pointer; border:none; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'ku' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'ku' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">کوردی</button>
+        <a href="?lang=ku" class="admin-lang-btn <?php echo $adminLang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku', event);" style="text-decoration:none; cursor:pointer; padding:4px 10px; border-radius:12px; font-weight:700; font-size:12px; color:<?php echo $adminLang === 'ku' ? 'var(--accent-gold)' : 'var(--text-secondary)'; ?>; background:<?php echo $adminLang === 'ku' ? 'var(--bg-card)' : 'transparent'; ?>; transition:all 0.2s ease;">کوردی (بادینی)</a>
     </div>
 </div>
 

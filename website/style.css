@@ -136,6 +136,8 @@ button, input, select, textarea {
     font-size: 13px;
     font-weight: 500;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 1000;
 }
 
 .announcement-container {
@@ -190,10 +192,10 @@ button, input, select, textarea {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    min-width: 160px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    min-width: 170px;
     display: none;
-    z-index: 1000;
+    z-index: 2000;
     overflow: hidden;
 }
 
@@ -203,7 +205,7 @@ button, input, select, textarea {
 }
 
 .dropdown-menu.show {
-    display: block;
+    display: block !important;
     animation: dropFade 0.2s ease forwards;
 }
 
