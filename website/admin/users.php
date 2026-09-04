@@ -52,10 +52,10 @@ require_once __DIR__ . '/../header.php';
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Executive Command Suite</span>
-            <h1 class="page-banner-title">Customer Directory & Accounts</h1>
+            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_users', 'Customers'); ?></span>
+            <h1 class="page-banner-title"><?php echo adm_t('admin_users_title', 'Customer Accounts & Directory'); ?></h1>
             <p class="page-banner-subtitle">
-                Comprehensive customer profiles, contact numbers, order history counts, and lifetime boutique spend.
+                <?php echo adm_t('admin_users_subtitle', 'Comprehensive customer profiles, contact numbers, order history counts, and lifetime boutique spend.'); ?>
             </p>
         </div>
     </div>
@@ -79,33 +79,33 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-metric-card">
                 <span class="m-icon">👥</span>
                 <div class="m-info">
-                    <span class="m-label">Registered Customers</span>
-                    <strong class="m-value"><?php echo count($usersList); ?> Clients</strong>
-                    <span class="iqd-price-pill">Curated Luxury Client Base</span>
+                    <span class="m-label"><?php echo adm_t('admin_users_registered', 'Registered Customers'); ?></span>
+                    <strong class="m-value"><?php echo count($usersList); ?> <?php echo adm_t('admin_users_clients', 'Clients'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_users_client_base', 'Curated Luxury Client Base'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">💰</span>
                 <div class="m-info">
-                    <span class="m-label">Total Client Volume</span>
+                    <span class="m-label"><?php echo adm_t('admin_users_total_volume', 'Total Client Volume'); ?></span>
                     <strong class="m-value text-primary"><?php echo number_format($totalCustomerSpend); ?> IQD</strong>
-                    <span class="iqd-price-pill">Combined Lifetime Purchases</span>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_users_lifetime', 'Combined Lifetime Purchases'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">📍</span>
                 <div class="m-info">
-                    <span class="m-label">Regional Reach</span>
-                    <strong class="m-value">All 18 Provinces</strong>
-                    <span class="iqd-price-pill">Kurdistan & Federal Iraq</span>
+                    <span class="m-label"><?php echo adm_t('admin_users_reach', 'Regional Reach'); ?></span>
+                    <strong class="m-value"><?php echo adm_t('admin_users_all_provinces', 'All 18 Provinces'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_users_kurdistan_iraq', 'Kurdistan & Federal Iraq'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">💬</span>
                 <div class="m-info">
-                    <span class="m-label">Concierge Inquiries</span>
-                    <strong class="m-value"><?php echo count($inquiriesList); ?> Active</strong>
-                    <span class="iqd-price-pill"><a href="/admin/inquiries.php" style="color:inherit;">View Messages →</a></span>
+                    <span class="m-label"><?php echo adm_t('admin_users_inquiries', 'Concierge Inquiries'); ?></span>
+                    <strong class="m-value"><?php echo count($inquiriesList); ?> <?php echo adm_t('admin_users_active', 'Active'); ?></strong>
+                    <span class="iqd-price-pill"><a href="/admin/inquiries.php" style="color:inherit;"><?php echo adm_t('admin_users_view_messages', 'View Messages →'); ?></a></span>
                 </div>
             </div>
         </div>
@@ -116,24 +116,24 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-table-card">
                 <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h3 class="admin-card-title" style="margin:0; font-size:18px;">👥 Registered Customers</h3>
-                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">All clients registered through checkout, authentication, or manual admin entry.</p>
+                        <h3 class="admin-card-title" style="margin:0; font-size:18px;">👥 <?php echo adm_t('admin_users_registered', 'Registered Customers'); ?></h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_users_directory_desc', 'All clients registered through checkout, authentication, or manual admin entry.'); ?></p>
                     </div>
-                    <input type="text" id="userSearchInput" onkeyup="filterUsersTable()" placeholder="Search clients..." class="form-control" style="max-width:200px; padding:8px 12px; font-size:13px;">
+                    <input type="text" id="userSearchInput" onkeyup="filterUsersTable()" placeholder="<?php echo htmlspecialchars(adm_t('admin_users_search_placeholder', 'Search clients...')); ?>" class="form-control" style="max-width:200px; padding:8px 12px; font-size:13px;">
                 </div>
 
                 <div class="table-responsive">
                     <table class="admin-table" id="usersTableMain">
                         <thead>
                             <tr>
-                                <th>Client Profile</th>
-                                <th>Contact Details</th>
-                                <th>City</th>
-                                <th>Orders</th>
-                                <th>Total Spend</th>
-                                <th>Member Since</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th><?php echo adm_t('admin_users_th_profile', 'Client Profile'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_contact', 'Contact Details'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_city', 'City'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_orders', 'Orders'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_total_spent', 'Total Spend'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_member_since', 'Member Since'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_status', 'Status'); ?></th>
+                                <th><?php echo adm_t('admin_users_th_actions', 'Actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,23 +163,23 @@ require_once __DIR__ . '/../header.php';
                                         <span class="badge-tag" style="font-weight:600;">📍 <?php echo htmlspecialchars($u['city'] ?? 'Duhok'); ?></span>
                                     </td>
                                     <td>
-                                        <strong style="font-size:14px;"><?php echo $u['orders_count'] ?? 1; ?></strong> <span class="text-muted">orders</span>
+                                        <strong style="font-size:14px;"><?php echo $u['orders_count'] ?? 1; ?></strong> <span class="text-muted"><?php echo adm_t('admin_users_th_orders', 'orders'); ?></span>
                                     </td>
                                     <td>
                                         <strong style="color:var(--accent-gold); font-size:14px;"><?php echo number_format($u['total_spent'] ?? 240000); ?> IQD</strong>
                                     </td>
                                     <td>
-                                        <small class="text-muted"><?php echo !empty($u['created_at']) ? date('M d, Y', strtotime($u['created_at'])) : 'Active Member'; ?></small>
+                                        <small class="text-muted"><?php echo !empty($u['created_at']) ? date('M d, Y', strtotime($u['created_at'])) : adm_t('admin_users_active_member', 'Active Member'); ?></small>
                                     </td>
                                     <td>
-                                        <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border-color:#22c55e; font-weight:700;">Active</span>
+                                        <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border-color:#22c55e; font-weight:700;"><?php echo adm_t('admin_users_active_badge', 'Active'); ?></span>
                                     </td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
                                             <?php if (!empty($cleanPhone)): ?>
                                                 <a href="https://wa.me/<?php echo $cleanPhone; ?>" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e;">💬 WA</a>
                                             <?php endif; ?>
-                                            <form action="/admin/users.php" method="POST" onsubmit="return confirm('Delete customer profile?')" style="display:inline;">
+                                            <form action="/admin/users.php" method="POST" onsubmit="return confirm('<?php echo htmlspecialchars(adm_t('admin_users_delete_confirm', 'Delete customer profile?')); ?>')" style="display:inline;">
                                                 <input type="hidden" name="delete_user_id" value="<?php echo $u['id']; ?>">
                                                 <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete">✕</button>
                                             </form>
@@ -194,42 +194,42 @@ require_once __DIR__ . '/../header.php';
 
             <!-- Add New Customer Card -->
             <div class="admin-form-card">
-                <h3 class="admin-card-title" style="font-size:16px; margin-bottom:6px;">+ Register Customer</h3>
-                <p class="text-muted" style="font-size:12.5px; margin-bottom:16px;">Manually add client details from phone inquiries or direct boutique appointments.</p>
+                <h3 class="admin-card-title" style="font-size:16px; margin-bottom:6px;"><?php echo adm_t('admin_users_register_title', '+ Register Customer'); ?></h3>
+                <p class="text-muted" style="font-size:12.5px; margin-bottom:16px;"><?php echo adm_t('admin_users_register_desc', 'Manually add client details from phone inquiries or direct boutique appointments.'); ?></p>
                 
                 <form action="/admin/users.php" method="POST">
                     <input type="hidden" name="add_new_user" value="1">
                     
                     <div class="form-group mb-14">
-                        <label>Full Name <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_users_full_name', 'Full Name'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="user_name" required class="form-control" placeholder="e.g. Dana Barzani">
                     </div>
 
                     <div class="form-group mb-14">
-                        <label>Email Address <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_users_email', 'Email Address'); ?> <span class="text-danger">*</span></label>
                         <input type="email" name="user_email" required class="form-control" placeholder="dana@example.com">
                     </div>
 
                     <div class="form-group mb-14">
-                        <label>Phone Number (Iraq)</label>
+                        <label><?php echo adm_t('admin_users_phone', 'Phone Number (Iraq)'); ?></label>
                         <input type="text" name="user_phone" class="form-control" placeholder="0750 000 0000">
                     </div>
 
                     <div class="form-group mb-14">
-                        <label>City / Region</label>
+                        <label><?php echo adm_t('admin_users_city_region', 'City / Region'); ?></label>
                         <select name="user_city" class="form-control">
-                            <option value="Duhok">Duhok</option>
-                            <option value="Erbil">Erbil</option>
-                            <option value="Sulaymaniyah">Sulaymaniyah</option>
-                            <option value="Baghdad">Baghdad</option>
-                            <option value="Basra">Basra</option>
-                            <option value="Kirkuk">Kirkuk</option>
-                            <option value="Najaf">Najaf</option>
+                            <option value="Duhok"><?php echo adm_t('city_duhok', 'Duhok'); ?></option>
+                            <option value="Erbil"><?php echo adm_t('city_erbil', 'Erbil'); ?></option>
+                            <option value="Sulaymaniyah"><?php echo adm_t('city_sulaymaniyah', 'Sulaymaniyah'); ?></option>
+                            <option value="Baghdad"><?php echo adm_t('city_baghdad', 'Baghdad'); ?></option>
+                            <option value="Basra"><?php echo adm_t('city_basra', 'Basra'); ?></option>
+                            <option value="Kirkuk"><?php echo adm_t('city_kirkuk', 'Kirkuk'); ?></option>
+                            <option value="Najaf"><?php echo adm_t('city_najaf', 'Najaf'); ?></option>
                         </select>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-luxury w-100" style="padding:10px;">
-                        Add Customer to Directory
+                        <?php echo adm_t('admin_users_submit_btn', 'Add Customer to Directory'); ?>
                     </button>
                 </form>
             </div>

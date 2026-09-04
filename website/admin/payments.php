@@ -91,10 +91,10 @@ require_once __DIR__ . '/../header.php';
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Executive Command Suite</span>
-            <h1 class="page-banner-title">Payment Gateways & Currency</h1>
+            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_payments', 'Payment Gateways'); ?></span>
+            <h1 class="page-banner-title"><?php echo adm_t('admin_payments_title', 'Payment Gateways & Live Telemetry'); ?></h1>
             <p class="page-banner-subtitle">
-                Configure Iraqi digital banking APIs (FIB & ZainCash), FastPay, COD, and official USD/IQD conversion rates.
+                <?php echo adm_t('admin_payments_subtitle', 'Direct API credentials, test sandboxes, simulated QR checkouts, and production credentials for Iraqi payment processors.'); ?>
             </p>
         </div>
     </div>
@@ -137,21 +137,21 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-form-card mb-24">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <div>
-                        <h3 class="admin-card-title" style="margin:0; font-size:16px;">💱 Official Currency & Exchange Rate</h3>
-                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Set the fixed store conversion rate from USD to Iraqi Dinar (IQD).</p>
+                        <h3 class="admin-card-title" style="margin:0; font-size:16px;">💱 <?php echo adm_t('admin_pay_currency_rate', 'Official Currency & Exchange Rate'); ?></h3>
+                        <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_pay_currency_desc', 'Set the fixed store conversion rate from USD to Iraqi Dinar (IQD).'); ?></p>
                     </div>
                     <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:700;">Base: IQD</span>
                 </div>
                 <div class="form-row-2">
                     <div class="form-group">
-                        <label>1 USD to Iraqi Dinar (IQD) Rate <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_pay_rate_label', '1 USD to Iraqi Dinar (IQD) Rate'); ?> <span class="text-danger">*</span></label>
                         <div style="display:flex; align-items:center; gap:10px;">
                             <input type="number" name="exchange_rate_usd_to_iqd" value="<?php echo htmlspecialchars($rate); ?>" class="form-control" style="font-size:16px; font-weight:700;" placeholder="1320" required>
                             <span style="font-weight:700; color:var(--accent-gold); white-space:nowrap;">IQD per $1.00</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Quick Preset Rates in Iraq</label>
+                        <label><?php echo adm_t('admin_pay_quick_presets', 'Quick Preset Rates in Iraq'); ?></label>
                         <div style="display:flex; gap:8px; margin-top:6px;">
                             <button type="button" class="btn btn-ghost btn-xs" onclick="document.querySelector('[name=exchange_rate_usd_to_iqd]').value=1320">Official (1,320)</button>
                             <button type="button" class="btn btn-ghost btn-xs" onclick="document.querySelector('[name=exchange_rate_usd_to_iqd]').value=1450">Commercial (1,450)</button>
@@ -169,75 +169,75 @@ require_once __DIR__ . '/../header.php';
                         <div class="gateway-brand" style="display:flex; align-items:center; gap:12px;">
                             <span class="gateway-icon-badge" style="font-size:28px;">🏦</span>
                             <div>
-                                <h3 style="margin:0; font-size:18px;">First Iraqi Bank (FIB API Suite)</h3>
-                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Direct banking, dynamic QR scans, and Iraqi Dinar transactions</p>
+                                <h3 style="margin:0; font-size:18px;"><?php echo adm_t('admin_gateway_fib', 'First Iraqi Bank (FIB)'); ?></h3>
+                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_gateway_fib_desc', 'Direct banking, dynamic QR scans, and Iraqi Dinar transactions'); ?></p>
                             </div>
                         </div>
                         <div class="gateway-toggle-wrap">
                             <label class="switch-toggle" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <input type="checkbox" name="fib_enabled" value="1" <?php echo (!empty($fib['enabled']) || !isset($fib['enabled'])) ? 'checked' : ''; ?> style="width:20px; height:20px; accent-color:var(--accent-gold);">
-                                <span style="font-size:13px; font-weight:700;">Enable FIB</span>
+                                <span style="font-size:13px; font-weight:700;"><?php echo adm_t('admin_gateway_enabled', 'Gateway Enabled'); ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row-2 mb-16">
                         <div class="form-group">
-                            <label>Environment Mode</label>
+                            <label><?php echo adm_t('admin_pay_env_mode', 'Operating Mode'); ?></label>
                             <select name="fib_mode" class="form-control">
-                                <option value="test" <?php echo ($fib['mode'] ?? '') === 'test' ? 'selected' : ''; ?>>Sandbox / Test (api.test.fib.iq)</option>
-                                <option value="prod" <?php echo ($fib['mode'] ?? '') === 'prod' ? 'selected' : ''; ?>>Production Live (api.fib.iq)</option>
+                                <option value="test" <?php echo ($fib['mode'] ?? '') === 'test' ? 'selected' : ''; ?>><?php echo adm_t('admin_pay_sandbox', 'Sandbox / Test'); ?> (api.test.fib.iq)</option>
+                                <option value="prod" <?php echo ($fib['mode'] ?? '') === 'prod' ? 'selected' : ''; ?>><?php echo adm_t('admin_pay_production', 'Production Live'); ?> (api.fib.iq)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Account IBAN (Kurdistan/Iraq)</label>
+                            <label><?php echo adm_t('admin_pay_iban', 'Account IBAN (Kurdistan/Iraq)'); ?></label>
                             <input type="text" name="fib_account_iban" value="<?php echo htmlspecialchars($fib['account_iban'] ?? 'IQ44FIBQ0000001009283741'); ?>" class="form-control" placeholder="IQ44FIBQ...">
                         </div>
                     </div>
 
                     <div class="form-group mb-16">
-                        <label>FIB Client ID / App Key <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_pay_client_id', 'Client ID / App Key'); ?> <span class="text-danger">*</span></label>
                         <div class="input-with-action" style="display:flex; gap:8px;">
                             <input type="text" name="fib_client_id" id="fibClientIdInput" value="<?php echo htmlspecialchars($fib['client_id'] ?? 'fib_live_client_89420ab92c'); ?>" required class="form-control" placeholder="fib_live_client_...">
-                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibClientIdInput', 'FIB Client ID copied')">📋 Copy</button>
+                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibClientIdInput', 'FIB Client ID copied')">📋 <?php echo adm_t('admin_pay_copy', 'Copy'); ?></button>
                         </div>
                     </div>
 
                     <div class="form-group mb-16">
-                        <label>FIB Client Secret Key <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_pay_client_secret', 'Client Secret Key'); ?> <span class="text-danger">*</span></label>
                         <div class="input-with-action" style="display:flex; gap:8px;">
                             <input type="password" name="fib_client_secret" id="fibSecretInput" value="<?php echo htmlspecialchars($fib['client_secret'] ?? 'fib_sec_9941a87b32f9104c99a0'); ?>" required class="form-control" placeholder="fib_sec_...">
                             <button type="button" class="btn btn-outline btn-xs" onclick="togglePasswordVisibility('fibSecretInput')">👁️</button>
-                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibSecretInput', 'FIB Secret copied')">📋</button>
+                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibSecretInput', 'FIB Secret copied')">📋 <?php echo adm_t('admin_pay_copy', 'Copy'); ?></button>
                         </div>
                     </div>
 
                     <div class="form-row-2 mb-16">
                         <div class="form-group">
-                            <label>Account Holder Name</label>
+                            <label><?php echo adm_t('admin_pay_account_holder', 'Account Holder Name'); ?></label>
                             <input type="text" name="fib_account_holder" value="<?php echo htmlspecialchars($fib['account_holder'] ?? 'AURA LUXURY TRADING LTD'); ?>" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Webhook / Callback URL</label>
+                            <label><?php echo adm_t('admin_pay_callback_url', 'Webhook / Callback URL'); ?></label>
                             <input type="url" name="fib_callback_url" value="<?php echo htmlspecialchars($fib['callback_url'] ?? 'https://aurastore.iq/api/fib/callback'); ?>" class="form-control">
                         </div>
                     </div>
 
                     <div class="form-group mb-20">
-                        <label>Active Bearer Access Token (OAuth2)</label>
+                        <label><?php echo adm_t('admin_pay_bearer_token', 'Active Bearer Access Token (OAuth2)'); ?></label>
                         <div class="input-with-action" style="display:flex; gap:8px;">
                             <input type="text" name="fib_access_token" id="fibAccessTokenInput" value="<?php echo htmlspecialchars($fib['access_token'] ?? 'fib_bearer_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGguZmliLmlxIiwic3ViIjoiZmliX2NsaWVudF9saXZlIn0.sig_live'); ?>" class="form-control" style="font-family:monospace; font-size:12px;">
-                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibAccessTokenInput', 'Bearer Token copied')">📋 Copy</button>
+                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('fibAccessTokenInput', 'Bearer Token copied')">📋 <?php echo adm_t('admin_pay_copy', 'Copy'); ?></button>
                         </div>
                     </div>
 
                     <div class="gateway-actions-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; pt-16; border-top:1px solid var(--border-subtle);">
                         <div style="display:flex; gap:8px;">
                             <button type="button" class="btn btn-outline btn-sm" onclick="window.AuraStore.testGatewayConnection('fib')">
-                                ⚡ Test FIB Connection & Ping
+                                ⚡ <?php echo adm_t('admin_pay_test_ping', 'Test Connection & Ping'); ?>
                             </button>
                             <button type="button" class="btn btn-outline btn-sm" onclick="window.AuraStore.generateFibToken()" style="color:var(--accent-gold); border-color:var(--accent-gold);">
-                                🔑 Generate Dynamic Token
+                                🔑 <?php echo adm_t('admin_pay_generate_token', 'Generate Dynamic Token'); ?>
                             </button>
                         </div>
                         <span class="text-muted" style="font-size:11.5px;">API v1 OAuth2 Bearer</span>
@@ -250,41 +250,41 @@ require_once __DIR__ . '/../header.php';
                         <div class="gateway-brand" style="display:flex; align-items:center; gap:12px;">
                             <span class="gateway-icon-badge" style="font-size:28px;">📱</span>
                             <div>
-                                <h3 style="margin:0; font-size:18px;">ZainCash (زين كاش API Suite)</h3>
-                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Iraq's premier mobile wallet & HMAC-SHA256 JWT authorization</p>
+                                <h3 style="margin:0; font-size:18px;"><?php echo adm_t('admin_gateway_zaincash', 'ZainCash Mobile Wallet'); ?></h3>
+                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_gateway_zaincash_desc', "Iraq's premier mobile wallet & HMAC-SHA256 JWT authorization"); ?></p>
                             </div>
                         </div>
                         <div class="gateway-toggle-wrap">
                             <label class="switch-toggle" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <input type="checkbox" name="zaincash_enabled" value="1" <?php echo (!empty($zain['enabled']) || !isset($zain['enabled'])) ? 'checked' : ''; ?> style="width:20px; height:20px; accent-color:var(--accent-gold);">
-                                <span style="font-size:13px; font-weight:700;">Enable ZainCash</span>
+                                <span style="font-size:13px; font-weight:700;"><?php echo adm_t('admin_gateway_enabled', 'Gateway Enabled'); ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row-2 mb-16">
                         <div class="form-group">
-                            <label>Merchant MSISDN (Phone Number) <span class="text-danger">*</span></label>
+                            <label><?php echo adm_t('admin_pay_msisdn', 'Merchant MSISDN (Phone Number)'); ?> <span class="text-danger">*</span></label>
                             <input type="text" name="zaincash_msisdn" value="<?php echo htmlspecialchars($zain['msisdn'] ?? '9647835077893'); ?>" class="form-control" placeholder="96478...">
                         </div>
                         <div class="form-group">
-                            <label>Merchant ID</label>
+                            <label><?php echo adm_t('admin_pay_merchant_id', 'Merchant ID'); ?></label>
                             <input type="text" name="zaincash_merchant_id" value="<?php echo htmlspecialchars($zain['merchant_id'] ?? '5ff65fb168283f6554c8d60a'); ?>" class="form-control" placeholder="5ff6...">
                         </div>
                     </div>
 
                     <div class="form-group mb-16">
-                        <label>Merchant Secret Key (HMAC-SHA256) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_pay_client_secret', 'Merchant Secret Key (HMAC-SHA256)'); ?> <span class="text-danger">*</span></label>
                         <div class="input-with-action" style="display:flex; gap:8px;">
                             <input type="password" name="zaincash_secret" id="zainSecretInput" value="<?php echo htmlspecialchars($zain['secret'] ?? '$2y$10$hBbAZo2GfWNDbuhg9Yeg.uSUFcUWuZ3SLWETSnM3/r5cvG7NTac6q'); ?>" class="form-control" style="font-family:monospace;">
                             <button type="button" class="btn btn-outline btn-xs" onclick="togglePasswordVisibility('zainSecretInput')">👁️</button>
-                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('zainSecretInput', 'ZainCash Secret copied')">📋</button>
+                            <button type="button" class="btn btn-outline btn-xs" onclick="window.AuraStore.copyToClipboard('zainSecretInput', 'ZainCash Secret copied')">📋 <?php echo adm_t('admin_pay_copy', 'Copy'); ?></button>
                         </div>
                     </div>
 
                     <div class="gateway-actions-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; pt-16; border-top:1px solid var(--border-subtle);">
                         <button type="button" class="btn btn-outline btn-sm" onclick="window.AuraStore.testGatewayConnection('zaincash')">
-                            ⚡ Test ZainCash Connection & Ping
+                            ⚡ <?php echo adm_t('admin_pay_test_ping', 'Test Connection & Ping'); ?>
                         </button>
                         <span class="text-muted" style="font-size:11.5px;">JWT HS256 Tokenization</span>
                     </div>
@@ -296,32 +296,32 @@ require_once __DIR__ . '/../header.php';
                         <div class="gateway-brand" style="display:flex; align-items:center; gap:12px;">
                             <span class="gateway-icon-badge" style="font-size:28px;">💳</span>
                             <div>
-                                <h3 style="margin:0; font-size:18px;">FastPay Kurdistan (فاست باى)</h3>
-                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Direct digital wallet payments throughout Erbil, Sulaymaniyah, and Duhok</p>
+                                <h3 style="margin:0; font-size:18px"><?php echo adm_t('admin_gateway_fastpay', 'FastPay Mobile Payment'); ?></h3>
+                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_gateway_fastpay_desc', 'Direct digital wallet payments throughout Erbil, Sulaymaniyah, and Duhok'); ?></p>
                             </div>
                         </div>
                         <div class="gateway-toggle-wrap">
                             <label class="switch-toggle" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <input type="checkbox" name="fastpay_enabled" value="1" <?php echo (!empty($fastpay['enabled']) || !isset($fastpay['enabled'])) ? 'checked' : ''; ?> style="width:20px; height:20px; accent-color:var(--accent-gold);">
-                                <span style="font-size:13px; font-weight:700;">Enable FastPay</span>
+                                <span style="font-size:13px; font-weight:700;"><?php echo adm_t('admin_gateway_enabled', 'Gateway Enabled'); ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row-2 mb-16">
                         <div class="form-group">
-                            <label>Merchant Store ID</label>
+                            <label><?php echo adm_t('admin_pay_store_id', 'Merchant Store ID'); ?></label>
                             <input type="text" name="fastpay_store_id" value="<?php echo htmlspecialchars($fastpay['store_id'] ?? 'FASTPAY_AURA_992'); ?>" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Store Password / Secret</label>
+                            <label><?php echo adm_t('admin_pay_store_password', 'Store Password / Secret'); ?></label>
                             <input type="password" name="fastpay_store_password" id="fastpayPassInput" value="<?php echo htmlspecialchars($fastpay['store_password'] ?? 'aura_fast_secret_pass'); ?>" class="form-control">
                         </div>
                     </div>
 
                     <div class="gateway-actions-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; pt-16; border-top:1px solid var(--border-subtle);">
                         <button type="button" class="btn btn-outline btn-sm" onclick="window.AuraStore.testGatewayConnection('fastpay')">
-                            ⚡ Test FastPay Connection & Ping
+                            ⚡ <?php echo adm_t('admin_pay_test_ping', 'Test Connection & Ping'); ?>
                         </button>
                         <span class="text-muted" style="font-size:11.5px;">Kurdistan Regional API</span>
                     </div>
@@ -333,27 +333,27 @@ require_once __DIR__ . '/../header.php';
                         <div class="gateway-brand" style="display:flex; align-items:center; gap:12px;">
                             <span class="gateway-icon-badge" style="font-size:28px;">💵</span>
                             <div>
-                                <h3 style="margin:0; font-size:18px;">Cash On Delivery (الدفع عند الاستلام)</h3>
-                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Client settles directly in Iraqi Dinar (IQD) upon inspection of luxury packaging</p>
+                                <h3 style="margin:0; font-size:18px;"><?php echo adm_t('admin_gateway_cod', 'Cash on Delivery (COD)'); ?></h3>
+                                <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_pay_cod_desc', 'Client settles directly in Iraqi Dinar (IQD) upon inspection of luxury packaging'); ?></p>
                             </div>
                         </div>
                         <div class="gateway-toggle-wrap">
                             <label class="switch-toggle" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <input type="checkbox" name="cod_enabled" value="1" <?php echo (!empty($cod['enabled']) || !isset($cod['enabled'])) ? 'checked' : ''; ?> style="width:20px; height:20px; accent-color:var(--accent-gold);">
-                                <span style="font-size:13px; font-weight:700;">Enable COD</span>
+                                <span style="font-size:13px; font-weight:700;"><?php echo adm_t('admin_gateway_enabled', 'Gateway Enabled'); ?></span>
                             </label>
                         </div>
                     </div>
 
                     <p class="text-muted" style="font-size:13px; margin:0 0 16px;">
-                        Available across all 18 Iraqi Governorates with white-glove driver delivery. Driver provides printed tax invoice.
+                        <?php echo adm_t('admin_pay_cod_desc', 'Client settles directly in Iraqi Dinar (IQD) upon inspection of luxury packaging'); ?>
                     </p>
                 </div>
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:28px;">
                 <button type="submit" class="btn btn-primary btn-luxury" style="padding:12px 32px; font-size:15px;">
-                    💾 Save All Payment Gateways & Rates
+                    💾 <?php echo adm_t('admin_pay_save_all', 'Save All Payment Gateways & Rates'); ?>
                 </button>
             </div>
         </form>

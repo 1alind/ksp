@@ -9,6 +9,9 @@ if (!in_array($lang, ['en', 'ar', 'ku'])) {
     $lang = 'en';
 }
 $_SESSION['lang'] = $lang;
+if (!isset($_COOKIE['aura_lang']) || $_COOKIE['aura_lang'] !== $lang) {
+    @setcookie('aura_lang', $lang, time() + (86400 * 30), '/');
+}
 $dir = in_array($lang, ['ar', 'ku']) ? 'rtl' : 'ltr';
 
 $theme = $_GET['theme'] ?? $_SESSION['theme'] ?? $_COOKIE['aura_theme'] ?? 'dark';

@@ -530,3 +530,13 @@
     }
 }
 
+/* Remove yellow/accent border from Add Product card and Colors page sections */
+#addProductCard,
+#colorVariantsSection,
+#editColorVariantsSection,
+.color-variant-row {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+

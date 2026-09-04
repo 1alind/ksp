@@ -265,10 +265,10 @@ require_once __DIR__ . '/../header.php';
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Executive Command Suite</span>
-            <h1 class="page-banner-title">Product Catalog & Inventory</h1>
+            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_products', 'Products'); ?></span>
+            <h1 class="page-banner-title"><?php echo adm_t('admin_products_title', 'Products & Inventory Atelier'); ?></h1>
             <p class="page-banner-subtitle">
-                Trilingual luxury catalog management, real-time stock steppers, IQD pricing, and promotional badges.
+                <?php echo adm_t('admin_products_subtitle', 'Manage high-jewelry, haute couture, luxury watches and artisan perfumes. Edit pricing, inventory, colors, and promotional badges.'); ?>
             </p>
         </div>
     </div>
@@ -292,16 +292,16 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-metric-card">
                 <span class="m-icon">💎</span>
                 <div class="m-info">
-                    <span class="m-label">Total Catalog Pieces</span>
-                    <strong class="m-value"><?php echo count($productsList); ?> Products</strong>
-                    <span class="iqd-price-pill">Curated Luxury Collection</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_pieces', 'Boutique Pieces'); ?></span>
+                    <strong class="m-value"><?php echo count($productsList); ?> <?php echo adm_t('admin_nav_products', 'Products'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_metric_catalog_active', 'Luxury Catalog Active'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">📊</span>
                 <div class="m-info">
-                    <span class="m-label">Total Vault Inventory</span>
-                    <strong class="m-value" style="color:#22c55e;"><?php echo $totalStock; ?> Units in Stock</strong>
+                    <span class="m-label"><?php echo adm_t('admin_field_stock', 'Stock Quantity'); ?></span>
+                    <strong class="m-value" style="color:#22c55e;"><?php echo $totalStock; ?> IQD</strong>
                     <span class="iqd-price-pill">Live Warehouse Count</span>
                 </div>
             </div>
@@ -316,19 +316,19 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-metric-card">
                 <span class="m-icon">🏷️</span>
                 <div class="m-info">
-                    <span class="m-label">Currencies & Pricing</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_all_iqd', 'All Orders in Iraqi Dinar'); ?></span>
                     <strong class="m-value">100% IQD</strong>
-                    <span class="iqd-price-pill">Official Iraqi Dinar</span>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_products_official_iqd', 'Official Iraqi Dinar'); ?></span>
                 </div>
             </div>
         </div>
 
         <!-- Add Product Panel (Always Ready & Accessible) -->
-        <div class="admin-form-card mb-24" id="addProductCard" style="border:1px solid var(--border-color); background:var(--bg-card);">
+        <div class="admin-form-card mb-24" id="addProductCard" style="border:none; background:var(--bg-card); box-shadow:none;">
             <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div>
-                    <h3 class="admin-card-title" style="margin:0; font-size:18px;">+ Add New Luxury Piece or Color Variant</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Include trilingual titles in English, Arabic, and Kurdish Badini, pricing in IQD, and color linking options.</p>
+                    <h3 class="admin-card-title" style="margin:0; font-size:18px;"><?php echo adm_t('admin_add_product_title', '+ Add New Luxury Piece or Color Variant'); ?></h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_add_product_subtitle', 'Define multilingual titles, category, high-resolution imagery, and color swatches.'); ?></p>
                 </div>
             </div>
 
@@ -337,121 +337,121 @@ require_once __DIR__ . '/../header.php';
                 
                 <div class="form-row-3 mb-16">
                     <div class="form-group">
-                        <label>Title (English) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_en', 'Product Title (English)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="prod_title_en" required class="form-control" placeholder="e.g. Royal Midnight Velvet Blazer">
                     </div>
                     <div class="form-group">
-                        <label>Title (Arabic - العربية) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_ar', 'Product Title (Arabic / عربي)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="prod_title_ar" required class="form-control" placeholder="مثال: بليزر ملكي كحلي مخملي">
                     </div>
                     <div class="form-group">
-                        <label>Title (Kurdish - کوردی بادینی) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_ku', 'Product Title (Kurdish / کوردی بادینی)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="prod_title_ku" required class="form-control" placeholder="وەکی: قاتی مخملی یێ شاهانە">
                     </div>
                 </div>
 
                 <div class="form-row-3 mb-16">
                     <div class="form-group">
-                        <label>Category <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_category', 'Category'); ?> <span class="text-danger">*</span></label>
                         <select name="prod_category" class="form-control">
-                            <option value="clothes">Clothes & Apparel</option>
-                            <option value="watches">Luxury Timepieces & Watches</option>
-                            <option value="perfumes">Arabian Oud & Haute Perfumes</option>
-                            <option value="accessories">Handcrafted Leather & Accessories</option>
+                            <option value="clothes"><?php echo adm_t('cat_clothes', 'Clothes & Apparel'); ?></option>
+                            <option value="watches"><?php echo adm_t('cat_watches', 'Luxury Timepieces & Watches'); ?></option>
+                            <option value="perfumes"><?php echo adm_t('cat_perfumes', 'Arabian Oud & Haute Perfumes'); ?></option>
+                            <option value="accessories"><?php echo adm_t('cat_accessories', 'Handcrafted Leather & Accessories'); ?></option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Selling Price (IQD) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_price', 'Current Price (IQD)'); ?> <span class="text-danger">*</span></label>
                         <input type="number" name="prod_price" required class="form-control" placeholder="e.g. 240000" min="1000">
                     </div>
                     <div class="form-group">
-                        <label>Original / Strikethrough Price (IQD)</label>
-                        <input type="number" name="prod_old_price" class="form-control" placeholder="e.g. 300000 (Optional discount)">
+                        <label><?php echo adm_t('admin_field_old_price', 'Original / Old Price (IQD)'); ?></label>
+                        <input type="number" name="prod_old_price" class="form-control" placeholder="e.g. 300000">
                     </div>
                 </div>
 
                 <div class="form-row-3 mb-16">
                     <div class="form-group">
-                        <label>Initial Vault Stock</label>
+                        <label><?php echo adm_t('admin_field_stock', 'Stock Quantity'); ?></label>
                         <input type="number" name="prod_stock" class="form-control" value="15" min="0">
                     </div>
                     <div class="form-group">
-                        <label>Promotional Badge (English)</label>
+                        <label><?php echo adm_t('admin_field_badge_en', 'Promo Badge (English)'); ?></label>
                         <input type="text" name="prod_badge" class="form-control" placeholder="e.g. Best Seller, Limited Edition">
                     </div>
                     <div class="form-group">
-                        <label>Badge (Arabic)</label>
+                        <label><?php echo adm_t('admin_field_badge_ar', 'Promo Badge (Arabic / عربي)'); ?></label>
                         <input type="text" name="prod_badge_ar" class="form-control" placeholder="الأكثر مبيعاً">
                     </div>
                 </div>
 
                 <div class="form-group mb-16">
-                    <label>Cover Image URL <span class="text-danger">*</span></label>
+                    <label><?php echo adm_t('admin_field_main_image', 'Main Product Image URL'); ?> <span class="text-danger">*</span></label>
                     <input type="url" name="prod_image" required class="form-control" placeholder="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80">
                 </div>
 
                 <div class="form-group mb-16">
-                    <label>Additional Gallery Images (Comma-separated URLs)</label>
+                    <label><?php echo adm_t('admin_field_gallery_images', 'Additional Gallery Images (Comma-separated URLs)'); ?></label>
                     <textarea name="prod_gallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
                 </div>
 
                 <!-- SECTION: Product Colors & Swatches (Add 2 or More Colors Directly) -->
-                <div id="colorVariantsSection" style="background:var(--bg-subtle); padding:20px 24px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:24px;">
+                <div id="colorVariantsSection" style="background:var(--bg-subtle); padding:20px 24px; border-radius:var(--radius-md); border:none; margin-bottom:24px;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                         <div>
                             <span style="font-weight:700; font-size:15px; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
-                                🎨 Product Colors & Editions (Add 2 or More Colors for this Piece)
+                                🎨 <?php echo adm_t('admin_field_colors_section', 'Product Colors & Editions'); ?>
                             </span>
                             <p class="text-muted" style="margin:4px 0 0; font-size:13px; line-height:1.5;">
-                                Add all available colors here (e.g. <strong>Color 1: Pure White</strong>, <strong>Color 2: Obsidian Black</strong>). When shoppers visit this item, they will see interactive color buttons that instantly swap photos!
+                                <?php echo adm_t('admin_field_colors_section_desc', 'Configure multiple color variations with individual swatch colors and corresponding photos.'); ?>
                             </p>
                         </div>
-                        <span class="badge-tag" style="background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700; padding:6px 12px; font-size:12px; border-radius:6px;">Multi-Color Options</span>
+                        <span class="badge-tag" style="background:var(--bg-card); border:none; color:var(--text-primary); font-weight:700; padding:6px 12px; font-size:12px; border-radius:6px;"><?php echo adm_t('admin_product_col_colors', 'Colors / Swatches'); ?></span>
                     </div>
 
                     <!-- Dynamic List of Colors for this Product -->
                     <div id="addColorVariantsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
                         <!-- Row 1: Default Color 1 -->
-                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);">
+                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:none;">
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color 1 Name</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_name', 'Color Name'); ?> 1</label>
                                 <input type="text" name="prod_variant_name[]" value="Obsidian Black" class="form-control" placeholder="e.g. Obsidian Black" required style="font-size:13px; padding:6px 10px;">
                             </div>
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_swatch', 'Color Swatch'); ?></label>
                                 <div style="display:flex; gap:6px; align-items:center;">
                                     <input type="color" value="#111827" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
                                     <input type="text" name="prod_variant_hex[]" value="#111827" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
                                 </div>
                             </div>
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Optional - Photo for this color)</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
                                 <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px;">
                             </div>
                             <div style="padding-top:16px; text-align:center;">
-                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove color">✕</button>
+                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="<?php echo adm_t('admin_btn_remove_color', 'Remove color'); ?>">✕</button>
                             </div>
                         </div>
 
                         <!-- Row 2: Default Color 2 -->
-                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);">
+                        <div class="color-variant-row" style="display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:none;">
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color 2 Name</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_name', 'Color Name'); ?> 2</label>
                                 <input type="text" name="prod_variant_name[]" value="Pure White" class="form-control" placeholder="e.g. Pure White" style="font-size:13px; padding:6px 10px;">
                             </div>
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_swatch', 'Color Swatch'); ?></label>
                                 <div style="display:flex; gap:6px; align-items:center;">
                                     <input type="color" value="#ffffff" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
                                     <input type="text" name="prod_variant_hex[]" value="#ffffff" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
                                 </div>
                             </div>
                             <div>
-                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Optional - Photo for this color)</label>
+                                <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
                                 <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px;">
                             </div>
                             <div style="padding-top:16px; text-align:center;">
-                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove color">✕</button>
+                                <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="<?php echo adm_t('admin_btn_remove_color', 'Remove color'); ?>">✕</button>
                             </div>
                         </div>
                     </div>
@@ -459,42 +459,24 @@ require_once __DIR__ . '/../header.php';
                     <!-- Button to Add More Colors -->
                     <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px;">
                         <button type="button" class="btn btn-sm btn-primary" onclick="addColorVariantRow('addColorVariantsList')" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:8px 16px;">
-                            <span>➕</span> Add Another Color (e.g. Color 3, Color 4)
+                            <span>➕</span> <?php echo adm_t('admin_btn_add_color', 'Add Another Color'); ?>
                         </button>
-                        <span class="text-muted" style="font-size:12px;">You can add 2, 3, 4, or unlimited colors to this piece!</span>
                     </div>
 
                     <!-- Optional: Cross-Product Model Group Linking -->
-                    <details style="background:var(--bg-surface); padding:12px 16px; border-radius:8px; border:1px dashed var(--border-color);">
+                    <details style="background:var(--bg-surface); padding:12px 16px; border-radius:8px; border:none;">
                         <summary style="font-weight:700; font-size:13px; color:var(--accent-gold); cursor:pointer; user-select:none;">
-                            ⚙️ Advanced: Link Across Separate Catalog Items (Model Grouping)
+                            ⚙️ <?php echo adm_t('admin_products_model_grouping', 'Advanced: Link Across Separate Catalog Items (Model Grouping)'); ?>
                         </summary>
                         <div style="margin-top:12px;">
-                            <p class="text-muted" style="font-size:12px; margin-bottom:10px;">
-                                If you already created separate product entries in the catalog for each color, enter a shared Model Group code (e.g. <code>classic-oxford</code>) or select them below to link them together!
-                            </p>
                             <div class="form-row-2 mb-10">
                                 <div class="form-group">
-                                    <label style="font-size:12px; font-weight:600;">Shared Model Group Identifier</label>
+                                    <label style="font-size:12px; font-weight:600;"><?php echo adm_t('admin_products_model_group_id', 'Shared Model Group Identifier'); ?></label>
                                     <input type="text" name="prod_model_group" id="prodModelGroup" class="form-control" placeholder="e.g. oxford-shirt-2026">
                                 </div>
                                 <div class="form-group">
-                                    <label style="font-size:12px; font-weight:600;">Primary Color Label for this Item</label>
+                                    <label style="font-size:12px; font-weight:600;"><?php echo adm_t('admin_products_model_color_label', 'Primary Color Label for this Item'); ?></label>
                                     <input type="text" name="prod_color_name" id="prodColorName" class="form-control" placeholder="e.g. Obsidian Black">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:12px; font-weight:600;">Or Check Catalog Items to Link:</label>
-                                <div style="max-height:140px; overflow-y:auto; background:var(--bg-card); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px;">
-                                    <?php foreach ($productsList as $existingP): 
-                                        $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
-                                    ?>
-                                        <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
-                                            <input type="checkbox" name="prod_linked_products[]" value="<?php echo $existingP['id']; ?>" style="accent-color:var(--accent-gold);">
-                                            <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:22px; height:22px; object-fit:cover; border-radius:3px;">
-                                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
-                                        </label>
-                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
@@ -503,22 +485,22 @@ require_once __DIR__ . '/../header.php';
 
                 <div class="form-row-3 mb-20">
                     <div class="form-group">
-                        <label>Description (English)</label>
+                        <label><?php echo adm_t('admin_field_desc_en', 'Description (English)'); ?></label>
                         <textarea name="prod_desc_en" rows="3" class="form-control" placeholder="Handcrafted with Italian cashmere velvet..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Description (Arabic - العربية)</label>
+                        <label><?php echo adm_t('admin_field_desc_ar', 'Description (Arabic / عربي)'); ?></label>
                         <textarea name="prod_desc_ar" rows="3" class="form-control" placeholder="مصنوع يدوياً من أفخر أنواع المخمل الإيطالي..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Description (Kurdish - کوردی)</label>
+                        <label><?php echo adm_t('admin_field_desc_ku', 'Description (Kurdish / کوردی بادینی)'); ?></label>
                         <textarea name="prod_desc_ku" rows="3" class="form-control" placeholder="ب دەستان هاتیە چێکرن ژ قوماشێ مخملی یێ ئیتالی..."></textarea>
                     </div>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:12px;">
-                    <button type="button" class="btn btn-outline" onclick="toggleAddProductForm()">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-luxury">Publish Piece to Boutique</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleAddProductForm()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
+                    <button type="submit" class="btn btn-primary btn-luxury"><?php echo adm_t('admin_btn_save', 'Save Changes'); ?></button>
                 </div>
             </form>
         </div>
@@ -527,20 +509,20 @@ require_once __DIR__ . '/../header.php';
         <div class="admin-table-card">
             <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h3 class="admin-card-title" style="margin:0; font-size:18px;">💎 Luxury Catalog Pieces & Inventory</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Click (+) or (-) on any product stock for instant inventory adjustment, or Edit for trilingual details.</p>
+                    <h3 class="admin-card-title" style="margin:0; font-size:18px;">💎 <?php echo adm_t('admin_products_title', 'Products & Inventory Atelier'); ?></h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_workspace_products_desc', 'Catalog management, multi-color variations, luxury badges, and stock level controls.'); ?></p>
                 </div>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <button type="button" class="btn btn-primary btn-luxury btn-sm" onclick="toggleAddProductForm()">
-                        + Add New Product
+                        <?php echo adm_t('admin_add_product_title', '+ Add New Product'); ?>
                     </button>
-                    <input type="text" id="prodSearchInput" onkeyup="filterProductsTable()" placeholder="Search pieces..." class="form-control" style="max-width:200px; padding:8px 12px; font-size:13px;">
+                    <input type="text" id="prodSearchInput" onkeyup="filterProductsTable()" placeholder="<?php echo adm_t('admin_search_products', 'Search pieces...'); ?>" class="form-control" style="max-width:200px; padding:8px 12px; font-size:13px;">
                     <select id="prodCategoryFilter" onchange="filterProductsTable()" class="form-control" style="max-width:160px; padding:8px 12px; font-size:13px;">
-                        <option value="">All Categories</option>
-                        <option value="clothes">Clothes</option>
-                        <option value="watches">Watches</option>
-                        <option value="perfumes">Perfumes</option>
-                        <option value="accessories">Accessories</option>
+                        <option value=""><?php echo adm_t('admin_filter_all_cats', 'All Categories'); ?></option>
+                        <option value="clothes"><?php echo adm_t('cat_clothes', 'Clothes'); ?></option>
+                        <option value="watches"><?php echo adm_t('cat_watches', 'Watches'); ?></option>
+                        <option value="perfumes"><?php echo adm_t('cat_perfumes', 'Perfumes'); ?></option>
+                        <option value="accessories"><?php echo adm_t('cat_accessories', 'Accessories'); ?></option>
                     </select>
                 </div>
             </div>
@@ -550,17 +532,17 @@ require_once __DIR__ . '/../header.php';
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Product Details</th>
-                            <th>Category</th>
-                            <th>Price (IQD)</th>
-                            <th>Stock Count</th>
-                            <th>Rating</th>
-                            <th>Actions</th>
+                            <th><?php echo adm_t('admin_product_col_piece', 'Luxury Piece'); ?></th>
+                            <th><?php echo adm_t('admin_product_col_cat', 'Category'); ?></th>
+                            <th><?php echo adm_t('admin_product_col_price', 'Price (IQD)'); ?></th>
+                            <th><?php echo adm_t('admin_product_col_stock', 'Stock / Status'); ?></th>
+                            <th><?php echo adm_t('admin_product_col_badges', 'Badges'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_actions', 'Actions'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($productsList as $p): 
-                            $pTitle = is_array($p['title']) ? ($p['title']['en'] ?? reset($p['title'])) : $p['title'];
+                            $pTitle = is_array($p['title']) ? ($p['title'][$adminLang ?? 'en'] ?? $p['title']['en'] ?? reset($p['title'])) : $p['title'];
                             $pPriceIqd = $p['price'] ?? 0;
                             $pOldPriceIqd = $p['old_price'] ?? null;
                             $pStock = $p['stock'] ?? 0;
@@ -580,14 +562,8 @@ require_once __DIR__ . '/../header.php';
                                                         <?php echo htmlspecialchars($p['color_name']); ?>
                                                     </span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($p['model_group'])): ?>
-                                                    <small class="badge-tag" style="background:rgba(168,85,247,0.12); color:#c084fc; border-color:#a855f7; font-size:10.5px;">🔗 Group: <?php echo htmlspecialchars($p['model_group']); ?></small>
-                                                <?php endif; ?>
                                                 <?php if (!empty($p['badge'])): ?>
                                                     <small class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;"><?php echo htmlspecialchars($p['badge']); ?></small>
-                                                <?php endif; ?>
-                                                <?php if (!empty($p['featured'])): ?>
-                                                    <small class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; border-color:#3b82f6;">⭐ Featured</small>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -604,24 +580,23 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <div class="stock-adjuster" id="stockAdjuster_<?php echo $p['id']; ?>" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border-color);">
-                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, -1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="Decrease Stock">-</button>
+                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, -1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_decrease', 'Decrease Stock'); ?>">-</button>
                                         <span class="stock-value-badge font-bold" id="stockBadge_<?php echo $p['id']; ?>" style="min-width:28px; text-align:center; font-size:13px;"><?php echo $pStock; ?></span>
-                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, 1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="Increase Stock">+</button>
+                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, 1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_increase', 'Increase Stock'); ?>">+</button>
                                     </div>
                                 </td>
                                 <td>
                                     <span style="color:#d97706; font-size:13px;">★ <?php echo $p['rating'] ?? '4.9'; ?></span>
-                                    <small class="text-muted">(<?php echo $p['reviews_count'] ?? '24'; ?>)</small>
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                                        <button type="button" class="btn btn-outline btn-xs" onclick='openEditProductModal(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' title="Edit Product Details & Colors">
-                                            ✏️ Edit
+                                        <button type="button" class="btn btn-outline btn-xs" onclick='openEditProductModal(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' title="<?php echo adm_t('admin_products_edit_title', 'Edit Product Details & Colors'); ?>">
+                                            ✏️ <?php echo adm_t('admin_btn_edit', 'Edit'); ?>
                                         </button>
-                                        <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="View in Boutique">👁️</a>
-                                        <form action="/admin/products.php" method="POST" onsubmit="return confirm('Delete this product permanently?')" style="display:inline;">
+                                        <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="<?php echo adm_t('admin_products_view_boutique', 'View in Boutique'); ?>">👁️</a>
+                                        <form action="/admin/products.php" method="POST" onsubmit="return confirm('<?php echo adm_t('admin_products_delete_confirm', 'Delete this product permanently?'); ?>')" style="display:inline;">
                                             <input type="hidden" name="delete_product_id" value="<?php echo $p['id']; ?>">
-                                            <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete Product">✕</button>
+                                            <button type="submit" class="btn btn-ghost text-danger btn-xs" title="<?php echo adm_t('admin_btn_delete', 'Delete Product'); ?>">✕</button>
                                         </form>
                                     </div>
                                 </td>
@@ -640,10 +615,10 @@ require_once __DIR__ . '/../header.php';
         <div class="modal-header" style="position:sticky; top:0; background:var(--bg-card); z-index:10; border-bottom:1px solid var(--border-color); padding:16px 24px; margin:-24px -24px 20px -24px;">
             <div>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <h3 style="margin:0; font-size:20px; font-weight:800;">✏️ Edit Luxury Piece</h3>
+                    <h3 style="margin:0; font-size:20px; font-weight:800;">✏️ <?php echo adm_t('admin_modal_edit_product', 'Edit Luxury Piece'); ?></h3>
                     <span class="badge-tag" id="editProductModalIdBadge" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;">#0</span>
                 </div>
-                <small class="text-muted" id="editProductModalSub">Update trilingual titles, pricing discounts, badges, and gallery</small>
+                <small class="text-muted" id="editProductModalSub"><?php echo adm_t('admin_products_subtitle', 'Trilingual titles, pricing, colors and images'); ?></small>
             </div>
             <button type="button" class="btn-close-modal" onclick="closeEditProductModal()" style="font-size:20px; cursor:pointer;">✕</button>
         </div>
@@ -653,24 +628,24 @@ require_once __DIR__ . '/../header.php';
             <input type="hidden" name="edit_prod_id" id="editProdId">
 
             <!-- Section 1: Core Pricing & Category -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">💰 Pricing & Category</span>
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">💰 <?php echo adm_t('admin_field_price', 'Pricing'); ?> & <?php echo adm_t('admin_field_category', 'Category'); ?></span>
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label>Category <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_category', 'Category'); ?> <span class="text-danger">*</span></label>
                         <select name="edit_prod_category" id="editProdCategory" class="form-control">
-                            <option value="clothes">Clothes & Apparel</option>
-                            <option value="watches">Luxury Watches</option>
-                            <option value="perfumes">Arabian Oud & Perfumes</option>
-                            <option value="accessories">Leather & Accessories</option>
+                            <option value="clothes"><?php echo adm_t('cat_clothes', 'Clothes & Apparel'); ?></option>
+                            <option value="watches"><?php echo adm_t('cat_watches', 'Luxury Watches'); ?></option>
+                            <option value="perfumes"><?php echo adm_t('cat_perfumes', 'Arabian Oud & Perfumes'); ?></option>
+                            <option value="accessories"><?php echo adm_t('cat_accessories', 'Leather & Accessories'); ?></option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Selling Price (IQD) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_price', 'Selling Price (IQD)'); ?> <span class="text-danger">*</span></label>
                         <input type="number" name="edit_prod_price" id="editProdPrice" required class="form-control" oninput="calculateDiscountPreview()">
                     </div>
                     <div class="form-group">
-                        <label>Original / Old Price (IQD)</label>
+                        <label><?php echo adm_t('admin_field_old_price', 'Original / Old Price (IQD)'); ?></label>
                         <input type="number" name="edit_prod_old_price" id="editProdOldPrice" class="form-control" oninput="calculateDiscountPreview()">
                         <span id="editDiscountBadge" class="badge-tag" style="display:none; margin-top:4px; background:rgba(34,197,94,0.15); color:#22c55e; border-color:#22c55e; font-weight:700;"></span>
                     </div>
@@ -678,121 +653,91 @@ require_once __DIR__ . '/../header.php';
 
                 <div class="form-row-3" style="margin-top:12px;">
                     <div class="form-group">
-                        <label>Stock Count</label>
+                        <label><?php echo adm_t('admin_field_stock', 'Stock Count'); ?></label>
                         <input type="number" name="edit_prod_stock" id="editProdStock" class="form-control" value="10">
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-top:24px;">
                         <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:13.5px;">
                             <input type="checkbox" name="edit_prod_featured" id="editProdFeatured" value="1" style="width:18px; height:18px; accent-color:var(--accent-gold);">
-                            <span>⭐ Featured on Homepage Showcase</span>
+                            <span>⭐ <?php echo adm_t('admin_products_featured_showcase_check', 'Featured on Homepage Showcase'); ?></span>
                         </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Quick Price Helpers (IQD)</label>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.9); calculateDiscountPreview();">10% Off</button>
-                            <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.8); calculateDiscountPreview();">20% Off</button>
-                            <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('editProdPrice').value = Math.round(Number(document.getElementById('editProdPrice').value || 100000) * 0.5); calculateDiscountPreview();">50% Off</button>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Section 2: Badges & Promotion Tags -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🏷️ Promotional Badge / Ribbon</span>
-
-                <div style="margin-bottom:12px;">
-                    <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Quick Presets (Click to Auto-fill Trilingual Badges):</label>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('⚡ 50% OFF', '⚡ خصم 50%', '⚡ داشکاندنا %50')">⚡ 50% OFF</button>
-                        <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('🔥 Best Seller', '🔥 الأكثر مبيعاً', '🔥 پڕفرۆشترین')">🔥 Best Seller</button>
-                        <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('💎 Limited Edition', '💎 إصدار محدود', '💎 وەشانەکا سنوردار')">💎 Limited Edition</button>
-                        <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('✨ New Arrival', '✨ وصل حديثاً', '✨ نوی گەهشتی')">✨ New Arrival</button>
-                        <button type="button" class="badge-tag" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('👑 Royal Luxury', '👑 فاخر ملكي', '👑 شاهانە و نازک')">👑 Royal Luxury</button>
-                        <button type="button" class="badge-tag text-danger" style="cursor:pointer; background:var(--bg-surface); padding:4px 10px; font-weight:600;" onclick="setEditBadgePreset('', '', '')">✕ Clear</button>
-                    </div>
-                </div>
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🏷️ <?php echo adm_t('admin_product_col_badges', 'Promotional Badges'); ?></span>
 
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label>Badge (English)</label>
+                        <label><?php echo adm_t('admin_field_badge_en', 'Badge (English)'); ?></label>
                         <input type="text" name="edit_prod_badge" id="editProdBadge" class="form-control" placeholder="e.g. Best Seller">
                     </div>
                     <div class="form-group">
-                        <label>Badge (Arabic - العربية)</label>
+                        <label><?php echo adm_t('admin_field_badge_ar', 'Badge (Arabic / عربي)'); ?></label>
                         <input type="text" name="edit_prod_badge_ar" id="editProdBadgeAr" class="form-control" placeholder="مثال: الأكثر مبيعاً">
                     </div>
                     <div class="form-group">
-                        <label>Badge (Kurdish - کوردی بادینی)</label>
+                        <label><?php echo adm_t('admin_field_badge_ku', 'Badge (Kurdish / کوردی)'); ?></label>
                         <input type="text" name="edit_prod_badge_ku" id="editProdBadgeKu" class="form-control" placeholder="وەکی: پڕفرۆشترین">
                     </div>
                 </div>
             </div>
 
             <!-- Section 3: Image & Gallery -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🖼️ Product Imagery & Gallery</span>
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🖼️ <?php echo adm_t('admin_field_main_image', 'Product Imagery & Gallery'); ?></span>
                 
                 <div style="display:grid; grid-template-columns:100px 1fr; gap:16px; align-items:start; margin-bottom:14px;">
                     <div style="text-align:center;">
-                        <img id="editImageLivePreview" src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80" alt="Preview" style="width:100px; height:100px; object-fit:cover; border-radius:8px; border:2px solid var(--accent-gold);">
-                        <small class="text-muted" style="display:block; font-size:10.5px; margin-top:4px;">Main Preview</small>
+                        <img id="editImageLivePreview" src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80" alt="Preview" style="width:100px; height:100px; object-fit:cover; border-radius:8px; border:none;">
+                        <small class="text-muted" style="display:block; font-size:10.5px; margin-top:4px;"><?php echo adm_t('admin_products_main_preview', 'Main Preview'); ?></small>
                     </div>
 
                     <div>
                         <div class="form-group mb-12">
-                            <label>Primary Cover Image URL <span class="text-danger">*</span></label>
+                            <label><?php echo adm_t('admin_field_main_image', 'Primary Cover Image URL'); ?> <span class="text-danger">*</span></label>
                             <input type="url" name="edit_prod_image" id="editProdImage" required class="form-control" oninput="updateEditImagePreview()">
                         </div>
 
                         <div class="form-group">
-                            <label>Additional Gallery Images (Comma-Separated URLs)</label>
+                            <label><?php echo adm_t('admin_field_gallery_images', 'Additional Gallery Images (Comma-Separated URLs)'); ?></label>
                             <textarea name="edit_prod_gallery" id="editProdGallery" rows="2" class="form-control" placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"></textarea>
                         </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Sample Photography Presets:</label>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80')">👔 Velvet Blazer</button>
-                        <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80')">⌚ Swiss Watch</button>
-                        <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80')">✨ Arabian Oud</button>
-                        <button type="button" class="btn btn-ghost btn-xs" onclick="setEditImagePreset('https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80')">👜 Leather Bag</button>
                     </div>
                 </div>
             </div>
 
             <!-- Section 4: Trilingual Titles -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🌐 Trilingual Titles</span>
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">🌐 <?php echo adm_t('admin_product_col_piece', 'Trilingual Titles'); ?></span>
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label>Title (English) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_en', 'Title (English)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="edit_prod_title_en" id="editProdTitleEn" required class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Title (Arabic - العربية) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_ar', 'Title (Arabic / عربي)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="edit_prod_title_ar" id="editProdTitleAr" required class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Title (Kurdish - کوردی بادینی) <span class="text-danger">*</span></label>
+                        <label><?php echo adm_t('admin_field_title_ku', 'Title (Kurdish / کوردی)'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="edit_prod_title_ku" id="editProdTitleKu" required class="form-control">
                     </div>
                 </div>
             </div>
 
             <!-- Section 4.5: Color Variations & Multi-Color Builder -->
-            <div id="editColorVariantsSection" style="background:var(--bg-subtle); padding:18px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:20px;">
+            <div id="editColorVariantsSection" style="background:var(--bg-subtle); padding:18px; border-radius:var(--radius-sm); border:none; margin-bottom:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                     <div>
                         <span style="font-weight:700; font-size:14px; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.5px; display:block;">
-                            🎨 Product Colors & Swatches (Add / Edit Colors)
+                            🎨 <?php echo adm_t('admin_field_colors_section', 'Product Colors & Swatches'); ?>
                         </span>
-                        <small class="text-muted">Manage all colors for this piece (e.g. Color 1: Black with Black shirt image, Color 2: White with White shirt image).</small>
+                        <small class="text-muted"><?php echo adm_t('admin_field_colors_section_desc', 'Manage all colors for this piece with swatches and photos.'); ?></small>
                     </div>
-                    <span class="badge-tag" style="background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700;">Multi-Color Options</span>
+                    <span class="badge-tag" style="background:var(--bg-card); border:none; color:var(--text-primary); font-weight:700;"><?php echo adm_t('admin_product_col_colors', 'Colors / Swatches'); ?></span>
                 </div>
 
                 <!-- Dynamic Container for Edit Modal Colors -->
@@ -803,71 +748,34 @@ require_once __DIR__ . '/../header.php';
                 <!-- Add Another Color Button in Edit Modal -->
                 <div style="margin-bottom:16px;">
                     <button type="button" class="btn btn-sm btn-primary" onclick="addColorVariantRow('editColorVariantsList')" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:6px 14px; font-size:12px;">
-                        <span>➕</span> Add Another Color (e.g. Color 2, Color 3)
+                        <span>➕</span> <?php echo adm_t('admin_btn_add_color', 'Add Another Color'); ?>
                     </button>
                 </div>
-
-                <details style="background:var(--bg-surface); padding:10px 14px; border-radius:6px; border:1px dashed var(--border-color);">
-                    <summary style="font-weight:700; font-size:12px; color:var(--accent-gold); cursor:pointer; user-select:none;">
-                        ⚙️ Advanced: Cross-Product Model Grouping & Direct Links
-                    </summary>
-                    <div style="margin-top:10px;">
-                        <div class="form-row-2 mb-10">
-                            <div class="form-group">
-                                <label style="font-size:11.5px; font-weight:600;">Model Group Identifier</label>
-                                <input type="text" name="edit_prod_model_group" id="editProdModelGroup" class="form-control" placeholder="e.g. royal-blazer-2026 or oxford-shirt">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:11.5px; font-weight:600;">Primary Color Label</label>
-                                <input type="text" name="edit_prod_color_name" id="editProdColorName" class="form-control" placeholder="e.g. Midnight Blue, Obsidian Black">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label style="font-size:11.5px; font-weight:600;">Or Check Catalog Items to Link:</label>
-                            <div id="editProdLinkedContainer" style="max-height:130px; overflow-y:auto; background:var(--bg-card); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:6px;">
-                                <?php foreach ($productsList as $existingP): 
-                                    $existingPTitle = is_array($existingP['title']) ? ($existingP['title']['en'] ?? reset($existingP['title'])) : $existingP['title'];
-                                ?>
-                                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; padding:4px 6px; border-radius:4px; background:var(--bg-subtle);">
-                                        <input type="checkbox" name="edit_prod_linked_products[]" value="<?php echo $existingP['id']; ?>" class="edit-linked-cb" id="editLinkedCb_<?php echo $existingP['id']; ?>">
-                                        <img src="<?php echo htmlspecialchars($existingP['image']); ?>" style="width:22px; height:22px; object-fit:cover; border-radius:3px;">
-                                        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;">#<?php echo $existingP['id']; ?> <?php echo htmlspecialchars($existingPTitle); ?></span>
-                                    </label>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </div>
-                </details>
             </div>
 
             <!-- Section 5: Sizes & Descriptions -->
-            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:24px;">
-                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 Available Sizes & Trilingual Descriptions</span>
-                
-                <div class="form-group mb-16">
-                    <label>Available Sizes (Comma-separated)</label>
-                    <input type="text" name="edit_prod_sizes" id="editProdSizes" class="form-control" placeholder="S, M, L, XL or 42mm, 44mm">
-                </div>
+            <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:none; margin-bottom:24px;">
+                <span style="font-weight:700; font-size:13.5px; color:var(--accent-gold); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">📝 <?php echo adm_t('admin_field_desc_en', 'Descriptions'); ?></span>
 
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label>Description (English)</label>
+                        <label><?php echo adm_t('admin_field_desc_en', 'Description (English)'); ?></label>
                         <textarea name="edit_prod_desc_en" id="editProdDescEn" rows="3" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Description (Arabic - العربية)</label>
+                        <label><?php echo adm_t('admin_field_desc_ar', 'Description (Arabic / عربي)'); ?></label>
                         <textarea name="edit_prod_desc_ar" id="editProdDescAr" rows="3" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Description (Kurdish - کوردی)</label>
+                        <label><?php echo adm_t('admin_field_desc_ku', 'Description (Kurdish / کوردی)'); ?></label>
                         <textarea name="edit_prod_desc_ku" id="editProdDescKu" rows="3" class="form-control"></textarea>
                     </div>
                 </div>
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:12px; padding-top:10px;">
-                <button type="button" class="btn btn-outline" onclick="closeEditProductModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-luxury" style="padding:10px 24px;">Save & Apply Changes</button>
+                <button type="button" class="btn btn-outline" onclick="closeEditProductModal()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
+                <button type="submit" class="btn btn-primary btn-luxury" style="padding:10px 24px;"><?php echo adm_t('admin_btn_save', 'Save & Apply Changes'); ?></button>
             </div>
         </form>
     </div>
@@ -908,26 +816,31 @@ function addColorVariantRow(containerId, colorName = '', colorHex = '#1e3a8a', i
 
     const row = document.createElement('div');
     row.className = 'color-variant-row';
-    row.style.cssText = 'display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:1px solid var(--border-color);';
+    row.style.cssText = 'display:grid; grid-template-columns:180px 140px 1fr 40px; gap:10px; align-items:center; background:var(--bg-card); padding:10px 14px; border-radius:8px; border:none;';
+
+    const lblName = "<?php echo adm_t('admin_field_color_name', 'Color Name'); ?>";
+    const lblSwatch = "<?php echo adm_t('admin_field_color_swatch', 'Color Swatch'); ?>";
+    const lblPhoto = "<?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?>";
+    const lblRemove = "<?php echo adm_t('admin_btn_remove_color', 'Remove this color'); ?>";
 
     row.innerHTML = `
         <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color ${rowCount} Name</label>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">${lblName} ${rowCount}</label>
             <input type="text" name="${prefix}_variant_name[]" value="${escapeHtmlAttr(colorName)}" class="form-control" placeholder="e.g. Royal Navy" required style="font-size:13px; padding:6px 10px;">
         </div>
         <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Swatch</label>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">${lblSwatch}</label>
             <div style="display:flex; gap:6px; align-items:center;">
                 <input type="color" value="${escapeHtmlAttr(colorHex)}" style="width:36px; height:34px; padding:0; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" onchange="this.nextElementSibling.value = this.value;">
                 <input type="text" name="${prefix}_variant_hex[]" value="${escapeHtmlAttr(colorHex)}" class="form-control" style="font-size:12px; padding:6px 6px; font-family:monospace;" onchange="this.previousElementSibling.value = this.value;">
             </div>
         </div>
         <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Color Photo URL (Photo for this specific color)</label>
+            <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">${lblPhoto}</label>
             <input type="url" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px;">
         </div>
         <div style="padding-top:16px; text-align:center;">
-            <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="Remove this color">✕</button>
+            <button type="button" class="btn btn-sm btn-outline" style="color:var(--text-muted); padding:6px 8px;" onclick="removeColorVariantRow(this)" title="${lblRemove}">✕</button>
         </div>
     `;
 
@@ -942,7 +855,7 @@ function removeColorVariantRow(btn) {
     const container = row.parentElement;
     if (container && container.querySelectorAll('.color-variant-row').length <= 1) {
         if (window.AdminApp && window.AdminApp.toast) {
-            window.AdminApp.toast('A piece must have at least one color option.', 'warning');
+            window.AdminApp.toast('<?php echo adm_t('admin_color_must_have_one', 'A piece must have at least one color option.'); ?>', 'warning');
         }
         return;
     }

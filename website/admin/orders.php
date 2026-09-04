@@ -112,10 +112,10 @@ require_once __DIR__ . '/../header.php';
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Executive Command Suite</span>
-            <h1 class="page-banner-title">Orders & Logistics Radar</h1>
+            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_orders', 'Orders'); ?></span>
+            <h1 class="page-banner-title"><?php echo adm_t('admin_orders_title', 'Client Orders & Logistics Operations'); ?></h1>
             <p class="page-banner-subtitle">
-                Live dispatch monitoring, Kurdistan & Iraq courier assignments, WhatsApp order alerts, and luxury invoices.
+                <?php echo adm_t('admin_orders_subtitle', 'Live dispatch monitoring, Kurdistan & Iraq courier assignments, WhatsApp client updates, and luxury invoices.'); ?>
             </p>
         </div>
     </div>
@@ -139,33 +139,33 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-metric-card">
                 <span class="m-icon">📦</span>
                 <div class="m-info">
-                    <span class="m-label">Total Shipments</span>
-                    <strong class="m-value"><?php echo count($ordersList); ?> Orders</strong>
-                    <span class="iqd-price-pill"><?php echo number_format($totalRevenueIqd); ?> IQD Settled</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_total_orders', 'Total Client Orders'); ?></span>
+                    <strong class="m-value"><?php echo count($ordersList); ?> <?php echo adm_t('admin_nav_orders', 'Orders'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo number_format($totalRevenueIqd); ?> IQD</span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">⏳</span>
                 <div class="m-info">
-                    <span class="m-label">Pending / Processing</span>
-                    <strong class="m-value" style="color:#eab308;"><?php echo $pendingCount; ?> Orders</strong>
-                    <span class="iqd-price-pill">Awaiting Dispatch</span>
+                    <span class="m-label"><?php echo adm_t('admin_status_pending', 'Pending'); ?></span>
+                    <strong class="m-value" style="color:#eab308;"><?php echo $pendingCount; ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_status_pending', 'Pending Dispatch'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">🚚</span>
                 <div class="m-info">
-                    <span class="m-label">In Transit & On Road</span>
-                    <strong class="m-value text-primary"><?php echo $shippedCount; ?> Dispatched</strong>
-                    <span class="iqd-price-pill">Courier Driver Assigned</span>
+                    <span class="m-label"><?php echo adm_t('admin_status_shipped', 'Shipped / Dispatched'); ?></span>
+                    <strong class="m-value text-primary"><?php echo $shippedCount; ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_orders_driver_assigned', 'Courier Driver Assigned'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
                 <span class="m-icon">✅</span>
                 <div class="m-info">
-                    <span class="m-label">Successfully Delivered</span>
-                    <strong class="m-value" style="color:#22c55e;"><?php echo $deliveredCount; ?> Completed</strong>
-                    <span class="iqd-price-pill">100% Verified Delivery</span>
+                    <span class="m-label"><?php echo adm_t('admin_status_delivered', 'Delivered'); ?></span>
+                    <strong class="m-value" style="color:#22c55e;"><?php echo $deliveredCount; ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_orders_verified', '100% Verified'); ?></span>
                 </div>
             </div>
         </div>
@@ -174,19 +174,19 @@ require_once __DIR__ . '/../header.php';
         <div class="admin-table-card">
             <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h3 class="admin-card-title" style="margin:0; font-size:18px;">📦 Order Directory & Shipment Tracking</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Manage client shipments, assign courier dispatchers, send WhatsApp alerts, and generate invoices.</p>
+                    <h3 class="admin-card-title" style="margin:0; font-size:18px;">📦 <?php echo adm_t('admin_orders_title', 'Client Orders & Logistics Operations'); ?></h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_workspace_orders_desc', 'Track shipments, change dispatch status, and manage courier details.'); ?></p>
                 </div>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <input type="text" id="orderSearchInput" onkeyup="filterOrdersTable()" placeholder="Filter by Name, ID, Phone..." class="form-control" style="max-width:240px; padding:8px 12px; font-size:13px;">
+                    <input type="text" id="orderSearchInput" onkeyup="filterOrdersTable()" placeholder="<?php echo adm_t('admin_search_orders', 'Search orders by ID, Client, City...'); ?>" class="form-control" style="max-width:240px; padding:8px 12px; font-size:13px;">
                     <select id="orderStatusFilter" onchange="filterOrdersTable()" class="form-control" style="max-width:180px; padding:8px 12px; font-size:13px;">
-                        <option value="">All Statuses</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped (Dispatched)</option>
-                        <option value="Out for Delivery">Out for Delivery</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
+                        <option value=""><?php echo adm_t('admin_filter_all_status', 'All Statuses'); ?></option>
+                        <option value="Pending"><?php echo adm_t('admin_status_pending', 'Pending'); ?></option>
+                        <option value="Processing"><?php echo adm_t('admin_status_processing', 'Processing'); ?></option>
+                        <option value="Shipped"><?php echo adm_t('admin_status_shipped', 'Shipped'); ?></option>
+                        <option value="Out for Delivery"><?php echo adm_t('admin_status_out_for_delivery', 'Out for Delivery'); ?></option>
+                        <option value="Delivered"><?php echo adm_t('admin_status_delivered', 'Delivered'); ?></option>
+                        <option value="Cancelled"><?php echo adm_t('admin_status_cancelled', 'Cancelled'); ?></option>
                     </select>
                 </div>
             </div>
@@ -195,15 +195,15 @@ require_once __DIR__ . '/../header.php';
                 <table class="admin-table" id="ordersTableMain">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Client & Destination</th>
-                            <th>Items</th>
-                            <th>Total (IQD)</th>
-                            <th>Payment & Status</th>
-                            <th>Courier & Tracking</th>
-                            <th>Quick Status</th>
-                            <th>Actions</th>
+                            <th><?php echo adm_t('admin_order_col_id', 'Order ID'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_date', 'Date'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_client', 'Client & Destination'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_items', 'Items'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_total', 'Total (IQD)'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_payment', 'Payment'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_courier', 'Courier / Tracking'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_status', 'Order Status'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_actions', 'Actions'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -225,7 +225,7 @@ require_once __DIR__ . '/../header.php';
                                     <strong><?php echo htmlspecialchars($ord['customer_name']); ?></strong><br>
                                     <small class="text-muted"><?php echo htmlspecialchars($ord['city']); ?> • <?php echo htmlspecialchars($ord['phone']); ?></small>
                                 </td>
-                                <td><?php echo $itemsCount; ?> pcs</td>
+                                <td><?php echo $itemsCount; ?> <?php echo adm_t('admin_pcs', 'pcs'); ?></td>
                                 <td>
                                     <strong class="text-primary font-bold"><?php echo number_format($ordTot); ?> IQD</strong>
                                 </td>
@@ -235,7 +235,7 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <div class="courier-info-chip">
-                                        <span class="courier-name"><?php echo htmlspecialchars($ord['courier'] ?? 'Unassigned'); ?></span>
+                                        <span class="courier-name"><?php echo htmlspecialchars(!empty($ord['courier']) ? $ord['courier'] : adm_t('admin_unassigned', 'Unassigned')); ?></span>
                                         <?php if (!empty($ord['driver_name'])): ?>
                                             <span class="courier-driver">👤 <?php echo htmlspecialchars($ord['driver_name']); ?> (<?php echo htmlspecialchars($ord['driver_phone'] ?? ''); ?>)</span>
                                         <?php endif; ?>
@@ -247,32 +247,32 @@ require_once __DIR__ . '/../header.php';
                                 <td>
                                     <div class="order-status-wrapper" id="orderStatusWrap_<?php echo htmlspecialchars($ord['order_id']); ?>">
                                         <select name="order_status" class="status-select" data-previous-status="<?php echo htmlspecialchars($ord['order_status'] ?? 'Pending'); ?>" onchange="window.AuraStore.updateOrderStatus('<?php echo htmlspecialchars($ord['order_id']); ?>', this.value, this)">
-                                            <option value="Pending" <?php echo ($ord['order_status'] ?? '') === 'Pending' ? 'selected' : ''; ?>>Pending</option>
-                                            <option value="Processing" <?php echo ($ord['order_status'] ?? '') === 'Processing' ? 'selected' : ''; ?>>Processing</option>
-                                            <option value="Shipped" <?php echo ($ord['order_status'] ?? '') === 'Shipped' ? 'selected' : ''; ?>>Shipped (Dispatched)</option>
-                                            <option value="Out for Delivery" <?php echo ($ord['order_status'] ?? '') === 'Out for Delivery' ? 'selected' : ''; ?>>Out for Delivery</option>
-                                            <option value="Delivered" <?php echo ($ord['order_status'] ?? '') === 'Delivered' ? 'selected' : ''; ?>>Delivered</option>
-                                            <option value="Cancelled" <?php echo ($ord['order_status'] ?? '') === 'Cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            <option value="Pending" <?php echo ($ord['order_status'] ?? '') === 'Pending' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_pending', 'Pending'); ?></option>
+                                            <option value="Processing" <?php echo ($ord['order_status'] ?? '') === 'Processing' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_processing', 'Processing'); ?></option>
+                                            <option value="Shipped" <?php echo ($ord['order_status'] ?? '') === 'Shipped' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_shipped', 'Shipped'); ?></option>
+                                            <option value="Out for Delivery" <?php echo ($ord['order_status'] ?? '') === 'Out for Delivery' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_out_for_delivery', 'Out for Delivery'); ?></option>
+                                            <option value="Delivered" <?php echo ($ord['order_status'] ?? '') === 'Delivered' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_delivered', 'Delivered'); ?></option>
+                                            <option value="Cancelled" <?php echo ($ord['order_status'] ?? '') === 'Cancelled' ? 'selected' : ''; ?>><?php echo adm_t('admin_status_cancelled', 'Cancelled'); ?></option>
                                         </select>
                                     </div>
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                        <button type="button" class="btn btn-outline btn-xs" onclick="openDispatchModal(<?php echo htmlspecialchars(json_encode($ord)); ?>)" title="Manage Courier & Logistics">
-                                            🚚 Logistics
+                                        <button type="button" class="btn btn-outline btn-xs" onclick="openDispatchModal(<?php echo htmlspecialchars(json_encode($ord)); ?>)" title="<?php echo adm_t('admin_modal_dispatch', 'Manage Courier & Logistics'); ?>">
+                                            🚚 <?php echo adm_t('admin_orders_btn_logistics', 'Logistics'); ?>
                                         </button>
-                                        <button type="button" class="btn btn-outline btn-xs" onclick="printOrderInvoice(<?php echo htmlspecialchars(json_encode($ord)); ?>)" title="Print Luxury Invoice">
-                                            📄 Invoice
+                                        <button type="button" class="btn btn-outline btn-xs" onclick="printOrderInvoice(<?php echo htmlspecialchars(json_encode($ord)); ?>)" title="<?php echo adm_t('admin_orders_tax_invoice', 'Print Luxury Invoice'); ?>">
+                                            📄 <?php echo adm_t('admin_orders_btn_invoice', 'Invoice'); ?>
                                         </button>
                                         <?php if (!empty($waPhone)): ?>
-                                            <a href="https://wa.me/<?php echo $waPhone; ?>?text=<?php echo $waMsg; ?>" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e;" title="Send WhatsApp Update">
+                                            <a href="https://wa.me/<?php echo $waPhone; ?>?text=<?php echo $waMsg; ?>" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e;" title="WhatsApp">
                                                 💬 WA
                                             </a>
                                         <?php endif; ?>
                                         <a href="/track.php?order_id=<?php echo urlencode($ord['order_id']); ?>" class="btn btn-ghost btn-xs" title="Track Live">👁️</a>
-                                        <form action="/admin/orders.php" method="POST" onsubmit="return confirm('Delete order permanently?')" style="display:inline;">
+                                        <form action="/admin/orders.php" method="POST" onsubmit="return confirm('<?php echo adm_t('admin_orders_delete_confirm', 'Delete order permanently?'); ?>')" style="display:inline;">
                                             <input type="hidden" name="delete_order_id" value="<?php echo htmlspecialchars($ord['order_id']); ?>">
-                                            <button type="submit" class="btn btn-ghost text-danger btn-xs" title="Delete Order">✕</button>
+                                            <button type="submit" class="btn btn-ghost text-danger btn-xs" title="<?php echo adm_t('admin_btn_delete', 'Delete Order'); ?>">✕</button>
                                         </form>
                                     </div>
                                 </td>
@@ -290,8 +290,8 @@ require_once __DIR__ . '/../header.php';
     <div class="modal-card" style="max-width:560px;">
         <div class="modal-header">
             <div>
-                <h3 style="margin:0; font-size:18px;">🚚 Logistics & Dispatch Center</h3>
-                <small class="text-muted" id="dispatchModalOrderSub">Assign Iraqi express courier or internal fleet driver</small>
+                <h3 style="margin:0; font-size:18px;">🚚 <?php echo adm_t('admin_modal_dispatch', 'Logistics & Dispatch Center'); ?></h3>
+                <small class="text-muted" id="dispatchModalOrderSub"><?php echo adm_t('admin_orders_assign_courier_desc', 'Assign express courier or internal fleet driver'); ?></small>
             </div>
             <button type="button" class="btn-close-modal" onclick="closeDispatchModal()">✕</button>
         </div>
@@ -300,56 +300,56 @@ require_once __DIR__ . '/../header.php';
             <input type="hidden" name="order_id" id="dispOrderId">
             
             <div class="form-group mb-16">
-                <label>Update Order Status</label>
+                <label><?php echo adm_t('admin_order_col_status', 'Update Order Status'); ?></label>
                 <select name="order_status" id="dispStatus" class="form-control">
-                    <option value="Processing">Processing / Packaged in Velvet Box</option>
-                    <option value="Shipped" selected>Shipped / Handed to Courier Driver</option>
-                    <option value="Out for Delivery">Out for Delivery (Approaching Client)</option>
-                    <option value="Delivered">Delivered (Handed & Signed)</option>
+                    <option value="Processing"><?php echo adm_t('admin_status_processing', 'Processing / Packaging'); ?></option>
+                    <option value="Shipped" selected><?php echo adm_t('admin_status_shipped', 'Shipped / Handed to Courier Driver'); ?></option>
+                    <option value="Out for Delivery"><?php echo adm_t('admin_status_out_for_delivery', 'Out for Delivery'); ?></option>
+                    <option value="Delivered"><?php echo adm_t('admin_status_delivered', 'Delivered'); ?></option>
                 </select>
             </div>
 
             <div class="form-row-2 mb-16">
                 <div class="form-group">
-                    <label>Logistics Courier Company</label>
+                    <label><?php echo adm_t('admin_order_col_courier', 'Logistics Courier Company'); ?></label>
                     <select name="courier" id="dispCourier" class="form-control">
-                        <option value="AURA Express Fleet">AURA White-Glove Direct Fleet</option>
+                        <option value="AURA Express Fleet">AURA Direct Fleet</option>
                         <option value="Kurdistan Express">Kurdistan Express Delivery</option>
                         <option value="Iraq Post Express">Iraq Post & Logistics</option>
-                        <option value="Al-Wessam Courier">Al-Wessam Express (Baghdad / South)</option>
+                        <option value="Al-Wessam Courier">Al-Wessam Express</option>
                         <option value="DHL Express Iraq">DHL Express Iraq</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Tracking Reference Code</label>
+                    <label><?php echo adm_t('admin_invoice_tracking', 'Tracking Reference Code'); ?></label>
                     <input type="text" name="tracking_code" id="dispTrackingCode" class="form-control" placeholder="AURA-EXP-99201">
                 </div>
             </div>
 
             <div class="form-row-2 mb-16">
                 <div class="form-group">
-                    <label>Courier Driver Name</label>
+                    <label><?php echo adm_t('admin_field_driver_name', 'Courier Driver Name'); ?></label>
                     <input type="text" name="driver_name" id="dispDriverName" class="form-control" placeholder="Captain Karwan / Ali">
                 </div>
                 <div class="form-group">
-                    <label>Driver Phone (For Client SMS/Call)</label>
+                    <label><?php echo adm_t('admin_field_driver_phone', 'Driver Phone'); ?></label>
                     <input type="text" name="driver_phone" id="dispDriverPhone" class="form-control" placeholder="0750 999 8888">
                 </div>
             </div>
 
             <div class="form-group mb-16">
-                <label>Estimated Delivery Date / Timeframe</label>
+                <label><?php echo adm_t('admin_field_est_delivery', 'Estimated Delivery Date / Timeframe'); ?></label>
                 <input type="text" name="estimated_delivery" id="dispEstDelivery" class="form-control" placeholder="Today before 6:00 PM • Tomorrow 24h">
             </div>
 
             <div class="form-group mb-20">
-                <label>Internal Logistics Notes (Optional)</label>
-                <textarea name="dispatch_notes" id="dispNotes" rows="2" class="form-control" placeholder="e.g., Client requested call 30 mins before arrival at Empire World gate 3."></textarea>
+                <label><?php echo adm_t('admin_field_internal_notes', 'Internal Logistics Notes'); ?></label>
+                <textarea name="dispatch_notes" id="dispNotes" rows="2" class="form-control"></textarea>
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn btn-outline" onclick="closeDispatchModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-luxury" id="dispatchSubmitBtn">Confirm & Dispatch Shipment</button>
+                <button type="button" class="btn btn-outline" onclick="closeDispatchModal()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
+                <button type="submit" class="btn btn-primary btn-luxury" id="dispatchSubmitBtn"><?php echo adm_t('admin_btn_save', 'Update Dispatch & Notify Client'); ?></button>
             </div>
         </form>
     </div>
@@ -359,9 +359,9 @@ require_once __DIR__ . '/../header.php';
 <div class="modal-overlay" id="invoiceModalOverlay">
     <div class="modal-card" style="max-width:700px; background:#ffffff; color:#111827;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:12px; margin-bottom:16px;">
-            <strong style="color:#111827; font-size:16px;">Official Tax Invoice & Receipt</strong>
+            <strong style="color:#111827; font-size:16px;"><?php echo adm_t('admin_orders_tax_invoice', 'Official Tax Invoice & Receipt'); ?></strong>
             <div style="display:flex; gap:10px;">
-                <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="background:#111827; color:#fff; border-color:#111827;">🖨️ Print Invoice</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="background:#111827; color:#fff; border-color:#111827;">🖨️ <?php echo adm_t('admin_orders_print_invoice', 'Print Invoice'); ?></button>
                 <button type="button" class="btn btn-ghost btn-sm" onclick="closeInvoiceModal()" style="color:#111827;">✕</button>
             </div>
         </div>
@@ -414,11 +414,27 @@ function printOrderInvoice(order) {
     let itemsHtml = '';
     const ordTot = order.total || 0;
 
+    const lblQty = "<?php echo adm_t('cart_qty', 'Qty'); ?>";
+    const lblSize = "<?php echo adm_t('product_size', 'Size'); ?>";
+    const lblItemDesc = "<?php echo adm_t('admin_invoice_item_desc', 'Item Description'); ?>";
+    const lblTotal = "<?php echo adm_t('admin_invoice_total', 'Total'); ?>";
+    const lblLuxuryStore = "<?php echo adm_t('admin_invoice_luxury_store', 'LUXURY STORE • IRAQ'); ?>";
+    const lblCareHub = "<?php echo adm_t('admin_invoice_care_hub', 'Customer Care & Fulfillment Hub'); ?>";
+    const lblTaxTitle = "<?php echo adm_t('admin_invoice_tax_title', 'TAX INVOICE'); ?>";
+    const lblBilledTo = "<?php echo adm_t('admin_invoice_billed_to', 'Billed & Delivered To:'); ?>";
+    const lblLogistics = "<?php echo adm_t('admin_invoice_logistics_payment', 'Logistics & Payment:'); ?>";
+    const lblMethod = "<?php echo adm_t('admin_invoice_method', 'Method:'); ?>";
+    const lblCourier = "<?php echo adm_t('admin_invoice_courier', 'Courier:'); ?>";
+    const lblTracking = "<?php echo adm_t('admin_invoice_tracking', 'Tracking:'); ?>";
+    const lblPayTerms = "<?php echo adm_t('admin_invoice_payment_terms', 'Payment Terms:'); ?>";
+    const lblOfficialCurrency = "<?php echo adm_t('admin_invoice_official_currency', 'Official Currency: Iraqi Dinar (IQD)'); ?>";
+    const lblTotalPayable = "<?php echo adm_t('admin_invoice_total_payable', 'Total Payable:'); ?>";
+
     items.forEach(it => {
-        const itTitle = typeof it.title === 'object' ? (it.title.en || it.title) : it.title;
+        const itTitle = typeof it.title === 'object' ? (it.title.<?php echo $adminLang ?? 'en'; ?> || it.title.en || it.title) : it.title;
         itemsHtml += `
             <tr style="border-bottom:1px solid #e5e7eb;">
-                <td style="padding:10px 0;"><strong>${itTitle}</strong><br><small style="color:#6b7280;">Qty: ${it.quantity} ${it.size ? '• Size: ' + it.size : ''}</small></td>
+                <td style="padding:10px 0;"><strong>${itTitle}</strong><br><small style="color:#6b7280;">${lblQty}: ${it.quantity} ${it.size ? '• ' + lblSize + ': ' + it.size : ''}</small></td>
                 <td style="padding:10px 0; text-align:right;">${Math.round(it.price * it.quantity).toLocaleString()} IQD</td>
             </tr>
         `;
@@ -428,11 +444,11 @@ function printOrderInvoice(order) {
         <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #111827; padding-bottom:20px; margin-bottom:24px;">
             <div>
                 <h1 style="font-size:26px; font-weight:800; letter-spacing:2px; margin:0; color:#111827;">AURA</h1>
-                <span style="font-size:12px; letter-spacing:3px; color:#d97706; font-weight:700;">LUXURY STORE • IRAQ</span>
-                <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Customer Care & Fulfillment Hub</p>
+                <span style="font-size:12px; letter-spacing:3px; color:#d97706; font-weight:700;">${lblLuxuryStore}</span>
+                <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">${lblCareHub}</p>
             </div>
             <div style="text-align:right;">
-                <h2 style="font-size:18px; font-weight:800; margin:0; color:#111827;">TAX INVOICE</h2>
+                <h2 style="font-size:18px; font-weight:800; margin:0; color:#111827;">${lblTaxTitle}</h2>
                 <div style="font-family:monospace; font-size:14px; font-weight:700; color:#d97706;">${order.order_id}</div>
                 <div style="font-size:12px; color:#6b7280;">${new Date(order.created_at || Date.now()).toLocaleDateString()}</div>
             </div>
@@ -440,24 +456,24 @@ function printOrderInvoice(order) {
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; font-size:13px;">
             <div>
-                <strong style="color:#111827; text-transform:uppercase; font-size:11px; letter-spacing:1px;">Billed & Delivered To:</strong>
+                <strong style="color:#111827; text-transform:uppercase; font-size:11px; letter-spacing:1px;">${lblBilledTo}</strong>
                 <div style="font-weight:700; font-size:15px; margin-top:4px;">${order.customer_name}</div>
                 <div style="color:#4b5563;">${order.phone}</div>
                 <div style="color:#4b5563;">${order.city}, ${order.address}</div>
             </div>
             <div style="text-align:right;">
-                <strong style="color:#111827; text-transform:uppercase; font-size:11px; letter-spacing:1px;">Logistics & Payment:</strong>
-                <div style="font-weight:700; color:#111827; margin-top:4px;">Method: ${order.payment_method}</div>
-                <div style="color:#4b5563;">Courier: ${order.courier || 'AURA Express'}</div>
-                <div style="color:#4b5563;">Tracking: <code>${order.tracking_code || order.order_id}</code></div>
+                <strong style="color:#111827; text-transform:uppercase; font-size:11px; letter-spacing:1px;">${lblLogistics}</strong>
+                <div style="font-weight:700; color:#111827; margin-top:4px;">${lblMethod} ${order.payment_method}</div>
+                <div style="color:#4b5563;">${lblCourier} ${order.courier || 'AURA Express'}</div>
+                <div style="color:#4b5563;">${lblTracking} <code>${order.tracking_code || order.order_id}</code></div>
             </div>
         </div>
 
         <table style="width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:20px;">
             <thead>
                 <tr style="border-bottom:2px solid #e5e7eb; text-align:left;">
-                    <th style="padding:8px 0;">Item Description</th>
-                    <th style="padding:8px 0; text-align:right;">Total</th>
+                    <th style="padding:8px 0;">${lblItemDesc}</th>
+                    <th style="padding:8px 0; text-align:right;">${lblTotal}</th>
                 </tr>
             </thead>
             <tbody>
@@ -467,11 +483,11 @@ function printOrderInvoice(order) {
 
         <div style="border-top:2px solid #111827; padding-top:16px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <span style="font-size:12px; color:#6b7280;">Payment Terms:</span><br>
-                <strong style="font-size:14px; color:#111827;">Official Currency: Iraqi Dinar (IQD)</strong>
+                <span style="font-size:12px; color:#6b7280;">${lblPayTerms}</span><br>
+                <strong style="font-size:14px; color:#111827;">${lblOfficialCurrency}</strong>
             </div>
             <div style="text-align:right;">
-                <span style="font-size:12px; color:#6b7280;">Total Payable:</span><br>
+                <span style="font-size:12px; color:#6b7280;">${lblTotalPayable}</span><br>
                 <strong style="font-size:24px; font-weight:800; color:#d97706;">${Math.round(ordTot).toLocaleString()} IQD</strong>
             </div>
         </div>

@@ -35,10 +35,10 @@ require_once __DIR__ . '/../header.php';
 <div class="page-banner">
     <div class="container">
         <div class="page-banner-content">
-            <span class="section-kicker">✦ Executive Command Suite</span>
-            <h1 class="page-banner-title">Executive Dashboard & Analytics</h1>
+            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_dashboard', 'Dashboard'); ?></span>
+            <h1 class="page-banner-title"><?php echo adm_t('admin_dashboard_title', 'Executive Dashboard & Analytics'); ?></h1>
             <p class="page-banner-subtitle">
-                High-level operational overview, live payment telemetry, rapid dispatch radar, and administrative shortcuts.
+                <?php echo adm_t('admin_dashboard_subtitle', 'High-level operational overview, live payment telemetry, rapid dispatch radar, and administrative shortcuts.'); ?>
             </p>
         </div>
     </div>
@@ -55,36 +55,36 @@ require_once __DIR__ . '/../header.php';
             <div class="admin-metric-card">
                 <span class="m-icon">💰</span>
                 <div class="m-info">
-                    <span class="m-label">Total Settled Revenue</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_revenue', 'Total Settled Revenue'); ?></span>
                     <strong class="m-value text-primary"><?php echo number_format($totalRevenueIqd); ?> IQD</strong>
-                    <span class="iqd-price-pill">All Orders in Iraqi Dinar</span>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_metric_all_iqd', 'All Orders in Iraqi Dinar'); ?></span>
                 </div>
             </div>
 
             <div class="admin-metric-card">
                 <span class="m-icon">📦</span>
                 <div class="m-info">
-                    <span class="m-label">Active Shipments</span>
-                    <strong class="m-value"><?php echo count($ordersList); ?> Orders</strong>
-                    <span class="iqd-price-pill"><?php echo $shippedCount; ?> in transit • <?php echo $deliveredCount; ?> delivered</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_shipments', 'Active Shipments'); ?></span>
+                    <strong class="m-value"><?php echo count($ordersList); ?> <?php echo adm_t('admin_nav_orders', 'Orders'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo sprintf(adm_t('admin_metric_transit_delivered', '%s in transit • %s delivered'), $shippedCount, $deliveredCount); ?></span>
                 </div>
             </div>
 
             <div class="admin-metric-card">
                 <span class="m-icon">💎</span>
                 <div class="m-info">
-                    <span class="m-label">Boutique Pieces</span>
-                    <strong class="m-value"><?php echo count($productsList); ?> Pieces</strong>
-                    <span class="iqd-price-pill">Luxury Catalog Active</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_pieces', 'Boutique Pieces'); ?></span>
+                    <strong class="m-value"><?php echo count($productsList); ?> <?php echo adm_t('admin_nav_products', 'Pieces'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_metric_catalog_active', 'Luxury Catalog Active'); ?></span>
                 </div>
             </div>
 
             <div class="admin-metric-card">
                 <span class="m-icon">👥</span>
                 <div class="m-info">
-                    <span class="m-label">Customer Directory</span>
-                    <strong class="m-value"><?php echo count($usersList); ?> Clients</strong>
-                    <span class="iqd-price-pill"><?php echo count($inquiriesList); ?> Concierge Inquiries</span>
+                    <span class="m-label"><?php echo adm_t('admin_metric_customers', 'Customer Directory'); ?></span>
+                    <strong class="m-value"><?php echo count($usersList); ?> <?php echo adm_t('admin_nav_users', 'Clients'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo sprintf(adm_t('admin_metric_inquiries_count', '%s Concierge Inquiries'), count($inquiriesList)); ?></span>
                 </div>
             </div>
         </div>
@@ -92,8 +92,8 @@ require_once __DIR__ . '/../header.php';
         <!-- Admin Quick Navigation Jump Grid -->
         <div style="margin-bottom:32px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary);">⚡ Dedicated Admin Workspaces</h3>
-                <span class="text-muted" style="font-size:12.5px;">Each section is isolated on its own page for maximum speed and focus</span>
+                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary);">⚡ <?php echo adm_t('admin_workspaces_title', 'Dedicated Admin Workspaces'); ?></h3>
+                <span class="text-muted" style="font-size:12.5px;"><?php echo adm_t('admin_workspaces_subtitle', 'Each section is isolated on its own page for maximum speed and focus'); ?></span>
             </div>
 
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
@@ -103,13 +103,13 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">🚚</span>
-                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($ordersList); ?> Orders</span>
+                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($ordersList); ?> <?php echo adm_t('admin_nav_orders', 'Orders'); ?></span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Orders & Logistics Radar</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">Manage client shipments, assign courier dispatchers, send WhatsApp alerts, and generate invoices.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_orders_title', 'Orders & Logistics Radar'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_orders_desc', 'Live dispatch radar, Kurdistan courier updates, WhatsApp status triggers, and invoice prints.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        Open Orders Page →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
 
@@ -118,13 +118,13 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">💎</span>
-                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($productsList); ?> Pieces</span>
+                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($productsList); ?> <?php echo adm_t('admin_nav_products', 'Pieces'); ?></span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Product Catalog & Stock</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">Live stock adjuster steppers (+/-), trilingual descriptions, pricing discounts, and promotional ribbons.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_products_title', 'Products & Inventory Atelier'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_products_desc', 'Catalog management, multi-color variations, luxury badges, and stock level controls.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        Manage Products →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
 
@@ -133,13 +133,13 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">💳</span>
-                            <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; font-weight:800;">FIB & ZainCash</span>
+                            <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; font-weight:800;">FIB, FastPay & ZainCash</span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Payment Gateways & Rates</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">First Iraqi Bank (FIB) OAuth2, ZainCash HMAC JWT keys, FastPay, COD, and USD/IQD conversion rates.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_payments_title', 'Payment Gateways & Live Telemetry'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_payments_desc', 'Configure FIB, FastPay, ZainCash, and Cash on Delivery with test mode tools.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        Configure Gateways →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
 
@@ -148,13 +148,13 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">👥</span>
-                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($usersList); ?> Registered</span>
+                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($usersList); ?> <?php echo adm_t('admin_nav_users', 'Registered'); ?></span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Customer Directory</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">Client profiles, order history counts, phone numbers, delivery cities, and lifetime spend.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_users_title', 'Customer Directory & VIP Accounts'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_users_desc', 'Customer ledger, lifetime spend tracking, purchase frequency, and VIP classifications.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        View Client Base →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
 
@@ -163,13 +163,13 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">💬</span>
-                            <span class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; font-weight:800;"><?php echo count($inquiriesList); ?> Active</span>
+                            <span class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; font-weight:800;"><?php echo count($inquiriesList); ?> <?php echo adm_t('admin_nav_inquiries', 'Active'); ?></span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Concierge Inquiries</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">Incoming client tailoring questions, sizing requests, and direct 1-click WhatsApp customer responses.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_inquiries_title', 'VIP Inquiries & Concierge Desk'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_inquiries_desc', 'Concierge message inbox, direct WhatsApp responses, and post-delivery issue resolution.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        Respond to Inquiries →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
 
@@ -178,64 +178,15 @@ require_once __DIR__ . '/../header.php';
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span style="font-size:28px;">🎨</span>
-                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;">Global</span>
+                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo adm_t('admin_branding_badge_global', 'Global'); ?></span>
                         </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);">Brand & Global Settings</h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;">Trilingual store name, monogram logo emblem, top announcement banner, and Kurdistan delivery fees.</p>
+                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_branding_title', 'Brand Identity & Store Settings'); ?></h4>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_branding_desc', 'Boutique identity, logo styling, delivery fee rules (Duhok vs Other), and announcement banners.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        Customize Brand →
+                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
                     </div>
                 </a>
-            </div>
-        </div>
-
-        <!-- Live Telemetry & Payment Gateway Health -->
-        <div class="admin-form-card mb-28">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-                <div>
-                    <h3 class="admin-card-title" style="margin:0; font-size:16px;">⚡ Iraqi Digital Payment Telemetry</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Live integration status for Iraqi fintech APIs and local settlement channels.</p>
-                </div>
-                <a href="/admin/payments.php" class="btn btn-outline btn-xs">Configure All Gateways →</a>
-            </div>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
-                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">First Iraqi Bank (FIB)</div>
-                        <strong style="font-size:15px; color:var(--text-primary); display:block; margin-top:2px;">Online & Synced</strong>
-                        <small style="color:#22c55e;">● OAuth2 Bearer Active</small>
-                    </div>
-                    <button type="button" class="btn btn-ghost btn-xs" onclick="window.AuraStore.testGatewayConnection('fib')">⚡ Ping</button>
-                </div>
-
-                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">ZainCash Iraq</div>
-                        <strong style="font-size:15px; color:var(--text-primary); display:block; margin-top:2px;">HMAC Validated</strong>
-                        <small style="color:#22c55e;">● MSISDN Ready</small>
-                    </div>
-                    <button type="button" class="btn btn-ghost btn-xs" onclick="window.AuraStore.testGatewayConnection('zaincash')">⚡ Ping</button>
-                </div>
-
-                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">FastPay Kurdistan</div>
-                        <strong style="font-size:15px; color:var(--text-primary); display:block; margin-top:2px;">Ready</strong>
-                        <small style="color:#22c55e;">● Regional Gateway</small>
-                    </div>
-                    <button type="button" class="btn btn-ghost btn-xs" onclick="window.AuraStore.testGatewayConnection('fastpay')">⚡ Ping</button>
-                </div>
-
-                <div style="background:var(--bg-subtle); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Cash On Delivery</div>
-                        <strong style="font-size:15px; color:var(--text-primary); display:block; margin-top:2px;">Enabled</strong>
-                        <small style="color:#22c55e;">● 18 Governorates</small>
-                    </div>
-                    <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border-color:#22c55e;">Active</span>
-                </div>
             </div>
         </div>
 
@@ -243,11 +194,11 @@ require_once __DIR__ . '/../header.php';
         <div class="admin-table-card">
             <div style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h3 class="admin-card-title" style="margin:0; font-size:17px;">📦 Recent Boutique Orders</h3>
-                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Latest client checkouts and shipments awaiting fulfillment.</p>
+                    <h3 class="admin-card-title" style="margin:0; font-size:17px;">📦 <?php echo adm_t('admin_recent_orders', 'Recent Incoming Orders'); ?></h3>
+                    <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;"><?php echo adm_t('admin_workspace_orders_desc', 'Latest client checkouts and shipments awaiting fulfillment.'); ?></p>
                 </div>
                 <a href="/admin/orders.php" class="btn btn-primary btn-luxury btn-sm">
-                    View All Orders (<?php echo count($ordersList); ?>) →
+                    <?php echo adm_t('admin_view_all_orders', 'View All Orders'); ?> (<?php echo count($ordersList); ?>) →
                 </a>
             </div>
 
@@ -255,13 +206,13 @@ require_once __DIR__ . '/../header.php';
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Client & City</th>
-                            <th>Total (IQD)</th>
-                            <th>Payment</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th><?php echo adm_t('admin_order_col_id', 'Order ID'); ?></th>
+                            <th><?php echo adm_t('admin_inquiry_col_date', 'Date'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_customer', 'Customer'); ?> & <?php echo adm_t('admin_order_col_city', 'City'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_total', 'Total Amount'); ?> (IQD)</th>
+                            <th><?php echo adm_t('admin_nav_payments', 'Payment'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_status', 'Status'); ?></th>
+                            <th><?php echo adm_t('admin_order_col_actions', 'Action'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -269,6 +220,8 @@ require_once __DIR__ . '/../header.php';
                         $recentOrders = array_slice($ordersList, 0, 5);
                         foreach ($recentOrders as $ord): 
                             $ordTot = $ord['total'] ?? 0;
+                            $currStatus = $ord['order_status'] ?? 'Pending';
+                            $statusKey = 'admin_status_' . strtolower(str_replace(' ', '_', $currStatus));
                         ?>
                             <tr>
                                 <td><strong><a href="/track.php?order_id=<?php echo urlencode($ord['order_id']); ?>"><?php echo htmlspecialchars($ord['order_id']); ?></a></strong></td>
@@ -285,11 +238,11 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <span class="badge-tag" style="font-weight:700; background:var(--bg-subtle);">
-                                        <?php echo htmlspecialchars($ord['order_status'] ?? 'Pending'); ?>
+                                        <?php echo htmlspecialchars(adm_t($statusKey, $currStatus)); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="/admin/orders.php" class="btn btn-outline btn-xs">Manage in Orders →</a>
+                                    <a href="/admin/orders.php" class="btn btn-outline btn-xs"><?php echo adm_t('admin_btn_manage', 'Manage'); ?> →</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

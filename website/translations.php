@@ -26,4 +26,23 @@ function t($key, $lang = 'en') {
     $lang = in_array($lang, ['en', 'ar', 'ku']) ? $lang : 'en';
     return $translations[$lang][$key] ?? ($translations['en'][$key] ?? $key);
 }
+
+/**
+ * Admin Translation Helper
+ * Automatically detects current active language from session / global and looks up translations.
+ */
+function adm_t($key, $defaultEn = '') {
+    global $lang, $translations;
+    $currentLang = $lang ?? $_SESSION['lang'] ?? $_COOKIE['aura_lang'] ?? 'en';
+    if (!in_array($currentLang, ['en', 'ar', 'ku'])) {
+        $currentLang = 'en';
+    }
+    if (isset($translations[$currentLang][$key]) && $translations[$currentLang][$key] !== '') {
+        return $translations[$currentLang][$key];
+    }
+    if (isset($translations['en'][$key]) && $translations['en'][$key] !== '') {
+        return $translations['en'][$key];
+    }
+    return !empty($defaultEn) ? $defaultEn : $key;
+}
 ?>
