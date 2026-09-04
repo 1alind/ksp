@@ -173,7 +173,7 @@ $catMeta = [
     ],
     'feet' => [
         'name' => ($lang === 'ku' ? 'قەبارێ پێیان' : ($lang === 'ar' ? 'مقاس وطول القدم' : 'Feet & Foot Size')),
-        'icon' => '🦶',
+        'icon' => '👟',
         'step1' => ($lang === 'ku' ? 'کاغەزەکێ ل سەر ئەردی دابنێ و پێیێ خۆ ب دورستی ل سەر ڕابگرە.' : ($lang === 'ar' ? 'ضع ورقة بيضاء على الأرض وقف عليها بوزنك الكامل.' : 'Place a paper sheet on the floor and stand firmly on it.')),
         'step2' => ($lang === 'ku' ? 'پانییا پێی ل بەرفرەهترین جهـ بپێڤە.' : ($lang === 'ar' ? 'قس عرض القدم عند أعرض نقطة.' : 'Measure the foot width across the widest part.')),
         'step3' => ($lang === 'ku' ? 'بلندی / درێژیا پێی ژ پنیا پێی هەتا سەرێ تلیا مەزن بپێڤە.' : ($lang === 'ar' ? 'قس المسافة من الكعب إلى أطول إصبع في قدمك.' : 'Measure from the backmost heel point to the tip of your longest toe.'))
@@ -221,7 +221,7 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
                 <span><?php echo $lang === 'ku' ? 'چاکەت و قەمسەلە' : ($lang === 'ar' ? 'جاكيتات ومعاطف' : 'Jackets & Coats'); ?></span>
             </a>
             <a href="size_guide.php?v=feet<?php echo $tabQuery; ?>" class="size-tab-btn <?php echo $variant === 'feet' ? 'active' : ''; ?>">
-                <span class="tab-icon">🦶</span>
+                <span class="tab-icon">👟</span>
                 <span><?php echo $lang === 'ku' ? 'قەبارێ پێیان' : ($lang === 'ar' ? 'مقاس وطول القدم' : 'Feet & Foot Size'); ?></span>
             </a>
         </div>
