@@ -262,19 +262,7 @@ $activePage = 'admin';
 require_once __DIR__ . '/../header.php';
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_products', 'Products'); ?></span>
-            <h1 class="page-banner-title"><?php echo adm_t('admin_products_title', 'Products & Inventory Atelier'); ?></h1>
-            <p class="page-banner-subtitle">
-                <?php echo adm_t('admin_products_subtitle', 'Manage high-jewelry, haute couture, luxury watches and artisan perfumes. Edit pricing, inventory, colors, and promotional badges.'); ?>
-            </p>
-        </div>
-    </div>
-</div>
-
-<section class="admin-section" style="padding: 40px 0 80px;">
+<section class="admin-section" style="padding: 24px 0 60px;">
     <div class="container">
 
         <!-- Unified Admin Navigation Bar -->
@@ -323,8 +311,8 @@ require_once __DIR__ . '/../header.php';
             </div>
         </div>
 
-        <!-- Add Product Panel (Always Ready & Accessible) -->
-        <div class="admin-form-card mb-24" id="addProductCard" style="border:none; background:var(--bg-card); box-shadow:none;">
+        <!-- Add Product Panel (Hidden by default, toggled via button) -->
+        <div class="admin-form-card mb-24" id="addProductCard" style="display:none; border:1px solid var(--border-color); background:var(--bg-card); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
             <div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div>
                     <h3 class="admin-card-title" style="margin:0; font-size:18px;"><?php echo adm_t('admin_add_product_title', '+ Add New Luxury Piece or Color Variant'); ?></h3>
@@ -785,7 +773,7 @@ require_once __DIR__ . '/../header.php';
 function toggleAddProductForm() {
     const card = document.getElementById('addProductCard');
     if (!card) return;
-    const isHidden = card.style.display === 'none';
+    const isHidden = card.style.display === 'none' || getComputedStyle(card).display === 'none';
     card.style.display = isHidden ? 'block' : 'none';
     if (isHidden) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });

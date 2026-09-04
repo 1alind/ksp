@@ -35,19 +35,7 @@ $activePage = 'admin';
 require_once __DIR__ . '/../header.php';
 ?>
 
-<div class="page-banner">
-    <div class="container">
-        <div class="page-banner-content">
-            <span class="section-kicker">✦ <?php echo adm_t('admin_nav_dashboard', 'Dashboard'); ?></span>
-            <h1 class="page-banner-title"><?php echo adm_t('admin_dashboard_title', 'Executive Dashboard & Analytics'); ?></h1>
-            <p class="page-banner-subtitle">
-                <?php echo adm_t('admin_dashboard_subtitle', 'High-level operational overview, live payment telemetry, rapid dispatch radar, and administrative shortcuts.'); ?>
-            </p>
-        </div>
-    </div>
-</div>
-
-<section class="admin-section" style="padding: 40px 0 80px;">
+<section class="admin-section" style="padding: 24px 0 60px;">
     <div class="container">
 
         <!-- Unified Admin Navigation Bar -->

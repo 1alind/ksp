@@ -135,59 +135,77 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
 
             <!-- Desktop Navigation Links -->
             <nav class="desktop-nav" id="desktopNav">
-                <a href="index.php" class="nav-item <?php echo $activePage === 'home' ? 'active' : ''; ?>"><?php echo t('nav_home', $lang); ?></a>
-                <a href="shop.php" class="nav-item <?php echo $activePage === 'shop' ? 'active' : ''; ?>"><?php echo t('nav_shop', $lang); ?></a>
-                <a href="shop.php?cat=clothes" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'clothes') ? 'active' : ''; ?>"><?php echo t('nav_clothes', $lang); ?></a>
-                <a href="shop.php?cat=watches" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'watches') ? 'active' : ''; ?>"><?php echo t('nav_watches', $lang); ?></a>
-                <a href="shop.php?cat=perfumes" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'perfumes') ? 'active' : ''; ?>"><?php echo t('nav_perfumes', $lang); ?></a>
-                <a href="shop.php?cat=accessories" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'accessories') ? 'active' : ''; ?>"><?php echo t('nav_accessories', $lang); ?></a>
-                <a href="track.php" class="nav-item <?php echo $activePage === 'track' ? 'active' : ''; ?>"><?php echo t('nav_track', $lang); ?></a>
-                <a href="/admin/index.php" class="nav-item admin-badge-link <?php echo $activePage === 'admin' ? 'active' : ''; ?>"><?php echo t('nav_admin', $lang); ?></a>
+                <?php if ($activePage === 'admin'): ?>
+                    <a href="/index.php" class="nav-item">🏪 <?php echo t('nav_storefront', $lang) ?: 'Storefront'; ?></a>
+                    <a href="/admin/index.php" class="nav-item admin-badge-link active"><?php echo t('nav_admin', $lang); ?></a>
+                <?php else: ?>
+                    <a href="index.php" class="nav-item <?php echo $activePage === 'home' ? 'active' : ''; ?>"><?php echo t('nav_home', $lang); ?></a>
+                    <a href="shop.php" class="nav-item <?php echo $activePage === 'shop' ? 'active' : ''; ?>"><?php echo t('nav_shop', $lang); ?></a>
+                    <a href="shop.php?cat=clothes" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'clothes') ? 'active' : ''; ?>"><?php echo t('nav_clothes', $lang); ?></a>
+                    <a href="shop.php?cat=watches" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'watches') ? 'active' : ''; ?>"><?php echo t('nav_watches', $lang); ?></a>
+                    <a href="shop.php?cat=perfumes" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'perfumes') ? 'active' : ''; ?>"><?php echo t('nav_perfumes', $lang); ?></a>
+                    <a href="shop.php?cat=accessories" class="nav-item <?php echo ($activePage === 'shop' && ($_GET['cat'] ?? '') === 'accessories') ? 'active' : ''; ?>"><?php echo t('nav_accessories', $lang); ?></a>
+                    <a href="track.php" class="nav-item <?php echo $activePage === 'track' ? 'active' : ''; ?>"><?php echo t('nav_track', $lang); ?></a>
+                    <a href="/admin/index.php" class="nav-item admin-badge-link"><?php echo t('nav_admin', $lang); ?></a>
+                <?php endif; ?>
             </nav>
 
             <!-- Header Action Utilities -->
             <div class="header-actions">
-                <!-- Search Trigger / Bar -->
-                <div class="search-box-wrapper">
-                    <form action="shop.php" method="GET" class="search-form" id="headerSearchForm">
-                        <input type="text" name="q" class="search-input" placeholder="<?php echo t('search_placeholder', $lang); ?>" value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>" autocomplete="off">
-                        <button type="submit" class="search-submit-btn" aria-label="Search">
-                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </button>
-                    </form>
-                </div>
+                <?php if ($activePage !== 'admin'): ?>
+                    <!-- Search Trigger / Bar -->
+                    <div class="search-box-wrapper">
+                        <form action="shop.php" method="GET" class="search-form" id="headerSearchForm">
+                            <input type="text" name="q" class="search-input" placeholder="<?php echo t('search_placeholder', $lang); ?>" value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>" autocomplete="off">
+                            <button type="submit" class="search-submit-btn" aria-label="Search">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </form>
+                    </div>
 
-                <!-- Cart Button with Counter -->
-                <a href="cart.php" class="cart-trigger-btn" id="cartTrigger" title="<?php echo t('cart', $lang); ?>">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
-                    <span class="cart-counter" id="cartCount">0</span>
-                </a>
+                    <!-- Cart Button with Counter -->
+                    <a href="cart.php" class="cart-trigger-btn" id="cartTrigger" title="<?php echo t('cart', $lang); ?>">
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <span class="cart-counter" id="cartCount">0</span>
+                    </a>
+                <?php else: ?>
+                    <a href="/index.php" class="btn btn-outline btn-sm" style="font-size:12px; padding:6px 12px; border-radius:var(--radius-sm); text-decoration:none;">
+                        🏪 <?php echo t('nav_storefront', $lang) ?: 'Storefront'; ?>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
 
         <!-- Mobile Drawer Menu -->
         <div class="mobile-drawer" id="mobileDrawer">
             <div class="mobile-drawer-inner">
-                <div class="mobile-search-area">
-                    <form action="shop.php" method="GET" class="search-form">
-                        <input type="text" name="q" class="search-input" placeholder="<?php echo t('search_placeholder', $lang); ?>">
-                        <button type="submit" class="search-submit-btn">🔍</button>
-                    </form>
-                </div>
+                <?php if ($activePage !== 'admin'): ?>
+                    <div class="mobile-search-area">
+                        <form action="shop.php" method="GET" class="search-form">
+                            <input type="text" name="q" class="search-input" placeholder="<?php echo t('search_placeholder', $lang); ?>">
+                            <button type="submit" class="search-submit-btn">🔍</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
                 
                 <nav class="mobile-nav-links">
-                    <a href="index.php" class="mob-link <?php echo $activePage === 'home' ? 'active' : ''; ?>"><?php echo t('nav_home', $lang); ?></a>
-                    <a href="shop.php" class="mob-link <?php echo $activePage === 'shop' ? 'active' : ''; ?>"><?php echo t('nav_shop', $lang); ?></a>
-                    <a href="shop.php?cat=clothes" class="mob-link"><?php echo t('nav_clothes', $lang); ?></a>
-                    <a href="shop.php?cat=watches" class="mob-link"><?php echo t('nav_watches', $lang); ?></a>
-                    <a href="shop.php?cat=perfumes" class="mob-link"><?php echo t('nav_perfumes', $lang); ?></a>
-                    <a href="shop.php?cat=accessories" class="mob-link"><?php echo t('nav_accessories', $lang); ?></a>
-                    <a href="track.php" class="mob-link"><?php echo t('nav_track', $lang); ?></a>
-                    <a href="/admin/index.php" class="mob-link admin-highlight"><?php echo t('nav_admin', $lang); ?></a>
+                    <?php if ($activePage === 'admin'): ?>
+                        <a href="/index.php" class="mob-link">🏪 <?php echo t('nav_storefront', $lang) ?: 'Storefront'; ?></a>
+                        <a href="/admin/index.php" class="mob-link admin-highlight active"><?php echo t('nav_admin', $lang); ?></a>
+                    <?php else: ?>
+                        <a href="index.php" class="mob-link <?php echo $activePage === 'home' ? 'active' : ''; ?>"><?php echo t('nav_home', $lang); ?></a>
+                        <a href="shop.php" class="mob-link <?php echo $activePage === 'shop' ? 'active' : ''; ?>"><?php echo t('nav_shop', $lang); ?></a>
+                        <a href="shop.php?cat=clothes" class="mob-link"><?php echo t('nav_clothes', $lang); ?></a>
+                        <a href="shop.php?cat=watches" class="mob-link"><?php echo t('nav_watches', $lang); ?></a>
+                        <a href="shop.php?cat=perfumes" class="mob-link"><?php echo t('nav_perfumes', $lang); ?></a>
+                        <a href="shop.php?cat=accessories" class="mob-link"><?php echo t('nav_accessories', $lang); ?></a>
+                        <a href="track.php" class="mob-link"><?php echo t('nav_track', $lang); ?></a>
+                        <a href="/admin/index.php" class="mob-link admin-highlight"><?php echo t('nav_admin', $lang); ?></a>
+                    <?php endif; ?>
                 </nav>
 
                 <div class="mobile-drawer-footer">
