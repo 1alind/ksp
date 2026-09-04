@@ -752,7 +752,7 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                                        <button type="button" class="btn btn-outline btn-xs" onclick='openEditProductModal(<?php echo htmlspecialchars($safeJson, ENT_QUOTES, 'UTF-8'); ?>)' title="<?php echo adm_t('admin_products_edit_title', 'Edit Product Details & Colors'); ?>">
+                                        <button type="button" class="btn btn-outline btn-xs" data-product='<?php echo htmlspecialchars(json_encode($p, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8'); ?>' onclick='openEditProductModalFromBtn(this)' title="<?php echo adm_t('admin_products_edit_title', 'Edit Product Details & Colors'); ?>">
                                             ✏️ <?php echo adm_t('admin_btn_edit', 'Edit'); ?>
                                         </button>
                                         <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="<?php echo adm_t('admin_products_view_boutique', 'View in Boutique'); ?>">👁️</a>
@@ -1622,6 +1622,16 @@ function updateSizesCountBadge(prefix) {
 function escapeHtmlAttr(str) {
     if (!str) return '';
     return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function openEditProductModalFromBtn(btn) {
+    try {
+        const raw = btn.getAttribute('data-product');
+        const product = JSON.parse(raw);
+        openEditProductModal(product);
+    } catch(e) {
+        console.error("Failed to parse product data", e);
+    }
 }
 
 function openEditProductModal(product) {
