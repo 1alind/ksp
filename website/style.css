@@ -5142,7 +5142,8 @@ select option {
 
 /* Standalone Size Guide Page Styles */
 .size-guide-page-section {
-    padding: 60px 0 80px 0;
+    padding: 60px 0 110px 0;
+    margin-bottom: 30px;
 }
 
 .size-guide-tabs-nav {

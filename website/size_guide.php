@@ -203,7 +203,7 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
     </div>
 </div>
 
-<section class="size-guide-page-section py-60">
+<section class="size-guide-page-section" style="padding-top: 60px; padding-bottom: 120px; margin-bottom: 30px;">
     <div class="container">
         
         <!-- Category Navigation Tabs -->
