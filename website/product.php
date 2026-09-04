@@ -102,6 +102,11 @@ if (!empty($product['colors'])) {
 }
 ?>
 
+<?php
+$stock = isset($product['stock']) ? (int)$product['stock'] : 0;
+$isOutOfStock = ($stock <= 0);
+$isLowStock = (!$isOutOfStock && $stock <= 3);
+?>
 <!-- Breadcrumb -->
 <div class="breadcrumb-bar">
     <div class="container">
@@ -124,8 +129,10 @@ if (!empty($product['colors'])) {
             
             <!-- Gallery Images (Main + Thumbnails) -->
             <div class="product-gallery">
-                <div class="gallery-main-wrap">
-                    <?php if (!empty($badgeText)): ?>
+                <div class="gallery-main-wrap <?php echo $isOutOfStock ? 'is-out-of-stock-wrap' : ''; ?>">
+                    <?php if ($isOutOfStock): ?>
+                        <span class="product-badge-tag out-of-stock-badge">✕ <?php echo t('out_of_stock', $lang); ?></span>
+                    <?php elseif (!empty($badgeText)): ?>
                         <span class="product-badge-tag"><?php echo htmlspecialchars($badgeText); ?></span>
                     <?php endif; ?>
                     <img id="mainProductImage" src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($titleText); ?>" class="gallery-main-img" style="transition: opacity 0.25s ease, transform 0.25s ease;">
@@ -146,7 +153,13 @@ if (!empty($product['colors'])) {
             <div class="product-buy-info">
                 <div class="product-meta-header">
                     <span class="product-cat-pill"><?php echo t('filter_' . $product['category'], $lang); ?></span>
-                    <span class="stock-status in-stock">● <?php echo t('in_stock', $lang); ?></span>
+                    <?php if ($isOutOfStock): ?>
+                        <span class="stock-status out-of-stock">✕ <?php echo t('out_of_stock', $lang); ?></span>
+                    <?php elseif ($isLowStock): ?>
+                        <span class="stock-status low-stock">⚠️ <?php echo sprintf(t('only_left', $lang), $stock); ?></span>
+                    <?php else: ?>
+                        <span class="stock-status in-stock">● <?php echo t('in_stock', $lang); ?></span>
+                    <?php endif; ?>
                 </div>
                 
                 <h1 class="single-product-title"><?php echo htmlspecialchars($titleText); ?></h1>
@@ -232,10 +245,8 @@ if (!empty($product['colors'])) {
                         $guideVariant = 'tshirt';
                         $pCategory = strtolower($product['category'] ?? '');
                         $titleLower = strtolower($titleText . ' ' . $pCategory);
-                        if (str_contains($titleLower, 'watch') || str_contains($titleLower, 'timepiece') || $pCategory === 'watches') {
-                            $guideVariant = 'watches';
-                        } elseif (str_contains($titleLower, 'shoe') || str_contains($titleLower, 'sneaker') || str_contains($titleLower, 'boot') || $pCategory === 'shoes') {
-                            $guideVariant = 'shoes';
+                        if (str_contains($titleLower, 'shoe') || str_contains($titleLower, 'sneaker') || str_contains($titleLower, 'boot') || $pCategory === 'shoes' || str_contains($titleLower, 'feet')) {
+                            $guideVariant = 'feet';
                         } elseif (str_contains($titleLower, 'jean') || str_contains($titleLower, 'pant') || str_contains($titleLower, 'trousers')) {
                             $guideVariant = 'jeans';
                         } elseif (str_contains($titleLower, 'jacket') || str_contains($titleLower, 'hoodie') || str_contains($titleLower, 'coat') || str_contains($titleLower, 'blazer')) {
@@ -245,13 +256,10 @@ if (!empty($product['colors'])) {
                         // Localized dynamic dimension labels
                         $dim1Label = ($lang === 'ku' ? 'بلندی:' : ($lang === 'ar' ? 'الارتفاع:' : 'Height:'));
                         $dim2Label = ($lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'));
-                        if ($guideVariant === 'watches') {
-                            $dim1Label = ($lang === 'ku' ? 'قەبارە:' : ($lang === 'ar' ? 'القطر:' : 'Diameter:'));
-                            $dim2Label = ($lang === 'ku' ? 'قایش:' : ($lang === 'ar' ? 'السوار:' : 'Strap:'));
-                        } elseif ($guideVariant === 'jeans') {
+                        if ($guideVariant === 'jeans') {
                             $dim1Label = ($lang === 'ku' ? 'درێژی:' : ($lang === 'ar' ? 'الطول:' : 'Length:'));
                             $dim2Label = ($lang === 'ku' ? 'کەمەر:' : ($lang === 'ar' ? 'الخصر:' : 'Waist:'));
-                        } elseif ($guideVariant === 'shoes') {
+                        } elseif ($guideVariant === 'feet') {
                             $dim1Label = ($lang === 'ku' ? 'درێژیا پێی:' : ($lang === 'ar' ? 'طول القدم:' : 'Foot Len:'));
                             $dim2Label = ($lang === 'ku' ? 'پانی:' : ($lang === 'ar' ? 'العرض:' : 'Width:'));
                         }
@@ -307,20 +315,34 @@ if (!empty($product['colors'])) {
                 <?php endif; ?>
 
                 <!-- Quantity and Add to Cart Action -->
-                <div class="purchase-action-row">
-                    <div class="quantity-picker">
-                        <button type="button" class="qty-btn" onclick="let q = document.getElementById('productQty'); if(parseInt(q.value) > 1) q.value = parseInt(q.value) - 1;">−</button>
-                        <input type="number" id="productQty" value="1" min="1" max="<?php echo $product['stock']; ?>" class="qty-input">
-                        <button type="button" class="qty-btn" onclick="let q = document.getElementById('productQty'); if(parseInt(q.value) < <?php echo $product['stock']; ?>) q.value = parseInt(q.value) + 1;">+</button>
-                    </div>
+                <div class="purchase-action-row <?php echo $isOutOfStock ? 'is-out-of-stock-actions' : ''; ?>">
+                    <?php if ($isOutOfStock): ?>
+                        <div class="out-of-stock-banner-alert">
+                            <span class="oos-alert-icon">⚠️</span>
+                            <div class="oos-alert-details">
+                                <strong class="oos-alert-title"><?php echo t('out_of_stock', $lang); ?></strong>
+                                <span class="oos-alert-desc"><?php echo $lang === 'ku' ? 'ئەڤ بەرهەمە نوکە د مەخزەندا نەمایە. ب زووترین دەم دێ هێتە دابینکرن.' : ($lang === 'ar' ? 'هذا المنتج غير متوفر في المخزن حالياً. نعمل على توفيره قريباً.' : 'This exclusive piece is currently out of stock. Replenishment in progress.'); ?></span>
+                            </div>
+                        </div>
 
-                    <button type="button" class="btn btn-primary btn-add-cart-lg" id="addToBagMainBtn" onclick="handleProductAction(false)">
-                        🛍️ <?php echo t('add_to_cart', $lang); ?>
-                    </button>
+                        <button type="button" class="btn btn-secondary btn-add-cart-lg disabled" id="addToBagMainBtn" disabled title="<?php echo t('out_of_stock', $lang); ?>">
+                            🚫 <?php echo t('out_of_stock', $lang); ?>
+                        </button>
+                    <?php else: ?>
+                        <div class="quantity-picker">
+                            <button type="button" class="qty-btn" onclick="let q = document.getElementById('productQty'); if(parseInt(q.value) > 1) q.value = parseInt(q.value) - 1;">−</button>
+                            <input type="number" id="productQty" value="1" min="1" max="<?php echo $stock; ?>" class="qty-input">
+                            <button type="button" class="qty-btn" onclick="let q = document.getElementById('productQty'); if(parseInt(q.value) < <?php echo $stock; ?>) q.value = parseInt(q.value) + 1;">+</button>
+                        </div>
 
-                    <button type="button" class="btn btn-secondary btn-buy-now-lg" id="buyNowMainBtn" onclick="handleProductAction(true)">
-                        ⚡ <?php echo t('buy_now', $lang); ?>
-                    </button>
+                        <button type="button" class="btn btn-primary btn-add-cart-lg" id="addToBagMainBtn" onclick="handleProductAction(false)">
+                            🛍️ <?php echo t('add_to_cart', $lang); ?>
+                        </button>
+
+                        <button type="button" class="btn btn-secondary btn-buy-now-lg" id="buyNowMainBtn" onclick="handleProductAction(true)">
+                            ⚡ <?php echo t('buy_now', $lang); ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
 
                 <div class="guarantee-box">
@@ -626,6 +648,18 @@ function onColorSelected(btn, colorName, imageUrl) {
 }
 
 function handleProductAction(buyNow = false) {
+    const isOutOfStock = <?php echo $isOutOfStock ? 'true' : 'false'; ?>;
+    const isKu = window.AURA_LANG === 'ku';
+    const isAr = window.AURA_LANG === 'ar';
+
+    if (isOutOfStock) {
+        const msg = isKu ? '⚠️ ببورە، ئەڤ بەرهەمە نوکە د مەخزەندا نەمایە!' : (isAr ? '⚠️ عذراً، هذا المنتج غير متوفر في المخزن حالياً!' : '⚠️ Sorry, this item is currently out of stock!');
+        if (window.AuraStore && window.AuraStore.showToast) {
+            window.AuraStore.showToast(msg, 'error');
+        }
+        return;
+    }
+
     const hasSizes = <?php echo (!empty($product['sizes']) && count($product['sizes']) > 0) ? 'true' : 'false'; ?>;
     const hasColors = <?php echo (!empty($product['colors']) && count($product['colors']) > 0) ? 'true' : 'false'; ?>;
     

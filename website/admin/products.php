@@ -732,10 +732,19 @@ require_once __DIR__ . '/../header.php';
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="stock-adjuster" id="stockAdjuster_<?php echo $p['id']; ?>" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border-color);">
-                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, -1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_decrease', 'Decrease Stock'); ?>">-</button>
-                                        <span class="stock-value-badge font-bold" id="stockBadge_<?php echo $p['id']; ?>" style="min-width:28px; text-align:center; font-size:13px;"><?php echo $pStock; ?></span>
-                                        <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, 1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_increase', 'Increase Stock'); ?>">+</button>
+                                    <div style="display:flex; flex-direction:column; align-items:flex-start; gap:3px;">
+                                        <div class="stock-adjuster" id="stockAdjuster_<?php echo $p['id']; ?>" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border-color);">
+                                            <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, -1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_decrease', 'Decrease Stock'); ?>">-</button>
+                                            <span class="stock-value-badge font-bold" id="stockBadge_<?php echo $p['id']; ?>" style="min-width:28px; text-align:center; font-size:13px; <?php echo ($pStock <= 0) ? 'color:#ef4444;' : (($pStock <= 3) ? 'color:#f59e0b;' : 'color:var(--text-primary);'); ?>"><?php echo $pStock; ?></span>
+                                            <button type="button" class="btn-stock-stepper" onclick="window.AuraStore.adjustStock(<?php echo $p['id']; ?>, 1)" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:none; background:var(--bg-surface); color:var(--text-primary); border-radius:4px; font-weight:800; cursor:pointer;" title="<?php echo adm_t('admin_stock_increase', 'Increase Stock'); ?>">+</button>
+                                        </div>
+                                        <?php if ($pStock <= 0): ?>
+                                            <span class="badge-tag" id="stockStatusText_<?php echo $p['id']; ?>" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-size:10px; padding:1px 6px; font-weight:700;">Out of Stock</span>
+                                        <?php elseif ($pStock <= 3): ?>
+                                            <span class="badge-tag" id="stockStatusText_<?php echo $p['id']; ?>" style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-size:10px; padding:1px 6px; font-weight:700;">Low Stock (<?php echo $pStock; ?>)</span>
+                                        <?php else: ?>
+                                            <span class="badge-tag" id="stockStatusText_<?php echo $p['id']; ?>" style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-size:10px; padding:1px 6px; font-weight:700;">In Stock</span>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                                 <td>

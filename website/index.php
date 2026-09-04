@@ -33,10 +33,14 @@ $featuredProducts = array_filter($products, function($p) {
                 $titleText = is_array($item['title']) ? ($item['title'][$lang] ?? $item['title']['en']) : $item['title'];
                 $badgeKey = 'badge_' . $lang;
                 $badgeText = $item[$badgeKey] ?? $item['badge'] ?? '';
+                $itemStock = isset($item['stock']) ? (int)$item['stock'] : 0;
+                $itemOutOfStock = ($itemStock <= 0);
             ?>
-            <div class="product-card" data-category="<?php echo $item['category']; ?>" data-id="<?php echo $item['id']; ?>">
+            <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-id="<?php echo $item['id']; ?>">
                 <div class="product-image-container">
-                    <?php if (!empty($badgeText)): ?>
+                    <?php if ($itemOutOfStock): ?>
+                        <span class="product-badge-tag out-of-stock-badge"><?php echo t('out_of_stock', $lang); ?></span>
+                    <?php elseif (!empty($badgeText)): ?>
                         <span class="product-badge-tag"><?php echo htmlspecialchars($badgeText); ?></span>
                     <?php endif; ?>
                     
@@ -48,15 +52,20 @@ $featuredProducts = array_filter($products, function($p) {
                         <button class="action-btn-circle quick-view-btn" data-id="<?php echo $item['id']; ?>" title="<?php echo t('quick_view', $lang); ?>">
                             👁️
                         </button>
-                        <button class="action-btn-circle add-cart-btn" data-id="<?php echo $item['id']; ?>" title="<?php echo t('add_to_cart', $lang); ?>">
-                            🛍️
-                        </button>
+                        <?php if (!$itemOutOfStock): ?>
+                            <button class="action-btn-circle add-cart-btn" data-id="<?php echo $item['id']; ?>" title="<?php echo t('add_to_cart', $lang); ?>">
+                                🛍️
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="product-details">
                     <div class="product-meta-row">
                         <span class="product-cat-name"><?php echo t('filter_' . $item['category'], $lang); ?></span>
+                        <?php if ($itemOutOfStock): ?>
+                            <span class="stock-pill-badge out-of-stock"><?php echo t('out_of_stock', $lang); ?></span>
+                        <?php endif; ?>
                     </div>
 
                     <h3 class="product-title">
@@ -71,9 +80,15 @@ $featuredProducts = array_filter($products, function($p) {
                             <?php endif; ?>
                         </div>
 
-                        <button class="btn-add-cart-mini" onclick="window.AuraStore.addToCart(<?php echo $item['id']; ?>)">
-                            <span>+ <?php echo t('add_to_cart', $lang); ?></span>
-                        </button>
+                        <?php if ($itemOutOfStock): ?>
+                            <button class="btn-add-cart-mini disabled-stock" disabled title="<?php echo t('out_of_stock', $lang); ?>">
+                                <span><?php echo t('out_of_stock', $lang); ?></span>
+                            </button>
+                        <?php else: ?>
+                            <button class="btn-add-cart-mini" onclick="window.AuraStore.addToCart(<?php echo $item['id']; ?>)">
+                                <span>+ <?php echo t('add_to_cart', $lang); ?></span>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

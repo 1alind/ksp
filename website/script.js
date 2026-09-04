@@ -32,12 +32,36 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
 
+            const stock = typeof product.stock === 'number' ? product.stock : parseInt(product.stock || '0', 10);
+            if (stock <= 0) {
+                const oosMsg = window.AURA_LANG === 'ku'
+                    ? '⚠️ ببورە، ئەڤ بەرهەمە نوکە د مەخزەندا نەمایە!'
+                    : (window.AURA_LANG === 'ar' ? '⚠️ عذراً، هذا المنتج غير متوفر في المخزن حالياً!' : '⚠️ Sorry, this piece is currently out of stock!');
+                this.showToast(oosMsg, 'error');
+                return;
+            }
+
             let cart = this.getCart();
             const existingIndex = cart.findIndex(item => item.id === productId && item.size === size && item.color === color);
 
             if (existingIndex > -1) {
-                cart[existingIndex].quantity += quantity;
+                const newTotal = cart[existingIndex].quantity + quantity;
+                if (newTotal > stock) {
+                    const limitMsg = window.AURA_LANG === 'ku'
+                        ? `⚠️ بتنێ ${stock} دانە د مەخزەندا بەردەستن!`
+                        : (window.AURA_LANG === 'ar' ? `⚠️ متوفر فقط ${stock} قطع في المخزن!` : `⚠️ Only ${stock} items available in stock!`);
+                    this.showToast(limitMsg, 'error');
+                    return;
+                }
+                cart[existingIndex].quantity = newTotal;
             } else {
+                if (quantity > stock) {
+                    const limitMsg = window.AURA_LANG === 'ku'
+                        ? `⚠️ بتنێ ${stock} دانە د مەخزەندا بەردەستن!`
+                        : (window.AURA_LANG === 'ar' ? `⚠️ متوفر فقط ${stock} قطع في المخزن!` : `⚠️ Only ${stock} items available in stock!`);
+                    this.showToast(limitMsg, 'error');
+                    return;
+                }
                 cart.push({
                     id: product.id,
                     title: product.title,
@@ -73,7 +97,19 @@
                 if (newQty <= 0) {
                     this.removeFromCart(productId, size, color);
                 } else {
-                    item.quantity = newQty;
+                    const products = window.AURA_PRODUCTS || [];
+                    const product = products.find(p => p.id === productId);
+                    const stock = product ? (typeof product.stock === 'number' ? product.stock : parseInt(product.stock || '999', 10)) : 999;
+                    
+                    if (newQty > stock) {
+                        item.quantity = stock;
+                        const limitMsg = window.AURA_LANG === 'ku'
+                            ? `⚠️ بتنێ ${stock} دانە د مەخزەندا بەردەستن!`
+                            : (window.AURA_LANG === 'ar' ? `⚠️ متوفر فقط ${stock} قطع في المخزن!` : `⚠️ Only ${stock} items available in stock!`);
+                        this.showToast(limitMsg, 'error');
+                    } else {
+                        item.quantity = newQty;
+                    }
                     this.saveCart(cart);
                 }
             }
@@ -82,6 +118,56 @@
         clearCart: function () {
             localStorage.removeItem(CART_STORAGE_KEY);
             this.updateCartBadge();
+        },
+
+        adjustStock: function (productId, delta) {
+            const badgeEl = document.getElementById('stockBadge_' + productId);
+            const statusEl = document.getElementById('stockStatusText_' + productId);
+            
+            fetch('/admin/products.php?action=adjust_stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `product_id=${encodeURIComponent(productId)}&stock_delta=${encodeURIComponent(delta)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success) {
+                    const newStock = data.stock;
+                    if (badgeEl) {
+                        badgeEl.innerText = newStock;
+                        badgeEl.style.color = newStock <= 0 ? '#ef4444' : (newStock <= 3 ? '#f59e0b' : 'var(--text-primary)');
+                    }
+                    if (statusEl) {
+                        if (newStock <= 0) {
+                            statusEl.innerText = 'Out of Stock';
+                            statusEl.style.background = 'rgba(239,68,68,0.12)';
+                            statusEl.style.color = '#ef4444';
+                            statusEl.style.borderColor = 'rgba(239,68,68,0.3)';
+                        } else if (newStock <= 3) {
+                            statusEl.innerText = `Low Stock (${newStock})`;
+                            statusEl.style.background = 'rgba(245,158,11,0.12)';
+                            statusEl.style.color = '#f59e0b';
+                            statusEl.style.borderColor = 'rgba(245,158,11,0.3)';
+                        } else {
+                            statusEl.innerText = 'In Stock';
+                            statusEl.style.background = 'rgba(16,185,129,0.12)';
+                            statusEl.style.color = '#10b981';
+                            statusEl.style.borderColor = 'rgba(16,185,129,0.3)';
+                        }
+                    }
+                    
+                    // Also update window.AURA_PRODUCTS in memory if present
+                    if (window.AURA_PRODUCTS) {
+                        const p = window.AURA_PRODUCTS.find(x => x.id === productId);
+                        if (p) p.stock = newStock;
+                    }
+
+                    this.showToast(`Stock updated to ${newStock}`, 'success');
+                }
+            })
+            .catch(err => {
+                console.error('Stock adjustment error:', err);
+            });
         },
 
         updateCartBadge: function () {
@@ -131,14 +217,27 @@
             const lang = window.AURA_LANG || 'en';
             const title = typeof product.title === 'object' ? (product.title[lang] || product.title.en) : product.title;
             const desc = typeof product.description === 'object' ? (product.description[lang] || product.description.en) : product.description;
+            const stock = typeof product.stock === 'number' ? product.stock : parseInt(product.stock || '0', 10);
+            const isOutOfStock = stock <= 0;
+
+            const inStockLabel = lang === 'ku' ? 'بەردەستە د مەخزەندا' : (lang === 'ar' ? 'متوفر في المخزن' : 'In Stock');
+            const outOfStockLabel = lang === 'ku' ? 'نەمایە د مەخزەندا' : (lang === 'ar' ? 'غير متوفر في المخزن' : 'Out of Stock');
+            const addToBagLabel = lang === 'ku' ? 'زێدەکرن بۆ سەبەتێ' : (lang === 'ar' ? 'إضافة إلى السلة' : 'Add to Bag');
+            const viewDetailsLabel = lang === 'ku' ? 'دیتنا هویرکاریێن زێدەتر ←' : (lang === 'ar' ? 'عرض التفاصيل الكاملة ←' : 'View Full Details & Options →');
 
             content.innerHTML = `
                 <div class="product-view-grid" style="margin-top:0; gap:30px;">
-                    <div class="gallery-main-wrap" style="height:340px;">
-                        <img src="${product.image}" alt="${title}" class="gallery-main-img">
+                    <div class="gallery-main-wrap" style="height:340px; position:relative;">
+                        ${isOutOfStock ? `<span class="product-badge-tag out-of-stock-badge" style="z-index:10;">✕ ${outOfStockLabel}</span>` : ''}
+                        <img src="${product.image}" alt="${title}" class="gallery-main-img" style="${isOutOfStock ? 'opacity:0.85;' : ''}">
                     </div>
                     <div class="product-buy-info">
-                        <span class="product-cat-pill">${product.category}</span>
+                        <div class="product-meta-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span class="product-cat-pill">${product.category}</span>
+                            ${isOutOfStock 
+                                ? `<span class="stock-status out-of-stock">✕ ${outOfStockLabel}</span>` 
+                                : `<span class="stock-status in-stock">● ${inStockLabel}</span>`}
+                        </div>
                         <h2 class="single-product-title" style="font-size:24px;">${title}</h2>
                         <div class="single-rating-row">
                             <span class="stars">★★★★★</span>
@@ -150,12 +249,16 @@
                         </div>
                         <p class="product-short-desc" style="font-size:14px; margin-bottom:16px;">${desc}</p>
                         <div class="purchase-action-row" style="margin:14px 0;">
-                            <button class="btn btn-primary btn-luxury w-full" onclick="window.AuraStore.addToCart(${product.id}); document.getElementById('quickViewModal').classList.remove('open');">
-                                🛍️ Add to Bag
-                            </button>
+                            ${isOutOfStock 
+                                ? `<button class="btn btn-secondary w-full" disabled style="opacity:0.6; cursor:not-allowed; padding:12px 20px;">
+                                    🚫 ${outOfStockLabel}
+                                   </button>`
+                                : `<button class="btn btn-primary btn-luxury w-full" onclick="window.AuraStore.addToCart(${product.id}); document.getElementById('quickViewModal').classList.remove('open');">
+                                    🛍️ ${addToBagLabel}
+                                   </button>`}
                         </div>
                         <a href="product.php?id=${product.id}" class="text-primary font-bold text-center" style="font-size:13.5px; display:block; margin-top:8px;">
-                            View Full Details & Reviews →
+                            ${viewDetailsLabel}
                         </a>
                     </div>
                 </div>

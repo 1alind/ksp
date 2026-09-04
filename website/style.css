@@ -1846,9 +1846,111 @@ button, input, select, textarea {
     color: #f59e0b;
 }
 
+.stock-status {
+    font-size: 13.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+}
+
 .stock-status.in-stock {
     color: #10b981;
-    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.stock-status.out-of-stock {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.stock-status.low-stock {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.stock-pill-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.stock-pill-badge.out-of-stock {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.product-badge-tag.out-of-stock-badge {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.product-card.is-out-of-stock .product-thumb {
+    filter: grayscale(25%) contrast(90%);
+    opacity: 0.88;
+}
+
+.btn-add-cart-mini.disabled-stock {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+.btn-add-cart-mini.disabled-stock:hover {
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border-color: var(--border-color);
+    transform: none;
+}
+
+.out-of-stock-banner-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+
+.oos-alert-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.oos-alert-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.oos-alert-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ef4444;
+}
+
+.oos-alert-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.gallery-main-wrap.is-out-of-stock-wrap .gallery-main-img {
+    filter: grayscale(15%);
 }
 
 .single-price-box {
@@ -5077,7 +5179,12 @@ select option {
 }
 
 .size-tab-btn .tab-icon {
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .size-guide-content-card {
