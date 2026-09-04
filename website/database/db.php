@@ -47,15 +47,19 @@ if (file_exists(__DIR__ . '/init_db.php')) {
 // ==============================================================================
 function get_all_products() {
     $pdo = get_mysql_pdo();
+    $products = [];
+    $seenIds = [];
+
     if ($pdo) {
         try {
             $stmt = $pdo->query("SELECT * FROM products ORDER BY id ASC");
             $rows = $stmt->fetchAll();
             if (!empty($rows)) {
-                $products = [];
                 foreach ($rows as $row) {
+                    $pId = (int)$row['id'];
+                    $seenIds[$pId] = true;
                     $products[] = [
-                        'id' => (int)$row['id'],
+                        'id' => $pId,
                         'title' => [
                             'en' => $row['title_en'] ?? '',
                             'ar' => $row['title_ar'] ?? '',
@@ -87,20 +91,31 @@ function get_all_products() {
                         'linked_products' => is_string($row['linked_products'] ?? null) ? json_decode($row['linked_products'], true) : ($row['linked_products'] ?? [])
                     ];
                 }
-                return $products;
             }
         } catch (Exception $e) {
-            // fallback to JSON
+            // MySQL error handled gracefully
         }
     }
 
-    // JSON file fallback
+    // Always check JSON storage to merge any products present in JSON
     $jsonFile = __DIR__ . '/products.json';
     if (file_exists($jsonFile)) {
         $data = json_decode(file_get_contents($jsonFile), true);
-        return $data['products'] ?? [];
+        if (!empty($data['products']) && is_array($data['products'])) {
+            if (empty($products)) {
+                return $data['products'];
+            }
+            foreach ($data['products'] as $jp) {
+                $jId = (int)($jp['id'] ?? 0);
+                if ($jId > 0 && empty($seenIds[$jId])) {
+                    $seenIds[$jId] = true;
+                    $products[] = $jp;
+                }
+            }
+        }
     }
-    return [];
+
+    return $products;
 }
 
 function get_product_by_id($id) {
@@ -123,20 +138,49 @@ function save_product($new_product) {
         }
     }
 
-    $existingIndex = -1;
-    $maxId = 0;
+    $pdo = get_mysql_pdo();
+    $requestedId = !empty($new_product['id']) ? (int)$new_product['id'] : 0;
+
+    // Check if this product already exists in JSON and find max JSON ID
+    $jsonExistingIndex = -1;
+    $maxJsonId = 0;
     foreach ($data['products'] as $idx => $p) {
         $pId = (int)($p['id'] ?? 0);
-        if ($pId > $maxId) $maxId = $pId;
-        if (isset($new_product['id']) && $pId === (int)$new_product['id'] && (int)$new_product['id'] > 0) {
-            $existingIndex = $idx;
+        if ($pId > $maxJsonId) $maxJsonId = $pId;
+        if ($requestedId > 0 && $pId === $requestedId) {
+            $jsonExistingIndex = $idx;
         }
     }
 
-    if (empty($new_product['id']) || (int)$new_product['id'] <= 0) {
-        $new_product['id'] = $maxId + 1;
-    } else {
-        $new_product['id'] = (int)$new_product['id'];
+    // Check if this product already exists in MySQL and find max MySQL ID
+    $mysqlExists = false;
+    $maxMysqlId = 0;
+    if ($pdo) {
+        try {
+            if ($requestedId > 0) {
+                $checkStmt = $pdo->prepare("SELECT id FROM products WHERE id = :id LIMIT 1");
+                $checkStmt->execute([':id' => $requestedId]);
+                if ($checkStmt->fetch()) {
+                    $mysqlExists = true;
+                }
+            }
+            $maxStmt = $pdo->query("SELECT MAX(id) as max_id FROM products");
+            $maxRow = $maxStmt ? $maxStmt->fetch() : null;
+            if ($maxRow && !empty($maxRow['max_id'])) {
+                $maxMysqlId = (int)$maxRow['max_id'];
+            }
+        } catch (Exception $e) {
+            // Handled
+        }
+    }
+
+    $isUpdate = ($requestedId > 0 && ($jsonExistingIndex >= 0 || $mysqlExists));
+    $finalId = $requestedId;
+
+    if (!$isUpdate) {
+        // Find guaranteed unused ID greater than both JSON and MySQL highest IDs
+        $highestExistingId = max($maxJsonId, $maxMysqlId);
+        $finalId = $highestExistingId + 1;
     }
 
     // Ensure proper structure
@@ -170,7 +214,7 @@ function save_product($new_product) {
     }
 
     $productFormatted = [
-        'id' => (int)$new_product['id'],
+        'id' => $finalId,
         'title' => $title,
         'category' => $new_product['category'] ?? 'clothes',
         'price' => (float)($new_product['price'] ?? 0),
@@ -200,19 +244,10 @@ function save_product($new_product) {
         $productFormatted['images'] = [$productFormatted['image']];
     }
 
-    // Save to JSON
-    if ($existingIndex >= 0) {
-        $data['products'][$existingIndex] = $productFormatted;
-    } else {
-        $data['products'][] = $productFormatted;
-    }
-    file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
-
-    // Save to MySQL if available
-    $pdo = get_mysql_pdo();
+    // Save to MySQL first if available
     if ($pdo) {
         try {
-            if ($existingIndex >= 0) {
+            if ($isUpdate && $mysqlExists) {
                 $sql = "UPDATE products SET 
                         title_en = :title_en, title_ar = :title_ar, title_ku = :title_ku,
                         category = :category, price = :price, old_price = :old_price,
@@ -220,11 +255,12 @@ function save_product($new_product) {
                         stock = :stock, image = :image, images = :images,
                         colors = :colors, sizes = :sizes, size_measurements = :size_measurements,
                         description_en = :desc_en, description_ar = :desc_ar, description_ku = :desc_ku,
-                        featured = :featured
+                        featured = :featured, model_group = :model_group, color_name = :color_name,
+                        color_hex = :color_hex, linked_products = :linked_products
                         WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
-                    ':id' => $productFormatted['id'],
+                    ':id' => $finalId,
                     ':title_en' => $productFormatted['title']['en'] ?? '',
                     ':title_ar' => $productFormatted['title']['ar'] ?? '',
                     ':title_ku' => $productFormatted['title']['ku'] ?? '',
@@ -243,15 +279,20 @@ function save_product($new_product) {
                     ':desc_en' => $productFormatted['description']['en'] ?? '',
                     ':desc_ar' => $productFormatted['description']['ar'] ?? '',
                     ':desc_ku' => $productFormatted['description']['ku'] ?? '',
-                    ':featured' => $productFormatted['featured'] ? 1 : 0
+                    ':featured' => $productFormatted['featured'] ? 1 : 0,
+                    ':model_group' => $productFormatted['model_group'] ?? '',
+                    ':color_name' => $productFormatted['color_name'] ?? '',
+                    ':color_hex' => $productFormatted['color_hex'] ?? '',
+                    ':linked_products' => json_encode($productFormatted['linked_products'] ?? [], JSON_UNESCAPED_UNICODE)
                 ]);
             } else {
+                // Insert brand new product with explicit unique finalId or auto-increment fallback
                 $sql = "INSERT INTO products 
-                        (id, title_en, title_ar, title_ku, category, price, old_price, rating, reviews_count, badge_en, badge_ar, badge_ku, stock, image, images, colors, sizes, size_measurements, description_en, description_ar, description_ku, featured)
-                        VALUES (:id, :title_en, :title_ar, :title_ku, :category, :price, :old_price, :rating, :reviews_count, :badge_en, :badge_ar, :badge_ku, :stock, :image, :images, :colors, :sizes, :size_measurements, :desc_en, :desc_ar, :desc_ku, :featured)";
+                        (id, title_en, title_ar, title_ku, category, price, old_price, rating, reviews_count, badge_en, badge_ar, badge_ku, stock, image, images, colors, sizes, size_measurements, description_en, description_ar, description_ku, featured, model_group, color_name, color_hex, linked_products)
+                        VALUES (:id, :title_en, :title_ar, :title_ku, :category, :price, :old_price, :rating, :reviews_count, :badge_en, :badge_ar, :badge_ku, :stock, :image, :images, :colors, :sizes, :size_measurements, :desc_en, :desc_ar, :desc_ku, :featured, :model_group, :color_name, :color_hex, :linked_products)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
-                    ':id' => $productFormatted['id'],
+                    ':id' => $finalId,
                     ':title_en' => $productFormatted['title']['en'] ?? '',
                     ':title_ar' => $productFormatted['title']['ar'] ?? '',
                     ':title_ku' => $productFormatted['title']['ku'] ?? '',
@@ -272,13 +313,38 @@ function save_product($new_product) {
                     ':desc_en' => $productFormatted['description']['en'] ?? '',
                     ':desc_ar' => $productFormatted['description']['ar'] ?? '',
                     ':desc_ku' => $productFormatted['description']['ku'] ?? '',
-                    ':featured' => $productFormatted['featured'] ? 1 : 0
+                    ':featured' => $productFormatted['featured'] ? 1 : 0,
+                    ':model_group' => $productFormatted['model_group'] ?? '',
+                    ':color_name' => $productFormatted['color_name'] ?? '',
+                    ':color_hex' => $productFormatted['color_hex'] ?? '',
+                    ':linked_products' => json_encode($productFormatted['linked_products'] ?? [], JSON_UNESCAPED_UNICODE)
                 ]);
+
+                $lastId = (int)$pdo->lastInsertId();
+                if ($lastId > 0 && $lastId !== $finalId) {
+                    $finalId = $lastId;
+                    $productFormatted['id'] = $finalId;
+                }
             }
         } catch (Exception $e) {
-            // MySQL error logged or handled
+            error_log("Aura DB save_product MySQL exception: " . $e->getMessage());
         }
     }
+
+    // Save to JSON synchronously
+    $jsonExistingIndex = -1;
+    foreach ($data['products'] as $idx => $p) {
+        if ((int)($p['id'] ?? 0) === $finalId) {
+            $jsonExistingIndex = $idx;
+            break;
+        }
+    }
+    if ($jsonExistingIndex >= 0) {
+        $data['products'][$jsonExistingIndex] = $productFormatted;
+    } else {
+        $data['products'][] = $productFormatted;
+    }
+    @file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 
     return $productFormatted;
 }

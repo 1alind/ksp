@@ -200,6 +200,21 @@ function auto_init_database($forceSeed = false) {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
 
+        // Ensure new columns exist in existing products table
+        $columnsToEnsure = [
+            'model_group' => "VARCHAR(150) DEFAULT NULL",
+            'color_name' => "VARCHAR(100) DEFAULT NULL",
+            'color_hex' => "VARCHAR(30) DEFAULT NULL",
+            'linked_products' => "LONGTEXT DEFAULT NULL"
+        ];
+        foreach ($columnsToEnsure as $col => $typeDef) {
+            try {
+                $pdo->exec("ALTER TABLE `products` ADD COLUMN `{$col}` {$typeDef}");
+            } catch (Exception $e) {
+                // Column likely already exists
+            }
+        }
+
         // 2. Create orders table
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `orders` (

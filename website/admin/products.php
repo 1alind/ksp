@@ -132,8 +132,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]
         ];
 
-        save_product($productData);
-        $flashMsg = "✓ Product #{$pId} ('" . htmlspecialchars($titleEn) . "') was updated successfully!";
+        try {
+            save_product($productData);
+            $flashMsg = "✓ Product #{$pId} ('" . htmlspecialchars($titleEn) . "') was updated successfully!";
+            $flashType = 'success';
+        } catch (Exception $e) {
+            $flashMsg = "⚠ Error updating product: " . htmlspecialchars($e->getMessage());
+            $flashType = 'danger';
+        }
     }
     // 2. ADD NEW PRODUCT
     elseif (isset($_POST['add_new_product'])) {
@@ -236,20 +242,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]
         ];
 
-        $saved = save_product($productData);
-        $flashMsg = "✓ New luxury piece #{$saved['id']} ('" . htmlspecialchars($titleEn) . "') was published to the catalog!";
+        try {
+            $saved = save_product($productData);
+            $flashMsg = "✓ New luxury piece #{$saved['id']} ('" . htmlspecialchars($titleEn) . "') was successfully published to the catalog!";
+            $flashType = 'success';
+        } catch (Exception $e) {
+            $flashMsg = "⚠ Error publishing piece: " . htmlspecialchars($e->getMessage());
+            $flashType = 'danger';
+        }
     }
     // 3. DELETE PRODUCT
     elseif (isset($_POST['delete_product_id'])) {
         $pId = intval($_POST['delete_product_id']);
         delete_product($pId);
         $flashMsg = "✓ Product #{$pId} has been permanently removed from the catalog.";
+        $flashType = 'success';
     }
 }
 
 $pageTitle = 'Product Catalog & Inventory | AURA Luxury Admin';
 $adminActive = 'products';
 $productsList = get_all_products();
+
+// Sort by ID descending so newly added pieces appear immediately at the top of the table
+usort($productsList, function($a, $b) {
+    return (int)($b['id'] ?? 0) - (int)($a['id'] ?? 0);
+});
 $ordersList = get_all_orders();
 $usersList = get_all_users();
 $inquiriesList = get_all_inquiries();
@@ -272,9 +290,10 @@ require_once __DIR__ . '/../header.php';
         <?php require_once __DIR__ . '/nav.php'; ?>
 
         <?php if ($flashMsg): ?>
-            <div style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; color:#22c55e; border-radius:8px; padding:14px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
-                <span><?php echo $flashMsg; ?></span>
-                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:16px;">✕</button>
+            <?php $isDanger = ($flashType === 'danger'); ?>
+            <div style="background:<?php echo $isDanger ? 'rgba(239,68,68,0.14)' : 'rgba(34,197,94,0.14)'; ?>; border:1px solid <?php echo $isDanger ? '#ef4444' : '#22c55e'; ?>; color:<?php echo $isDanger ? '#ef4444' : '#22c55e'; ?>; border-radius:8px; padding:15px 20px; margin-bottom:24px; font-weight:700; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+                <span style="font-size:14px;"><?php echo $flashMsg; ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:inherit; cursor:pointer; font-size:18px;">✕</button>
             </div>
         <?php endif; ?>
 
@@ -323,7 +342,7 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
-            <form action="/admin/products.php" method="POST" id="newProductForm">
+            <form action="" method="POST" id="newProductForm">
                 <input type="hidden" name="add_new_product" value="1">
                 
                 <div class="form-row-3 mb-16">
@@ -419,7 +438,7 @@ require_once __DIR__ . '/../header.php';
                             <div>
                                 <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
                                 <div style="display:flex; gap:6px; align-items:center;">
-                                    <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                                    <input type="text" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-black-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
                                     <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
                                         <span>☁️</span> Upload
                                     </button>
@@ -446,7 +465,7 @@ require_once __DIR__ . '/../header.php';
                             <div>
                                 <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo adm_t('admin_field_color_image', 'Color Photo URL'); ?></label>
                                 <div style="display:flex; gap:6px; align-items:center;">
-                                    <input type="url" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                                    <input type="text" name="prod_variant_image[]" class="form-control" placeholder="https://image-for-white-version.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
                                     <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
                                         <span>☁️</span> Upload
                                     </button>
@@ -502,7 +521,7 @@ require_once __DIR__ . '/../header.php';
 
                 <div style="display:flex; justify-content:flex-end; gap:12px;">
                     <button type="button" class="btn btn-outline" onclick="toggleAddProductForm()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
-                    <button type="submit" class="btn btn-primary btn-luxury"><?php echo adm_t('admin_btn_save', 'Save Changes'); ?></button>
+                    <button type="submit" name="add_new_product" value="1" class="btn btn-primary btn-luxury" id="newProdSubmitBtn" style="padding:10px 24px; font-weight:700;">💎 <?php echo adm_t('admin_btn_publish_piece', 'Publish Luxury Piece to Catalog'); ?></button>
                 </div>
             </form>
         </div>
@@ -596,7 +615,7 @@ require_once __DIR__ . '/../header.php';
                                             ✏️ <?php echo adm_t('admin_btn_edit', 'Edit'); ?>
                                         </button>
                                         <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="<?php echo adm_t('admin_products_view_boutique', 'View in Boutique'); ?>">👁️</a>
-                                        <form action="/admin/products.php" method="POST" onsubmit="return confirm('<?php echo adm_t('admin_products_delete_confirm', 'Delete this product permanently?'); ?>')" style="display:inline;">
+                                        <form action="" method="POST" onsubmit="return confirm('<?php echo adm_t('admin_products_delete_confirm', 'Delete this product permanently?'); ?>')" style="display:inline;">
                                             <input type="hidden" name="delete_product_id" value="<?php echo $p['id']; ?>">
                                             <button type="submit" class="btn btn-ghost text-danger btn-xs" title="<?php echo adm_t('admin_btn_delete', 'Delete Product'); ?>">✕</button>
                                         </form>
@@ -625,7 +644,7 @@ require_once __DIR__ . '/../header.php';
             <button type="button" class="btn-close-modal" onclick="closeEditProductModal()" style="font-size:20px; cursor:pointer;">✕</button>
         </div>
 
-        <form action="/admin/products.php" method="POST" id="editProductForm">
+        <form action="" method="POST" id="editProductForm">
             <input type="hidden" name="update_product" value="1">
             <input type="hidden" name="edit_prod_id" id="editProdId">
 
@@ -844,7 +863,7 @@ function addColorVariantRow(containerId, colorName = '', colorHex = '#1e3a8a', i
         <div>
             <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">${lblPhoto}</label>
             <div style="display:flex; gap:6px; align-items:center;">
-                <input type="url" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
+                <input type="text" name="${prefix}_variant_image[]" value="${escapeHtmlAttr(imageUrl)}" class="form-control" placeholder="https://image-for-this-color.jpg" style="font-size:13px; padding:6px 10px; flex:1;">
                 <button type="button" class="btn btn-sm btn-outline" style="padding:6px 9px; font-size:11.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" onclick="window.X02Uploader.uploadVariantPhoto(this)" title="Upload, compress to WebP & host on x02.me">
                     <span>☁️</span> Upload
                 </button>
