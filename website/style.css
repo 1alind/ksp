@@ -5141,12 +5141,17 @@ select option {
 
 
 /* Standalone Size Guide Page Styles */
+.size-guide-page-section {
+    padding: 60px 0 80px 0;
+}
+
 .size-guide-tabs-nav {
     display: flex;
     gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 36px;
+    margin-top: 24px;
+    margin-bottom: 40px;
 }
 
 .size-tab-btn {

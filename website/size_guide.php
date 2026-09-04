@@ -207,7 +207,7 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
     <div class="container">
         
         <!-- Category Navigation Tabs -->
-        <div class="size-guide-tabs-nav">
+        <div class="size-guide-tabs-nav" style="margin-top: 36px; margin-bottom: 44px;">
             <a href="size_guide.php?v=tshirt<?php echo $tabQuery; ?>" class="size-tab-btn <?php echo $variant === 'tshirt' ? 'active' : ''; ?>">
                 <span class="tab-icon">👕</span>
                 <span><?php echo $lang === 'ku' ? 'تیشێرت و سەرپۆش' : ($lang === 'ar' ? 'تيشيرت وقمصان' : 'Shirts & Tops'); ?></span>
@@ -500,7 +500,7 @@ $dimWidthLabel = ($lang === 'ku' ? 'پانی' : ($lang === 'ar' ? 'العرض' :
             </div>
 
             <!-- Smart Return Action Button -->
-            <div class="text-center mt-40" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <div class="text-center guide-bottom-actions" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 52px; padding-top: 36px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
                 <a href="<?php echo htmlspecialchars($backUrl); ?>" class="btn btn-primary" style="padding: 15px 36px; border-radius: 12px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #0c0e14; background: linear-gradient(135deg, #dcb348 0%, #b8932d 100%); font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3); transition: all 0.2s ease;">
                     <?php echo $backBtnLabel; ?>
                 </a>
