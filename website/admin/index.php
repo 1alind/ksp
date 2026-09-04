@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
 $pageTitle = 'Executive Command Suite | AURA Luxury Admin';
 $adminActive = 'dashboard';
 $ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'), true);

@@ -176,6 +176,42 @@
         // Initialize Cart Counter
         window.AuraStore.updateCartBadge();
 
+        // Global site language changer
+        window.changeSiteLanguage = function (lang) {
+            if (!['en', 'ar', 'ku'].includes(lang)) return;
+            try {
+                localStorage.setItem(LANG_STORAGE_KEY, lang);
+            } catch (e) {}
+
+            document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=Lax`;
+            if (window.location.protocol === 'https:') {
+                document.cookie = `aura_lang=${lang};path=/;max-age=31536000;SameSite=None;Secure`;
+            }
+
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('lang', lang);
+                window.location.href = url.toString();
+            } catch (e) {
+                window.location.href = `?lang=${lang}`;
+            }
+        };
+
+        // Check if localStorage has language but URL doesn't have it and page is different
+        try {
+            const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+            const url = new URL(window.location.href);
+            const urlLang = url.searchParams.get('lang');
+            if (!urlLang && savedLang && ['en', 'ar', 'ku'].includes(savedLang)) {
+                const currentLang = document.documentElement.getAttribute('lang') || 'en';
+                if (savedLang !== currentLang) {
+                    url.searchParams.set('lang', savedLang);
+                    window.location.replace(url.toString());
+                    return;
+                }
+            }
+        } catch (e) {}
+
         // 1. Theme Toggle Event
         const themeBtn = document.getElementById('themeToggleBtn');
         if (themeBtn) {
@@ -184,7 +220,7 @@
                 const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 document.documentElement.setAttribute('data-theme', nextTheme);
                 localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-                document.cookie = `aura_theme=${nextTheme};path=/;max-age=31536000`;
+                document.cookie = `aura_theme=${nextTheme};path=/;max-age=31536000;SameSite=Lax`;
             });
         }
 
@@ -193,21 +229,30 @@
         const langDropdown = document.getElementById('langDropdown');
         if (langBtn && langDropdown) {
             langBtn.addEventListener('click', function (e) {
+                e.preventDefault();
                 e.stopPropagation();
                 langDropdown.classList.toggle('show');
             });
 
-            document.addEventListener('click', function () {
-                langDropdown.classList.remove('show');
+            document.addEventListener('click', function (e) {
+                if (!langDropdown.contains(e.target) && e.target !== langBtn && !langBtn.contains(e.target)) {
+                    langDropdown.classList.remove('show');
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    langDropdown.classList.remove('show');
+                }
             });
         }
 
         // Language links click handler
         document.querySelectorAll('[data-lang-set]').forEach(link => {
             link.addEventListener('click', function (e) {
+                e.preventDefault();
                 const lang = this.getAttribute('data-lang-set');
-                localStorage.setItem(LANG_STORAGE_KEY, lang);
-                document.cookie = `aura_lang=${lang};path=/;max-age=31536000`;
+                window.changeSiteLanguage(lang);
             });
         });
 

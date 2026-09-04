@@ -139,10 +139,9 @@
         window.AURA_PRODUCTS = <?php echo json_encode($all_products); ?>;
     </script>
     
+    <script src="/script.js"></script>
     <?php if (isset($activePage) && $activePage === 'admin'): ?>
         <script src="/admin/admin.js"></script>
-    <?php else: ?>
-        <script src="/script.js"></script>
     <?php endif; ?>
 </body>
 </html>

@@ -10,7 +10,11 @@ if (!in_array($lang, ['en', 'ar', 'ku'])) {
 }
 $_SESSION['lang'] = $lang;
 if (!isset($_COOKIE['aura_lang']) || $_COOKIE['aura_lang'] !== $lang) {
-    @setcookie('aura_lang', $lang, time() + (86400 * 30), '/');
+    @setcookie('aura_lang', $lang, [
+        'expires' => time() + (86400 * 30),
+        'path' => '/',
+        'samesite' => 'Lax'
+    ]);
 }
 $dir = in_array($lang, ['ar', 'ku']) ? 'rtl' : 'ltr';
 
@@ -78,7 +82,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
             <div class="top-bar-actions">
                 <!-- Language Switcher -->
                 <div class="dropdown-wrapper">
-                    <button class="top-btn" id="langDropdownBtn" aria-label="Select Language">
+                    <button class="top-btn" id="langDropdownBtn" aria-label="Select Language" type="button">
                         <span class="globe-icon">🌐</span>
                         <span class="current-lang-text">
                             <?php 
@@ -90,9 +94,9 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
                         <span class="chevron-down">▾</span>
                     </button>
                     <div class="dropdown-menu" id="langDropdown">
-                        <a href="?lang=en" class="dropdown-item <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en">English (EN)</a>
-                        <a href="?lang=ar" class="dropdown-item <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar">العربية (AR)</a>
-                        <a href="?lang=ku" class="dropdown-item <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku">کوردی - بادینی (KU)</a>
+                        <a href="?lang=en" class="dropdown-item <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en'); return false;">English (EN)</a>
+                        <a href="?lang=ar" class="dropdown-item <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar'); return false;">العربية (AR)</a>
+                        <a href="?lang=ku" class="dropdown-item <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku'); return false;">کوردی - بادینی (KU)</a>
                     </div>
                 </div>
 
@@ -188,9 +192,9 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' — ' . $storeName : $storeName 
 
                 <div class="mobile-drawer-footer">
                     <div class="lang-selector-pills">
-                        <a href="?lang=en" class="pill-btn <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en">English</a>
-                        <a href="?lang=ar" class="pill-btn <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar">العربية</a>
-                        <a href="?lang=ku" class="pill-btn <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku">کوردی (بادینی)</a>
+                        <a href="?lang=en" class="pill-btn <?php echo $lang === 'en' ? 'active' : ''; ?>" data-lang-set="en" onclick="window.changeSiteLanguage('en'); return false;">English</a>
+                        <a href="?lang=ar" class="pill-btn <?php echo $lang === 'ar' ? 'active' : ''; ?>" data-lang-set="ar" onclick="window.changeSiteLanguage('ar'); return false;">العربية</a>
+                        <a href="?lang=ku" class="pill-btn <?php echo $lang === 'ku' ? 'active' : ''; ?>" data-lang-set="ku" onclick="window.changeSiteLanguage('ku'); return false;">کوردی (بادینی)</a>
                     </div>
                 </div>
             </div>
