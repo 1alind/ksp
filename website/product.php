@@ -15,9 +15,6 @@ $titleText = is_array($product['title']) ? ($product['title'][$lang] ?? $product
 $descText = is_array($product['description']) ? ($product['description'][$lang] ?? $product['description']['en']) : $product['description'];
 $badgeKey = 'badge_' . $lang;
 $badgeText = $product[$badgeKey] ?? $product['badge'] ?? '';
-if (empty($badgeText) && is_product_new($product)) {
-    $badgeText = t('filter_new', $lang);
-}
 
 $allProducts = get_all_products();
 $relatedProducts = array_filter($allProducts, function($p) use ($product) {

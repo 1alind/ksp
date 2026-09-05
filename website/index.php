@@ -38,9 +38,6 @@ $featuredProducts = array_filter($products, function($p) {
                 $itemStock = isset($item['stock']) ? (int)$item['stock'] : 0;
                 $itemOutOfStock = ($itemStock <= 0);
                 $isNewItem = is_product_new($item);
-                if (empty($badgeText) && $isNewItem) {
-                    $badgeText = t('filter_new', $lang);
-                }
             ?>
             <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-is-new="<?php echo $isNewItem ? 'true' : 'false'; ?>" data-id="<?php echo $item['id']; ?>">
                 <div class="product-image-container">
