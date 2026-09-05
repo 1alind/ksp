@@ -52,7 +52,6 @@ $pageTitle = 'Brand Customizer & Global Settings | AURA Luxury Admin';
 $adminActive = 'branding';
 $ordersList = get_all_orders();
 $productsList = get_all_products();
-$usersList = get_all_users();
 $inquiriesList = get_all_inquiries();
 
 $s = $settingsDb;

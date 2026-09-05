@@ -770,14 +770,8 @@ VALUES
 );
 
 -- ------------------------------------------------------------------------------
--- 10. SEED USERS (Admin, Managers & Customers)
+-- 10. USERS (Disabled - Customer data saved solely on orders for delivery)
 -- ------------------------------------------------------------------------------
-INSERT INTO `users` (`id`, `user_code`, `name`, `email`, `password_hash`, `phone`, `city`, `address`, `role`)
-VALUES
-(1, 'USR-1001', 'Alind Duhoki', 'admin@aurastore.com', 'admin123', '+964 750 123 4567', 'Duhok', 'KRO Street, Duhok, Kurdistan Region', 'admin'),
-(2, 'USR-1002', 'Soran Ahmed', 'soran@example.com', 'customer123', '+964 750 987 6543', 'Erbil', 'Empire World, Gulan St, Erbil', 'customer'),
-(3, 'USR-1003', 'Hiba Al-Nuaimi', 'dr.hiba.nuaimi@yahoo.com', 'customer123', '+964 780 119 2200', 'Baghdad', 'Al-Mansour, Street 14, Building 8', 'customer'),
-(4, 'USR-1004', 'Hawre Qadir', 'hawre.qadir@outlook.com', 'customer123', '+964 770 882 3344', 'Sulaymaniyah', 'Sarchinar, Gardenia Homes', 'customer');
 
 -- ------------------------------------------------------------------------------
 -- 11. SEED INQUIRIES & PACKAGE TRACKING CLAIMS

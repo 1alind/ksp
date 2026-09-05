@@ -979,109 +979,27 @@ function delete_inquiry($id) {
 }
 
 // ==============================================================================
-// 5. USER AUTHENTICATION & ACCOUNTS (MySQL Database Operations)
+// 5. PRIVACY POLICY ENFORCEMENT & DELIVERY-ONLY DETAILS
+// Customer details are strictly kept on individual orders solely for shipping & delivery.
+// No registered customer accounts, profiles, or user ledgers are stored in the database.
 // ==============================================================================
 function get_all_users() {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return [];
-
-    try {
-        $stmt = $pdo->query("SELECT * FROM users ORDER BY id DESC");
-        $rows = $stmt->fetchAll();
-        $users = [];
-        foreach ($rows as $r) {
-            $users[] = [
-                'id' => $r['user_code'],
-                'name' => $r['name'],
-                'email' => $r['email'],
-                'password_hash' => $r['password_hash'],
-                'role' => $r['role'],
-                'phone' => $r['phone'],
-                'city' => $r['city'],
-                'address' => $r['address'],
-                'created_at' => $r['created_at']
-            ];
-        }
-        return $users;
-    } catch (Exception $e) {
-        return [];
-    }
+    // Registered customer directory is removed. Customer details exist only inside orders for delivery.
+    return [];
 }
 
 function find_user_by_email($email) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return null;
-
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1");
-        $stmt->execute([':email' => trim($email)]);
-        $r = $stmt->fetch();
-        if (!$r) return null;
-
-        return [
-            'id' => $r['user_code'],
-            'name' => $r['name'],
-            'email' => $r['email'],
-            'password_hash' => $r['password_hash'],
-            'role' => $r['role'],
-            'phone' => $r['phone'],
-            'city' => $r['city'],
-            'address' => $r['address'],
-            'created_at' => $r['created_at']
-        ];
-    } catch (Exception $e) {
-        return null;
-    }
+    return null;
 }
 
 function register_user($name, $email, $password, $phone = '', $city = '', $address = '') {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) {
-        return ['success' => false, 'error' => 'Database connection offline'];
-    }
-
-    if (find_user_by_email($email)) {
-        return ['success' => false, 'error' => 'Email already registered'];
-    }
-
-    $user_code = 'USR-' . rand(1000, 9999);
-    try {
-        $stmt = $pdo->prepare("
-            INSERT INTO users (user_code, name, email, password_hash, phone, city, address, role)
-            VALUES (:code, :name, :email, :pass, :phone, :city, :addr, 'customer')
-        ");
-        $stmt->execute([
-            ':code' => $user_code,
-            ':name' => trim($name),
-            ':email' => strtolower(trim($email)),
-            ':pass' => $password,
-            ':phone' => trim($phone),
-            ':city' => trim($city),
-            ':addr' => trim($address)
-        ]);
-
-        return [
-            'success' => true,
-            'user' => [
-                'id' => $user_code,
-                'name' => trim($name),
-                'email' => strtolower(trim($email)),
-                'role' => 'customer',
-                'phone' => trim($phone),
-                'city' => trim($city),
-                'address' => trim($address)
-            ]
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'error' => $e->getMessage()];
-    }
+    return [
+        'success' => false,
+        'error' => 'Customer account registration is disabled. Customer details are only retained on orders for delivery purposes.'
+    ];
 }
 
 function authenticate_user($email, $password) {
-    $user = find_user_by_email($email);
-    if ($user && $user['password_hash'] === $password) {
-        return $user;
-    }
     return null;
 }
 

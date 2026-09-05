@@ -8,8 +8,6 @@ $ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'),
 $ordersList = $ordersDb['orders'] ?? [];
 $productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
 $productsList = $productsDb['products'] ?? [];
-$usersDb = json_decode(file_get_contents(__DIR__ . '/../database/users.json'), true);
-$usersList = $usersDb['users'] ?? [];
 $inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
 $inquiriesList = $inquiriesDb['inquiries'] ?? [];
 $settingsDb = json_decode(file_get_contents(__DIR__ . '/../database/settings.json'), true);
@@ -71,11 +69,11 @@ require_once __DIR__ . '/../header.php';
             </div>
 
             <div class="admin-metric-card">
-                <span class="m-icon">👥</span>
+                <span class="m-icon">💬</span>
                 <div class="m-info">
-                    <span class="m-label"><?php echo adm_t('admin_metric_customers', 'Customer Directory'); ?></span>
-                    <strong class="m-value"><?php echo count($usersList); ?> <?php echo adm_t('admin_nav_users', 'Clients'); ?></strong>
-                    <span class="iqd-price-pill"><?php echo sprintf(adm_t('admin_metric_inquiries_count', '%s Concierge Inquiries'), count($inquiriesList)); ?></span>
+                    <span class="m-label"><?php echo adm_t('admin_nav_inquiries', 'Concierge Desk'); ?></span>
+                    <strong class="m-value"><?php echo count($inquiriesList); ?> <?php echo adm_t('admin_nav_inquiries', 'Inquiries'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_inquiries_assistance_needed', 'Active Client Inquiries'); ?></span>
                 </div>
             </div>
         </div>
@@ -134,22 +132,7 @@ require_once __DIR__ . '/../header.php';
                     </div>
                 </a>
 
-                <!-- Card 4: Customers -->
-                <a href="/admin/users.php" style="text-decoration:none; color:inherit; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, border-color 0.2s;">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span style="font-size:28px;">👥</span>
-                            <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($usersList); ?> <?php echo adm_t('admin_nav_users', 'Registered'); ?></span>
-                        </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_users_title', 'Customer Directory & VIP Accounts'); ?></h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_users_desc', 'Customer ledger, lifetime spend tracking, purchase frequency, and VIP classifications.'); ?></p>
-                    </div>
-                    <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
-                    </div>
-                </a>
-
-                <!-- Card 5: Inquiries -->
+                <!-- Card 4: Inquiries -->
                 <a href="/admin/inquiries.php" style="text-decoration:none; color:inherit; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, border-color 0.2s;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">

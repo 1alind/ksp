@@ -517,30 +517,8 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 3.1 Dumping data for table `users`
+-- 3.1 Data for table `users` (Disabled - Customer data saved only on orders for delivery)
 -- ------------------------------------------------------------------------------
-INSERT INTO `users` (`user_code`, `name`, `email`, `password_hash`, `phone`, `city`, `address`, `role`)
-VALUES
-(
-  'USR-1001',
-  'Alind Duhoki',
-  'admin@aurastore.com',
-  'admin123',
-  '+964 750 123 4567',
-  'Duhok',
-  'KRO Street, Duhok, Kurdistan Region',
-  'admin'
-),
-(
-  'USR-1002',
-  'Soran Ahmed',
-  'soran@example.com',
-  'customer123',
-  '+964 750 987 6543',
-  'Erbil',
-  'Empire World, Gulan St, Erbil',
-  'customer'
-);
 
 -- ------------------------------------------------------------------------------
 -- 4. Table structure for table `inquiries`

@@ -37,7 +37,6 @@ $pageTitle = 'Customer Concierge & Support Inquiries | AURA Luxury Admin';
 $adminActive = 'inquiries';
 $ordersList = get_all_orders();
 $productsList = get_all_products();
-$usersList = get_all_users();
 $inquiriesList = get_all_inquiries();
 
 $activePage = 'admin';
@@ -84,11 +83,11 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
             <div class="admin-metric-card">
-                <span class="m-icon">👥</span>
+                <span class="m-icon">🔒</span>
                 <div class="m-info">
-                    <span class="m-label"><?php echo adm_t('admin_inquiries_client_registry', 'Client Registry'); ?></span>
-                    <strong class="m-value"><?php echo count($usersList); ?> <?php echo adm_t('admin_inquiries_customers', 'Customers'); ?></strong>
-                    <span class="iqd-price-pill"><a href="/admin/users.php" style="color:inherit;"><?php echo adm_t('admin_inquiries_view_directory', 'View Directory →'); ?></a></span>
+                    <span class="m-label"><?php echo adm_t('admin_privacy_policy', 'Client Confidentiality'); ?></span>
+                    <strong class="m-value" style="color:#22c55e;"><?php echo adm_t('admin_privacy_active', 'Active & Strict'); ?></strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_privacy_delivery_only', 'Delivery Details Only'); ?></span>
                 </div>
             </div>
         </div>
