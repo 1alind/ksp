@@ -15,7 +15,7 @@ $filteredProducts = array_filter($allProducts, function($p) use ($selectedCat, $
     // 1. Category check
     if ($selectedCat !== 'all') {
         if ($selectedCat === 'new') {
-            if (!is_product_new($p)) return false;
+            if (!is_product_new($p, $allProducts)) return false;
         } elseif ($p['category'] !== $selectedCat) {
             return false;
         }
@@ -71,7 +71,7 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                         <li>
                             <a href="shop.php?cat=new" class="cat-filter-link <?php echo $selectedCat === 'new' ? 'active' : ''; ?>">
                                 <span><?php echo t('filter_new', $lang); ?></span>
-                                <span class="badge-count"><?php echo count(array_filter($allProducts, fn($p) => is_product_new($p))); ?></span>
+                                <span class="badge-count"><?php echo count(array_filter($allProducts, function($p) use ($allProducts) { return is_product_new($p, $allProducts); })); ?></span>
                             </a>
                         </li>
                         <li>
@@ -157,9 +157,9 @@ usort($filteredProducts, function($a, $b) use ($sortOrder) {
                             $badgeText = $item[$badgeKey] ?? $item['badge'] ?? '';
                             $itemStock = isset($item['stock']) ? (int)$item['stock'] : 0;
                             $itemOutOfStock = ($itemStock <= 0);
-                            $isNewItem = is_product_new($item);
+                            $isNewItem = is_product_new($item, $allProducts);
                         ?>
-                        <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-is-new="<?php echo $isNewItem ? 'true' : 'false'; ?>" data-id="<?php echo $item['id']; ?>">
+                        <div class="product-card <?php echo $itemOutOfStock ? 'is-out-of-stock' : ''; ?>" data-category="<?php echo $item['category']; ?>" data-is-new="<?php echo $isNewItem ? 'true' : 'false'; ?>" data-created-at="<?php echo htmlspecialchars($item['created_at'] ?? ''); ?>" data-id="<?php echo $item['id']; ?>">
                             <div class="product-image-container">
                                 <?php if ($itemOutOfStock): ?>
                                     <span class="product-badge-tag out-of-stock-badge"><?php echo t('out_of_stock', $lang); ?></span>

@@ -395,6 +395,38 @@
 
                 const filter = this.getAttribute('data-filter');
                 const cards = document.querySelectorAll('#featuredProductsGrid .product-card');
+                const now = Date.now();
+                const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+
+                // Pre-check for filter === 'new'
+                if (filter === 'new') {
+                    let hasAnyNew = false;
+                    cards.forEach(card => {
+                        let isNew = card.getAttribute('data-is-new') === 'true';
+                        const createdAtStr = card.getAttribute('data-created-at');
+                        if (createdAtStr) {
+                            const parsedDate = new Date(createdAtStr).getTime();
+                            if (!isNaN(parsedDate) && parsedDate > 0) {
+                                const diff = now - parsedDate;
+                                if (diff <= thirtyDaysMs && diff >= -86400000) {
+                                    isNew = true;
+                                    card.setAttribute('data-is-new', 'true');
+                                }
+                            }
+                        }
+                        if (isNew) hasAnyNew = true;
+                    });
+
+                    // Fallback: If no cards are within 30 days, treat the top 5 newest products as new
+                    if (!hasAnyNew && cards.length > 0) {
+                        const sortedCards = Array.from(cards).sort((a, b) => {
+                            return (parseInt(b.getAttribute('data-id') || '0', 10)) - (parseInt(a.getAttribute('data-id') || '0', 10));
+                        });
+                        sortedCards.slice(0, Math.min(5, sortedCards.length)).forEach(c => {
+                            c.setAttribute('data-is-new', 'true');
+                        });
+                    }
+                }
 
                 cards.forEach(card => {
                     const cat = card.getAttribute('data-category');

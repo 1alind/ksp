@@ -137,20 +137,65 @@ function get_product_by_id($id) {
 
 /**
  * Check if a product is new (added within the last 30 days)
+ * With relative catalog timestamp analysis and newest items fallback
  */
-function is_product_new($product) {
-    if (empty($product)) return false;
+function is_product_new($product, $allProducts = null) {
+    if (empty($product) || !is_array($product)) return false;
     
+    // 1. Direct timestamp check: added within last 30 days (2,592,000 seconds)
     if (!empty($product['created_at'])) {
-        $createdAt = strtotime($product['created_at']);
-        if ($createdAt && (time() - $createdAt) <= 2592000) { // 30 days = 2,592,000 seconds
+        $createdAt = is_numeric($product['created_at']) ? (int)$product['created_at'] : strtotime($product['created_at']);
+        if ($createdAt && $createdAt > 0) {
+            $ageInSeconds = time() - $createdAt;
+            // Within 30 days (allowing up to 1 day clock skew ahead)
+            if ($ageInSeconds >= -86400 && $ageInSeconds <= 2592000) {
+                return true;
+            }
+        }
+    }
+
+    // 2. Relative catalog timestamp check: if the latest product in the catalog was added earlier,
+    // products added within 30 days of that latest product are also treated as new
+    if ($allProducts === null) {
+        static $cachedAll = null;
+        if ($cachedAll === null) {
+            $cachedAll = get_all_products();
+        }
+        $allProducts = $cachedAll;
+    }
+
+    $latestTime = 0;
+    if (!empty($allProducts) && is_array($allProducts)) {
+        foreach ($allProducts as $p) {
+            if (!empty($p['created_at'])) {
+                $t = is_numeric($p['created_at']) ? (int)$p['created_at'] : strtotime($p['created_at']);
+                if ($t && $t > $latestTime) {
+                    $latestTime = $t;
+                }
+            }
+        }
+    }
+
+    if ($latestTime > 0 && !empty($product['created_at'])) {
+        $pTime = is_numeric($product['created_at']) ? (int)$product['created_at'] : strtotime($product['created_at']);
+        if ($pTime && ($latestTime - $pTime) <= 2592000 && ($latestTime - $pTime) >= 0) {
             return true;
         }
-        return false;
     }
     
-    // For legacy products without created_at timestamp, treat them as new so the filter shows products
-    return true;
+    // 3. Fallback: If no products are within the 30-day window or products lack created_at,
+    // consider the top 5 newest products (by highest ID) as new so the filter never displays a broken empty screen
+    if (!empty($allProducts) && is_array($allProducts)) {
+        $ids = array_filter(array_map(function($p) { return (int)($p['id'] ?? 0); }, $allProducts));
+        if (!empty($ids)) {
+            $maxId = max($ids);
+            if ((int)($product['id'] ?? 0) >= ($maxId - 4)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 }
 
 function save_product($new_product) {
