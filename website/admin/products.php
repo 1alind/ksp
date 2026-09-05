@@ -752,7 +752,7 @@ require_once __DIR__ . '/../header.php';
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                                        <button type="button" class="btn btn-outline btn-xs" data-product='<?php echo htmlspecialchars(json_encode($p, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8'); ?>' onclick='openEditProductModalFromBtn(this)' title="<?php echo adm_t('admin_products_edit_title', 'Edit Product Details & Colors'); ?>">
+                                        <button type="button" class="btn btn-outline btn-xs" data-id="<?php echo (int)$p['id']; ?>" data-product='<?php echo htmlspecialchars(json_encode($p, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8'); ?>' onclick='openEditProductModalFromBtn(this)' title="<?php echo adm_t('admin_products_edit_title', 'Edit Product Details & Colors'); ?>">
                                             ✏️ <?php echo adm_t('admin_btn_edit', 'Edit'); ?>
                                         </button>
                                         <a href="/product.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn btn-ghost btn-xs" title="<?php echo adm_t('admin_products_view_boutique', 'View in Boutique'); ?>">👁️</a>
@@ -912,6 +912,38 @@ require_once __DIR__ . '/../header.php';
                         <span>➕</span> <?php echo adm_t('admin_btn_add_color', 'Add Another Color'); ?>
                     </button>
                 </div>
+
+                <!-- Optional: Cross-Product Model Group Linking in Edit Modal -->
+                <details style="background:var(--bg-surface); padding:12px 16px; border-radius:8px; border:none; margin-top:8px;">
+                    <summary style="font-weight:700; font-size:13px; color:var(--accent-gold); cursor:pointer; user-select:none;">
+                        ⚙️ <?php echo adm_t('admin_products_model_grouping', 'Advanced: Link Across Separate Catalog Items (Model Grouping)'); ?>
+                    </summary>
+                    <div style="margin-top:12px;">
+                        <div class="form-row-2 mb-10">
+                            <div class="form-group">
+                                <label style="font-size:12px; font-weight:600;"><?php echo adm_t('admin_products_model_group_id', 'Shared Model Group Identifier'); ?></label>
+                                <input type="text" name="edit_prod_model_group" id="editProdModelGroup" class="form-control" placeholder="e.g. oxford-shirt-2026">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size:12px; font-weight:600;"><?php echo adm_t('admin_products_model_color_label', 'Primary Color Label for this Item'); ?></label>
+                                <input type="text" name="edit_prod_color_name" id="editProdColorName" class="form-control" placeholder="e.g. Obsidian Black">
+                            </div>
+                        </div>
+                        <?php if (!empty($products)): ?>
+                        <div style="margin-top:10px;">
+                            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:6px;"><?php echo adm_t('admin_products_link_other_items', 'Directly Linked Catalog Items'); ?>:</label>
+                            <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; background:var(--bg-card); padding:8px; border-radius:6px;">
+                                <?php foreach ($products as $otherP): ?>
+                                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; margin:0;">
+                                        <input type="checkbox" name="edit_prod_linked_products[]" class="edit-linked-cb" value="<?php echo (int)$otherP['id']; ?>">
+                                        <span>#<?php echo (int)$otherP['id']; ?> — <?php echo htmlspecialchars(is_array($otherP['title']) ? ($otherP['title']['en'] ?? '') : $otherP['title']); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </details>
             </div>
 
             <!-- Section 4.8: Sizes & Dimensions Engine (Edit Modal - Multi-Category Adaptive) -->
@@ -1018,6 +1050,15 @@ require_once __DIR__ . '/../header.php';
 <script>
 window.X02_API_KEY = <?php echo json_encode(get_setting('x02_api_key', '36f36ce6fa844e93bda76bb9255070b4')); ?>;
 window.X02_UPLOAD_URL = <?php echo json_encode(get_setting('x02_upload_url', 'https://up.x02.me/api/upload?format=json')); ?>;
+window.ALL_PRODUCTS = <?php echo json_encode($products); ?>;
+window.ALL_PRODUCTS_MAP = {};
+if (Array.isArray(window.ALL_PRODUCTS)) {
+    window.ALL_PRODUCTS.forEach(function(p) {
+        if (p && p.id !== undefined) {
+            window.ALL_PRODUCTS_MAP[p.id] = p;
+        }
+    });
+}
 </script>
 <script src="/admin/x02_uploader.js"></script>
 <script>
@@ -1625,108 +1666,168 @@ function escapeHtmlAttr(str) {
 }
 
 function openEditProductModalFromBtn(btn) {
-    try {
-        const raw = btn.getAttribute('data-product');
-        const product = JSON.parse(raw);
+    if (!btn) return;
+    var product = null;
+    var raw = btn.getAttribute('data-product');
+    if (raw) {
+        try {
+            product = JSON.parse(raw);
+        } catch(e) {
+            console.warn("Failed to parse data-product JSON, falling back to ID lookup", e);
+        }
+    }
+    if (!product) {
+        var id = btn.getAttribute('data-id');
+        if (id && window.ALL_PRODUCTS_MAP && window.ALL_PRODUCTS_MAP[id]) {
+            product = window.ALL_PRODUCTS_MAP[id];
+        }
+    }
+    if (product) {
         openEditProductModal(product);
-    } catch(e) {
-        console.error("Failed to parse product data", e);
+    } else {
+        console.error("No product found for edit button", btn);
     }
 }
 
 function openEditProductModal(product) {
     if (!product) return;
-    document.getElementById('editProdId').value = product.id;
-    document.getElementById('editProductModalIdBadge').innerText = '#' + product.id;
     
-    const pTitleEn = typeof product.title === 'object' ? (product.title.en || '') : product.title;
-    const pTitleAr = typeof product.title === 'object' ? (product.title.ar || pTitleEn) : pTitleEn;
-    const pTitleKu = typeof product.title === 'object' ? (product.title.ku || pTitleEn) : pTitleEn;
+    var setVal = function(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.value = (val !== undefined && val !== null) ? val : '';
+    };
+    var setText = function(id, text) {
+        var el = document.getElementById(id);
+        if (el) el.innerText = (text !== undefined && text !== null) ? text : '';
+    };
 
-    document.getElementById('editProductModalSub').innerText = 'Editing: ' + pTitleEn + ' (' + (product.category || 'luxury') + ')';
-    document.getElementById('editProdTitleEn').value = pTitleEn;
-    document.getElementById('editProdTitleAr').value = pTitleAr;
-    document.getElementById('editProdTitleKu').value = pTitleKu;
+    try {
+        setVal('editProdId', product.id);
+        setText('editProductModalIdBadge', '#' + product.id);
+        
+        var pTitleEn = typeof product.title === 'object' ? (product.title.en || '') : (product.title || '');
+        var pTitleAr = typeof product.title === 'object' ? (product.title.ar || pTitleEn) : pTitleEn;
+        var pTitleKu = typeof product.title === 'object' ? (product.title.ku || pTitleEn) : pTitleEn;
 
-    document.getElementById('editProdCategory').value = product.category || 'clothes';
-    document.getElementById('editProdPrice').value = product.price || 0;
-    document.getElementById('editProdOldPrice').value = product.old_price || '';
-    document.getElementById('editProdStock').value = product.stock !== undefined ? product.stock : 10;
-    document.getElementById('editProdFeatured').checked = !!product.featured;
+        setText('editProductModalSub', 'Editing: ' + pTitleEn + ' (' + (product.category || 'luxury') + ')');
+        setVal('editProdTitleEn', pTitleEn);
+        setVal('editProdTitleAr', pTitleAr);
+        setVal('editProdTitleKu', pTitleKu);
 
-    document.getElementById('editProdBadge').value = product.badge || '';
-    document.getElementById('editProdBadgeAr').value = product.badge_ar || product.badge || '';
-    document.getElementById('editProdBadgeKu').value = product.badge_ku || product.badge || '';
+        setVal('editProdCategory', product.category || 'clothes');
+        setVal('editProdPrice', product.price !== undefined ? product.price : 0);
+        setVal('editProdOldPrice', product.old_price || '');
+        setVal('editProdStock', product.stock !== undefined ? product.stock : 10);
+        
+        var featEl = document.getElementById('editProdFeatured');
+        if (featEl) {
+            featEl.checked = !!product.featured;
+        }
 
-    const mainImg = product.image || '';
-    if (window.editMainUploader) {
-        window.editMainUploader.setUrl(mainImg);
-    }
-    const galleryArr = Array.isArray(product.images) ? product.images : (mainImg ? [mainImg] : []);
-    if (window.editGalleryUploader) {
-        window.editGalleryUploader.setUrls(galleryArr);
-    }
-    updateEditImagePreview(mainImg);
+        setVal('editProdBadge', product.badge || '');
+        setVal('editProdBadgeAr', product.badge_ar || product.badge || '');
+        setVal('editProdBadgeKu', product.badge_ku || product.badge || '');
 
-    // Initialize Interactive Sizes & Measurements in Edit Modal (Auto-detect Category Blueprint)
-    let prodMeasurements = product.size_measurements || {};
-    if (typeof prodMeasurements === 'string') {
-        try { prodMeasurements = JSON.parse(prodMeasurements); } catch(e) { prodMeasurements = {}; }
-    }
-    const detectedPreset = detectCategoryPreset(pTitleEn, product.category, product.sizes, prodMeasurements);
-    initSizeSelector('edit', product.sizes, prodMeasurements, detectedPreset);
+        var mainImg = product.image || '';
+        if (window.editMainUploader && typeof window.editMainUploader.setUrl === 'function') {
+            window.editMainUploader.setUrl(mainImg);
+        }
+        var galleryArr = Array.isArray(product.images) ? product.images : (mainImg ? [mainImg] : []);
+        if (window.editGalleryUploader && typeof window.editGalleryUploader.setUrls === 'function') {
+            window.editGalleryUploader.setUrls(galleryArr);
+        }
+        updateEditImagePreview(mainImg);
 
-    // Populate Multi-Color Variants in Edit Modal
-    const editColorsList = document.getElementById('editColorVariantsList');
-    if (editColorsList) {
-        editColorsList.innerHTML = '';
-        const prodColors = Array.isArray(product.colors) ? product.colors : (product.colors ? [product.colors] : []);
-        const colorHexes = (typeof product.color_hexes === 'object' && product.color_hexes !== null) ? product.color_hexes : {};
-        const colorImages = (typeof product.color_images === 'object' && product.color_images !== null) ? product.color_images : {};
+        // Initialize Interactive Sizes & Measurements in Edit Modal (Auto-detect Category Blueprint)
+        var prodMeasurements = product.size_measurements || {};
+        if (typeof prodMeasurements === 'string') {
+            try { prodMeasurements = JSON.parse(prodMeasurements); } catch(e) { prodMeasurements = {}; }
+        }
+        if (typeof detectCategoryPreset === 'function' && typeof initSizeSelector === 'function') {
+            var detectedPreset = detectCategoryPreset(pTitleEn, product.category, product.sizes, prodMeasurements);
+            initSizeSelector('edit', product.sizes, prodMeasurements, detectedPreset);
+        }
 
-        if (prodColors.length > 0) {
-            prodColors.forEach((colName, idx) => {
-                const hex = colorHexes[colName] || product.color_hex || '#d4af37';
-                const img = colorImages[colName] || (product.images && product.images[idx]) || (idx === 0 ? mainImg : '');
-                addColorVariantRow('editColorVariantsList', colName, hex, img);
-            });
-        } else {
-            const defName = product.color_name || 'Obsidian Black';
-            const defHex = product.color_hex || '#111827';
-            addColorVariantRow('editColorVariantsList', defName, defHex, mainImg);
+        // Populate Multi-Color Variants in Edit Modal
+        var editColorsList = document.getElementById('editColorVariantsList');
+        if (editColorsList && typeof addColorVariantRow === 'function') {
+            editColorsList.innerHTML = '';
+            var prodColors = Array.isArray(product.colors) ? product.colors : (product.colors ? [product.colors] : []);
+            var colorHexes = (typeof product.color_hexes === 'object' && product.color_hexes !== null) ? product.color_hexes : {};
+            var colorImages = (typeof product.color_images === 'object' && product.color_images !== null) ? product.color_images : {};
+
+            if (prodColors.length > 0) {
+                prodColors.forEach(function(colName, idx) {
+                    var hex = colorHexes[colName] || product.color_hex || '#d4af37';
+                    var img = colorImages[colName] || (product.images && product.images[idx]) || (idx === 0 ? mainImg : '');
+                    addColorVariantRow('editColorVariantsList', colName, hex, img);
+                });
+            } else {
+                var defName = product.color_name || 'Obsidian Black';
+                var defHex = product.color_hex || '#111827';
+                addColorVariantRow('editColorVariantsList', defName, defHex, mainImg);
+            }
+        }
+
+        // Color Variations & Model Grouping
+        setVal('editProdModelGroup', product.model_group || '');
+        setVal('editProdColorName', product.color_name || '');
+
+        // Clear and check linked product checkboxes
+        var linkedIds = Array.isArray(product.linked_products) ? product.linked_products.map(Number) : [];
+        document.querySelectorAll('.edit-linked-cb').forEach(function(cb) {
+            var val = Number(cb.value);
+            cb.checked = linkedIds.includes(val);
+            // Hide the checkbox for the current product itself
+            if (cb.closest('label')) {
+                cb.closest('label').style.display = (val === Number(product.id)) ? 'none' : 'flex';
+            }
+        });
+
+        var pDescEn = typeof product.description === 'object' ? (product.description.en || '') : (product.description || '');
+        var pDescAr = typeof product.description === 'object' ? (product.description.ar || pDescEn) : pDescEn;
+        var pDescKu = typeof product.description === 'object' ? (product.description.ku || pDescEn) : pDescEn;
+
+        setVal('editProdDescEn', pDescEn);
+        setVal('editProdDescAr', pDescAr);
+        setVal('editProdDescKu', pDescKu);
+
+        if (typeof calculateDiscountPreview === 'function') {
+            calculateDiscountPreview();
+        }
+    } catch(err) {
+        console.error("Error setting up edit modal values:", err);
+    } finally {
+        var modalOverlay = document.getElementById('editProductModalOverlay');
+        if (modalOverlay) {
+            modalOverlay.classList.add('open');
         }
     }
-
-    // Color Variations & Model Grouping
-    document.getElementById('editProdModelGroup').value = product.model_group || '';
-    document.getElementById('editProdColorName').value = product.color_name || '';
-
-    // Clear and check linked product checkboxes
-    const linkedIds = Array.isArray(product.linked_products) ? product.linked_products.map(Number) : [];
-    document.querySelectorAll('.edit-linked-cb').forEach(cb => {
-        const val = Number(cb.value);
-        cb.checked = linkedIds.includes(val);
-        // Hide the checkbox for the current product itself
-        if (cb.closest('label')) {
-            cb.closest('label').style.display = (val === Number(product.id)) ? 'none' : 'flex';
-        }
-    });
-
-    const pDescEn = typeof product.description === 'object' ? (product.description.en || '') : (product.description || '');
-    const pDescAr = typeof product.description === 'object' ? (product.description.ar || pDescEn) : pDescEn;
-    const pDescKu = typeof product.description === 'object' ? (product.description.ku || pDescEn) : pDescEn;
-
-    document.getElementById('editProdDescEn').value = pDescEn;
-    document.getElementById('editProdDescAr').value = pDescAr;
-    document.getElementById('editProdDescKu').value = pDescKu;
-
-    calculateDiscountPreview();
-    document.getElementById('editProductModalOverlay').classList.add('open');
 }
 
 function closeEditProductModal() {
-    document.getElementById('editProductModalOverlay').classList.remove('open');
+    var modalOverlay = document.getElementById('editProductModalOverlay');
+    if (modalOverlay) {
+        modalOverlay.classList.remove('open');
+    }
 }
+
+// Close modal when clicking dark backdrop or pressing Escape
+document.addEventListener('DOMContentLoaded', function() {
+    var modalOverlay = document.getElementById('editProductModalOverlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                closeEditProductModal();
+            }
+        });
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeEditProductModal();
+        }
+    });
+});
 
 function updateEditImagePreview(customUrl) {
     const url = customUrl || (window.editMainUploader ? window.editMainUploader.getUrl() : '') || '';

@@ -402,10 +402,12 @@
                 if (filter === 'new') {
                     let hasAnyNew = false;
                     cards.forEach(card => {
-                        let isNew = card.getAttribute('data-is-new') === 'true';
+                        let isNew = (card.getAttribute('data-is-new') === 'true' || card.getAttribute('data-is-new') === '1');
                         const createdAtStr = card.getAttribute('data-created-at');
                         if (createdAtStr) {
-                            const parsedDate = new Date(createdAtStr).getTime();
+                            // Safari compatibility: replace space with T for ISO format
+                            const safeDateStr = createdAtStr.trim().replace(' ', 'T');
+                            const parsedDate = new Date(safeDateStr).getTime();
                             if (!isNaN(parsedDate) && parsedDate > 0) {
                                 const diff = now - parsedDate;
                                 if (diff <= thirtyDaysMs && diff >= -86400000) {
@@ -430,9 +432,9 @@
 
                 cards.forEach(card => {
                     const cat = card.getAttribute('data-category');
-                    const isNew = card.getAttribute('data-is-new') === 'true';
+                    const isNew = (card.getAttribute('data-is-new') === 'true' || card.getAttribute('data-is-new') === '1');
                     if (filter === 'all' || (filter === 'new' && isNew) || cat === filter) {
-                        card.style.display = 'flex';
+                        card.style.display = '';
                     } else {
                         card.style.display = 'none';
                     }

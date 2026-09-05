@@ -139,7 +139,7 @@
         window.AURA_PRODUCTS = <?php echo json_encode($all_products); ?>;
     </script>
     
-    <script src="/script.js"></script>
+    <script src="/script.js?v=<?php echo file_exists(__DIR__ . '/script.js') ? filemtime(__DIR__ . '/script.js') : time(); ?>"></script>
     <?php if (isset($activePage) && $activePage === 'admin'): ?>
         <script src="/admin/admin.js"></script>
     <?php endif; ?>
