@@ -20,30 +20,13 @@ $rate = $settings['exchange_rate_usd_to_iqd'] ?? 1320;
 
 if (!empty($searchOrderId)) {
     $searched = true;
-    
-    // Check if customer tried to use email, phone number, or names instead of Order ID
-    if (strpos($searchOrderId, '@') !== false) {
-        $searchErrorType = 'email';
-    } elseif (preg_match('/^(\+?[0-9\s\-]{7,16})$/', $searchOrderId)) {
-        $searchErrorType = 'phone';
-    } else {
-        $orders = get_all_orders();
-        $cleanSearch = ltrim($searchOrderId, '#');
-        foreach ($orders as $ord) {
-            // STRICT RULE: Customer can ONLY search for their order using the official order_id:
-            // NOT phone number, NOT email, NOT names, ONLY order ID!
-            if (strcasecmp(trim($ord['order_id']), $cleanSearch) === 0 || strcasecmp(trim($ord['order_id']), $searchOrderId) === 0) {
-                $foundOrder = $ord;
-                break;
-            }
-        }
-        if (!$foundOrder) {
-            // If they typed something that looks like personal name words
-            if (preg_match('/^[a-zA-Z\x{0600}-\x{06FF}\s]{3,}$/u', $searchOrderId) && stripos($searchOrderId, 'ORD') === false) {
-                $searchErrorType = 'name';
-            } else {
-                $searchErrorType = 'not_found';
-            }
+    $orders = get_all_orders();
+    $cleanSearch = ltrim($searchOrderId, '#');
+    foreach ($orders as $ord) {
+        // STRICT RULE: Customer can ONLY search for their order using the official order_id:
+        if (strcasecmp(trim($ord['order_id']), $cleanSearch) === 0 || strcasecmp(trim($ord['order_id']), $searchOrderId) === 0) {
+            $foundOrder = $ord;
+            break;
         }
     }
 }
@@ -78,9 +61,6 @@ if (!empty($searchOrderId)) {
                     <button type="submit" class="btn btn-primary btn-luxury btn-lg"><?php echo t('track_button', $lang); ?></button>
                 </div>
             </form>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;">
-                🔒 <strong>Notice:</strong> Only official Order IDs (e.g. <code>ORD-10001</code>) can be used. Tracking by phone number, email address, or name is strictly disabled.
-            </div>
 
             <!-- Hourly Sync Status Telemetry -->
             <div class="hourly-sync-radar" style="margin-top:14px; text-align:center; font-size:12px;">
@@ -320,19 +300,8 @@ if (!empty($searchOrderId)) {
         <?php elseif ($searched && !$foundOrder): ?>
             <div class="no-order-found-card">
                 <div class="empty-icon">⚠️</div>
-                <?php if ($searchErrorType === 'email'): ?>
-                    <h3>Email tracking is not permitted</h3>
-                    <p>You searched with an email address. For customer privacy and security, orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
-                <?php elseif ($searchErrorType === 'phone'): ?>
-                    <h3>Phone number tracking is not permitted</h3>
-                    <p>You searched with a phone number. Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
-                <?php elseif ($searchErrorType === 'name'): ?>
-                    <h3>Customer name tracking is not permitted</h3>
-                    <p>You searched with a name. Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
-                <?php else: ?>
-                    <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
-                    <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>). Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong>. Phone numbers, emails, and names cannot be used to search for orders.</p>
-                <?php endif; ?>
+                <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
+                <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>).</p>
             </div>
         <?php endif; ?>
 
