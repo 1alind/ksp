@@ -341,7 +341,7 @@ require_once __DIR__ . '/../header.php';
                                                 📦 <?php echo adm_t('admin_status_ready_to_ship', 'Ready to Ship'); ?>
                                             </span>
                                             <small class="text-muted" style="display:block; font-size:11px; margin-top:4px;">
-                                                🤖 Awaiting Courier Scan (API)
+                                                🚚 Ready to Pick Up
                                             </small>
                                         <?php elseif ($st === 'Shipped'): ?>
                                             <!-- Shipped Status (Automated via Delivery API) -->
