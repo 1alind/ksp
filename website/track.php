@@ -10,20 +10,40 @@ require_once __DIR__ . '/database/delivery_sync.php';
 // 3. If the last update was LESS than 60 minutes ago, it does NOT query the API and directly serves from the database.
 $syncResult = check_and_sync_delivery_company_hourly();
 
+// Clean and normalize Order ID input
 $searchOrderId = trim($_GET['order_id'] ?? '');
 $foundOrder = null;
 $searched = false;
+$searchErrorType = null; // 'email', 'phone', 'name', 'not_found'
 $settings = get_store_settings();
 $rate = $settings['exchange_rate_usd_to_iqd'] ?? 1320;
 
 if (!empty($searchOrderId)) {
     $searched = true;
-    $orders = get_all_orders();
-    foreach ($orders as $ord) {
-        // STRICT RULE: Customer can ONLY search for their order using the order_id:
-        if (strcasecmp(trim($ord['order_id']), $searchOrderId) === 0) {
-            $foundOrder = $ord;
-            break;
+    
+    // Check if customer tried to use email, phone number, or names instead of Order ID
+    if (strpos($searchOrderId, '@') !== false) {
+        $searchErrorType = 'email';
+    } elseif (preg_match('/^(\+?[0-9\s\-]{7,16})$/', $searchOrderId)) {
+        $searchErrorType = 'phone';
+    } else {
+        $orders = get_all_orders();
+        $cleanSearch = ltrim($searchOrderId, '#');
+        foreach ($orders as $ord) {
+            // STRICT RULE: Customer can ONLY search for their order using the official order_id:
+            // NOT phone number, NOT email, NOT names, ONLY order ID!
+            if (strcasecmp(trim($ord['order_id']), $cleanSearch) === 0 || strcasecmp(trim($ord['order_id']), $searchOrderId) === 0) {
+                $foundOrder = $ord;
+                break;
+            }
+        }
+        if (!$foundOrder) {
+            // If they typed something that looks like personal name words
+            if (preg_match('/^[a-zA-Z\x{0600}-\x{06FF}\s]{3,}$/u', $searchOrderId) && stripos($searchOrderId, 'ORD') === false) {
+                $searchErrorType = 'name';
+            } else {
+                $searchErrorType = 'not_found';
+            }
         }
     }
 }
@@ -31,6 +51,12 @@ if (!empty($searchOrderId)) {
 
 <section class="track-section">
     <div class="container">
+
+        <!-- Tracking Page Header -->
+        <div class="track-header" style="text-align:center; margin-bottom:28px;">
+            <h1 style="font-size:28px; font-weight:800; margin-bottom:8px; color:var(--text-primary);"><?php echo t('track_title', $lang); ?></h1>
+            <p style="font-size:14px; color:var(--text-secondary); max-width:620px; margin:0 auto; line-height:1.6;"><?php echo t('track_subtitle', $lang); ?></p>
+        </div>
 
         <?php if ($issueSubmitted): ?>
             <div class="alert alert-success mb-24" style="background:rgba(34,197,94,0.12); border:1px solid #22c55e; border-radius:10px; padding:18px; color:var(--text-primary);">
@@ -52,6 +78,9 @@ if (!empty($searchOrderId)) {
                     <button type="submit" class="btn btn-primary btn-luxury btn-lg"><?php echo t('track_button', $lang); ?></button>
                 </div>
             </form>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;">
+                🔒 <strong>Notice:</strong> Only official Order IDs (e.g. <code>ORD-10001</code>) can be used. Tracking by phone number, email address, or name is strictly disabled.
+            </div>
 
             <!-- Hourly Sync Status Telemetry -->
             <div class="hourly-sync-radar" style="margin-top:14px; text-align:center; font-size:12px;">
@@ -291,8 +320,19 @@ if (!empty($searchOrderId)) {
         <?php elseif ($searched && !$foundOrder): ?>
             <div class="no-order-found-card">
                 <div class="empty-icon">⚠️</div>
-                <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
-                <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>). Orders can only be tracked using your official Order ID; company package IDs are linked internally in the database.</p>
+                <?php if ($searchErrorType === 'email'): ?>
+                    <h3>Email tracking is not permitted</h3>
+                    <p>You searched with an email address. For customer privacy and security, orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
+                <?php elseif ($searchErrorType === 'phone'): ?>
+                    <h3>Phone number tracking is not permitted</h3>
+                    <p>You searched with a phone number. Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
+                <?php elseif ($searchErrorType === 'name'): ?>
+                    <h3>Customer name tracking is not permitted</h3>
+                    <p>You searched with a name. Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong> (e.g. <code>ORD-10001</code>). Phone numbers, emails, and names are not accepted.</p>
+                <?php else: ?>
+                    <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
+                    <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>). Orders can <strong>ONLY</strong> be tracked using your official <strong>Order ID</strong>. Phone numbers, emails, and names cannot be used to search for orders.</p>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 

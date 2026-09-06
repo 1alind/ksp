@@ -420,17 +420,10 @@ require_once __DIR__ . '/../header.php';
 
 <!-- PACKAGE PREPARATION CONFIRMATION MODAL -->
 <div class="modal-overlay" id="packageConfirmModalOverlay">
-    <div class="modal-card" style="max-width:540px;">
-        <div class="modal-header">
-            <div>
-                <h3 style="margin:0; font-size:18px;" id="pkgModalTitle">📦 Confirm Package Preparation</h3>
-                <small class="text-muted" id="pkgModalSubtitle">Link delivery company Package ID to order</small>
-            </div>
+    <div class="modal-card" style="max-width:440px;">
+        <div class="modal-header" style="margin-bottom:18px;">
+            <h3 style="margin:0; font-size:17px; font-weight:700;" id="pkgModalTitle">Confirm Package</h3>
             <button type="button" class="btn-close-modal" onclick="closePackageConfirmModal()">✕</button>
-        </div>
-
-        <div style="background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.25); border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
-            Once the order is prepared, enter the <strong>Package ID / Waybill Code</strong> from your delivery company. The order status will automatically switch to <strong>Ready to Ship</strong> and link for customer search. Later statuses (Shipped, Out for Delivery, Delivered) update automatically via delivery company API.
         </div>
 
         <form action="/admin/orders.php" method="POST" id="packageConfirmForm" onsubmit="handlePackageFormSubmit(event)">
@@ -439,40 +432,30 @@ require_once __DIR__ . '/../header.php';
             <input type="hidden" name="is_edit_mode" id="pkgConfirmIsEdit" value="0">
             
             <div class="form-group mb-16">
-                <label style="font-weight:700; font-size:13px;">
-                    Delivery Company Package ID / Tracking Code <span style="color:#ef4444;">*</span>
+                <label for="pkgConfirmTrackingId" style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">
+                    Company Package ID
                 </label>
-                <input type="text" name="tracking_code" id="pkgConfirmTrackingId" class="form-control" placeholder="e.g. EXP-9921, DHK-8812, KURD-4019" required style="font-family:monospace; font-weight:700; font-size:14px; letter-spacing:0.5px;">
-                <small class="text-muted" style="font-size:11.5px; display:block; margin-top:4px;">
-                    The unique barcode or package number provided by your courier company.
-                </small>
-            </div>
-
-            <div class="form-group mb-16">
-                <label style="font-weight:700; font-size:13px;">
-                    Delivery Company / Courier Name
-                </label>
-                <select name="courier" id="pkgConfirmCourier" class="form-control">
-                    <option value="Kurdistan Express Logistics" selected>Kurdistan Express Logistics</option>
-                    <option value="AURA Direct Fleet">AURA Direct Fleet</option>
-                    <option value="Iraq Post & Logistics">Iraq Post & Logistics</option>
-                    <option value="Al-Wessam Express Delivery">Al-Wessam Express Delivery</option>
-                    <option value="DHL Express Iraq">DHL Express Iraq</option>
-                    <option value="Other Express Delivery">Other Delivery Company</option>
-                </select>
+                <input type="text" name="tracking_code" id="pkgConfirmTrackingId" class="form-control" placeholder="Enter Company Package ID" required autocomplete="off" style="font-family:monospace; font-weight:700; font-size:14px;">
             </div>
 
             <div class="form-group mb-20">
-                <label style="font-weight:700; font-size:13px;">
-                    Packaging & Preparation Notes (Optional)
+                <label for="pkgConfirmCourier" style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">
+                    Delivery Company Name
                 </label>
-                <textarea name="dispatch_notes" id="pkgConfirmNotes" rows="2" class="form-control" placeholder="e.g. Luxury velvet box sealed. Inspection passed."></textarea>
+                <input type="text" name="courier" id="pkgConfirmCourier" class="form-control" placeholder="Delivery Company Name" list="courierCompanySuggestions" autocomplete="off">
+                <datalist id="courierCompanySuggestions">
+                    <option value="Kurdistan Express Logistics">
+                    <option value="AURA Direct Fleet">
+                    <option value="Iraq Post & Logistics">
+                    <option value="Al-Wessam Express Delivery">
+                    <option value="DHL Express Iraq">
+                </datalist>
             </div>
 
-            <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn btn-outline" onclick="closePackageConfirmModal()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
-                <button type="submit" class="btn btn-primary btn-luxury" id="pkgConfirmSubmitBtn">
-                    ✓ Confirm & Set Ready to Ship
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="closePackageConfirmModal()"><?php echo adm_t('admin_btn_cancel', 'Cancel'); ?></button>
+                <button type="submit" class="btn btn-primary btn-sm" id="pkgConfirmSubmitBtn" style="font-weight:700; padding:8px 18px;">
+                    Confirm
                 </button>
             </div>
         </form>
@@ -584,33 +567,29 @@ function filterOrdersTable() {
 function openPackageConfirmModal(order, isEdit = false) {
     if (!order) return;
     const oid = order.order_id || '';
-    const custName = order.customer_name || '';
-    const city = order.city || '';
     
     document.getElementById('pkgConfirmOrderId').value = oid;
     document.getElementById('pkgConfirmIsEdit').value = isEdit ? '1' : '0';
     
     const titleEl = document.getElementById('pkgModalTitle');
-    const subEl = document.getElementById('pkgModalSubtitle');
+    if (titleEl) {
+        titleEl.innerText = isEdit ? 'Edit Package • #' + oid : 'Confirm Package • #' + oid;
+    }
+    
     const submitBtn = document.getElementById('pkgConfirmSubmitBtn');
-    
-    if (isEdit) {
-        titleEl.innerText = '✏️ Edit Package ID';
-        subEl.innerText = 'Update Delivery Company Package ID for Order #' + oid + ' (' + custName + ')';
-        submitBtn.innerText = '✓ Save Package ID';
-    } else {
-        titleEl.innerText = '📦 Confirm Package Preparation';
-        subEl.innerText = 'Order #' + oid + ' • ' + custName + ' (' + city + ')';
-        submitBtn.innerText = '✓ Confirm & Set Ready to Ship';
+    if (submitBtn) {
+        submitBtn.innerText = isEdit ? 'Save' : 'Confirm';
     }
     
+    // When the order is in Waiting status, there is no default delivery company ID — keep it strictly empty! Admin will put the ID.
     const trackingInput = document.getElementById('pkgConfirmTrackingId');
-    trackingInput.value = order.tracking_code || '';
+    const isWaiting = (!order.order_status || order.order_status.toLowerCase() === 'waiting');
+    trackingInput.value = isWaiting ? '' : (order.tracking_code || '');
     
-    if (order.courier) {
-        document.getElementById('pkgConfirmCourier').value = order.courier;
+    const courierInput = document.getElementById('pkgConfirmCourier');
+    if (courierInput) {
+        courierInput.value = order.courier || '';
     }
-    document.getElementById('pkgConfirmNotes').value = order.dispatch_notes || '';
     
     document.getElementById('packageConfirmModalOverlay').classList.add('open');
     setTimeout(() => trackingInput.focus(), 150);
