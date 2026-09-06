@@ -48,7 +48,7 @@ $jsonData = json_decode($rawInput, true) ?: [];
 
 $amount = floatval($_GET['amount'] ?? $_POST['amount'] ?? $jsonData['amount'] ?? 750000);
 $currency = strtoupper(trim($_GET['currency'] ?? $_POST['currency'] ?? $jsonData['currency'] ?? 'IQD'));
-$orderId = trim($_GET['order_id'] ?? $_POST['order_id'] ?? $jsonData['order_id'] ?? ('ORD-' . rand(10000, 99999)));
+$orderId = trim($_GET['order_id'] ?? $_POST['order_id'] ?? $jsonData['order_id'] ?? generate_unique_order_id());
 $paymentId = trim($_GET['payment_id'] ?? $_POST['payment_id'] ?? $jsonData['payment_id'] ?? ($gateway . '-' . strtoupper(substr(md5(uniqid()), 0, 8))));
 $callbackUrl = trim($_GET['callback_url'] ?? $_POST['callback_url'] ?? $jsonData['callback_url'] ?? '');
 

@@ -74,17 +74,6 @@ if (!empty($searchOrderId)) {
                     </span>
                 <?php endif; ?>
             </div>
-
-            <div class="sample-ids-hint" style="margin-top:14px;">
-                <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
-                    <a href="track.php?order_id=ORD-10002" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        ⏳ Waiting: ORD-10002
-                    </a>
-                    <a href="track.php?order_id=ORD-10001" class="badge-tag" style="background:rgba(99,102,241,0.15); color:#6366f1; border:1px solid rgba(99,102,241,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        📦 Ready to Ship: ORD-10001
-                    </a>
-                </div>
-            </div>
         </div>
 
         <?php if ($searched && $foundOrder): 
@@ -301,7 +290,7 @@ if (!empty($searchOrderId)) {
             <div class="no-order-found-card">
                 <div class="empty-icon">⚠️</div>
                 <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
-                <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>).</p>
+                <p>Please double check your Order ID.</p>
             </div>
         <?php endif; ?>
 

@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         $isOnlinePaid = strpos($paymentMethod, 'FIB') !== false || strpos($paymentMethod, 'ZainCash') !== false || strpos($paymentMethod, 'FastPay') !== false;
 
         $orderPayload = [
-            'order_id' => 'ORD-' . rand(10000, 99999),
+            'order_id' => generate_unique_order_id(),
             'customer_name' => htmlspecialchars($name),
             'email' => htmlspecialchars($email),
             'phone' => htmlspecialchars($phone),

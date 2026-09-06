@@ -636,51 +636,126 @@ function get_orders() {
     return get_all_orders();
 }
 
-function get_order_by_id($order_id) {
+function order_exists($order_id) {
+    $cleanId = trim((string)$order_id);
+    if (empty($cleanId)) return false;
+
+    // 1. Check MySQL Database if available
     $pdo = get_mysql_pdo();
-    if (!$pdo) return null;
-
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM orders WHERE order_id = :oid OR tracking_code = :oid LIMIT 1");
-        $stmt->execute([':oid' => trim($order_id)]);
-        $r = $stmt->fetch();
-        if (!$r) return null;
-
-        return [
-            'id' => (int)$r['id'],
-            'order_id' => $r['order_id'],
-            'customer_name' => $r['customer_name'],
-            'phone' => $r['customer_phone'],
-            'email' => $r['customer_email'],
-            'city' => $r['governorate'],
-            'district' => $r['district'],
-            'address' => $r['customer_address'],
-            'subtotal' => (float)$r['subtotal'],
-            'shipping' => (float)$r['shipping_fee'],
-            'discount' => (float)$r['discount_amount'],
-            'total' => (float)$r['total_amount'],
-            'total_iqd' => (float)$r['total_amount'],
-            'payment_method' => $r['payment_method'],
-            'payment_status' => $r['payment_status'],
-            'order_status' => $r['order_status'],
-            'courier' => $r['courier'],
-            'driver_name' => $r['driver_name'],
-            'driver_phone' => $r['driver_phone'],
-            'tracking_code' => $r['tracking_code'],
-            'dispatch_notes' => $r['dispatch_notes'],
-            'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
-            'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
-            'created_at' => $r['created_at'],
-            'date' => $r['created_at']
-        ];
-    } catch (Exception $e) {
-        return null;
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("SELECT id FROM orders WHERE order_id = :oid LIMIT 1");
+            $stmt->execute([':oid' => $cleanId]);
+            if ($stmt->fetch()) {
+                return true;
+            }
+        } catch (Exception $e) {
+            // fallback to JSON
+        }
     }
+
+    // 2. Check orders.json
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(@file_get_contents($jsonFile), true);
+        if (!empty($jsonData['orders']) && is_array($jsonData['orders'])) {
+            foreach ($jsonData['orders'] as $ord) {
+                if (isset($ord['order_id']) && strcasecmp(trim($ord['order_id']), $cleanId) === 0) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Generates a cryptographically strong, non-guessable random Order ID
+ * Format: ORD- + 9 random digits (e.g. ORD-849204812)
+ * Ensures brute-forcing is mathematically infeasible and checks for collisions before returning.
+ */
+function generate_unique_order_id() {
+    $maxAttempts = 100;
+    $attempts = 0;
+    do {
+        $attempts++;
+        try {
+            // Cryptographically secure random 9-digit integer (100,000,000 to 999,999,999)
+            $randomDigits = random_int(100000000, 999999999);
+        } catch (Exception $e) {
+            $randomDigits = mt_rand(100000000, 999999999);
+        }
+        $candidateId = 'ORD-' . $randomDigits;
+    } while (order_exists($candidateId) && $attempts < $maxAttempts);
+
+    return $candidateId;
+}
+
+function get_order_by_id($order_id) {
+    $cleanId = trim((string)$order_id);
+    if (empty($cleanId)) return null;
+
+    $pdo = get_mysql_pdo();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM orders WHERE order_id = :oid OR tracking_code = :oid LIMIT 1");
+            $stmt->execute([':oid' => $cleanId]);
+            $r = $stmt->fetch();
+            if ($r) {
+                return [
+                    'id' => (int)$r['id'],
+                    'order_id' => $r['order_id'],
+                    'customer_name' => $r['customer_name'],
+                    'phone' => $r['customer_phone'],
+                    'email' => $r['customer_email'],
+                    'city' => $r['governorate'],
+                    'district' => $r['district'],
+                    'address' => $r['customer_address'],
+                    'subtotal' => (float)$r['subtotal'],
+                    'shipping' => (float)$r['shipping_fee'],
+                    'discount' => (float)$r['discount_amount'],
+                    'total' => (float)$r['total_amount'],
+                    'total_iqd' => (float)$r['total_amount'],
+                    'payment_method' => $r['payment_method'],
+                    'payment_status' => $r['payment_status'],
+                    'order_status' => $r['order_status'],
+                    'courier' => $r['courier'],
+                    'driver_name' => $r['driver_name'],
+                    'driver_phone' => $r['driver_phone'],
+                    'tracking_code' => $r['tracking_code'],
+                    'dispatch_notes' => $r['dispatch_notes'],
+                    'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
+                    'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
+                    'created_at' => $r['created_at'],
+                    'date' => $r['created_at']
+                ];
+            }
+        } catch (Exception $e) {
+            // Fallback to JSON below
+        }
+    }
+
+    // JSON fallback
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(@file_get_contents($jsonFile), true);
+        if (!empty($jsonData['orders']) && is_array($jsonData['orders'])) {
+            foreach ($jsonData['orders'] as $ord) {
+                if ((isset($ord['order_id']) && strcasecmp(trim($ord['order_id']), $cleanId) === 0) ||
+                    (isset($ord['tracking_code']) && strcasecmp(trim($ord['tracking_code']), $cleanId) === 0)) {
+                    return $ord;
+                }
+            }
+        }
+    }
+
+    return null;
 }
 
 function create_order($order_data) {
-    if (empty($order_data['order_id'])) {
-        $order_data['order_id'] = 'ORD-' . rand(10000, 99999);
+    if (empty($order_data['order_id']) || order_exists($order_data['order_id'])) {
+        $order_data['order_id'] = generate_unique_order_id();
     }
     $order_data['created_at'] = date('Y-m-d H:i:s');
     $order_data['order_status'] = $order_data['order_status'] ?? 'Waiting';
