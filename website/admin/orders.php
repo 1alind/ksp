@@ -187,34 +187,6 @@ require_once __DIR__ . '/../header.php';
             </div>
         <?php endif; ?>
 
-        <!-- Automated Fulfillment Workflow Banner -->
-        <div style="background:linear-gradient(135deg, rgba(217,119,6,0.08), rgba(99,102,241,0.06)); border:1px solid rgba(217,119,6,0.25); border-radius:10px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:40px; height:40px; border-radius:8px; background:rgba(217,119,6,0.15); color:var(--accent-gold); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
-                    ⚡
-                </div>
-                <div>
-                    <h4 style="margin:0; font-size:14.5px; font-weight:800; color:var(--text-primary);">
-                        Automated Delivery Company Fulfillment Pipeline
-                    </h4>
-                    <p style="margin:3px 0 0; font-size:12.5px; color:var(--text-secondary);">
-                        <strong>Step 1:</strong> Order placed (Waiting) → <strong>Step 2:</strong> Click <em>Confirm Package</em> & link delivery company Package ID (sets Ready to Ship) → <strong>Step 3:</strong> Delivery company scans automatically update to <em>Shipped</em>, <em>Out for Delivery</em>, and <em>Delivered</em> via API.
-                    </p>
-                </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <form action="orders.php" method="POST" style="display:inline-block; margin:0;">
-                    <input type="hidden" name="sync_company_now" value="1">
-                    <button type="submit" class="btn btn-primary btn-sm" style="font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                        ⚡ Sync Company API Now
-                    </button>
-                </form>
-                <button type="button" class="btn btn-outline btn-sm" onclick="openWebhookSimulatorModal()" style="font-size:12px; font-weight:700; border-color:var(--accent-gold); color:var(--accent-gold); display:inline-flex; align-items:center; gap:6px;">
-                    📡 API & Webhook Simulator
-                </button>
-            </div>
-        </div>
-
         <!-- Orders Metric Sub-Cards -->
         <div class="admin-metrics-grid" style="margin-bottom:24px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div class="admin-metric-card">
@@ -267,6 +239,12 @@ require_once __DIR__ . '/../header.php';
                     <p class="text-muted" style="margin:4px 0 0; font-size:12.5px;">Manage prepared packages, link courier tracking IDs, and monitor automated API delivery updates.</p>
                 </div>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <form action="orders.php" method="POST" style="display:inline-block; margin:0;">
+                        <input type="hidden" name="sync_company_now" value="1">
+                        <button type="submit" class="btn btn-outline btn-sm" style="font-size:12.5px; font-weight:700; padding:8px 12px; display:inline-flex; align-items:center; gap:6px;">
+                            ⚡ Sync Delivery API
+                        </button>
+                    </form>
                     <input type="text" id="orderSearchInput" onkeyup="filterOrdersTable()" placeholder="<?php echo adm_t('admin_search_orders', 'Search orders, Package ID, Client...'); ?>" class="form-control" style="max-width:260px; padding:8px 12px; font-size:13px;">
                     <select id="orderStatusFilter" onchange="filterOrdersTable()" class="form-control" style="max-width:180px; padding:8px 12px; font-size:13px;">
                         <option value=""><?php echo adm_t('admin_filter_all_status', 'All Statuses'); ?></option>
