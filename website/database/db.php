@@ -605,7 +605,7 @@ function get_all_orders() {
                 'driver_phone' => $r['driver_phone'],
                 'tracking_code' => $r['tracking_code'],
                 'dispatch_notes' => $r['dispatch_notes'],
-                'estimated_delivery' => $r['estimated_delivery'],
+                'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
                 'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
                 'created_at' => $r['created_at'],
                 'date' => $r['created_at']
@@ -654,7 +654,7 @@ function get_order_by_id($order_id) {
             'driver_phone' => $r['driver_phone'],
             'tracking_code' => $r['tracking_code'],
             'dispatch_notes' => $r['dispatch_notes'],
-            'estimated_delivery' => $r['estimated_delivery'],
+            'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
             'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
             'created_at' => $r['created_at'],
             'date' => $r['created_at']
@@ -701,7 +701,7 @@ function create_order($order_data) {
             ':driver_phone' => $order_data['driver_phone'] ?? '',
             ':tracking_code' => $order_data['tracking_code'] ?? '',
             ':dispatch_notes' => $order_data['dispatch_notes'] ?? '',
-            ':estimated_delivery' => $order_data['estimated_delivery'] ?? '',
+            ':estimated_delivery' => !empty($order_data['estimated_delivery']) ? $order_data['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
             ':items_json' => is_string($order_data['items'] ?? null) ? $order_data['items'] : json_encode($order_data['items'] ?? [])
         ]);
         return $order_data;

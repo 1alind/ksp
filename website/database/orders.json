@@ -19,11 +19,11 @@
             "payment_status": "Paid",
             "order_status": "Shipped",
             "courier": "Express Courier",
-            "driver_name": "Sardar Mohammed",
-            "driver_phone": "0750 987 6543",
+            "driver_name": "",
+            "driver_phone": "",
             "tracking_code": "TRK-DHK-9921",
             "dispatch_notes": "Call customer 15 mins before arrival. Fragile luxury glass packaging.",
-            "estimated_delivery": "Today by 6:00 PM",
+            "estimated_delivery": "Estimated Arrival: Within 24 – 72 Hours",
             "items": [
                 {
                     "id": 1,

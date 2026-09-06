@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             'courier' => 'AURA Express Logistics',
             'tracking_code' => 'AURA-EXP-' . rand(10000, 99999),
             'dispatch_notes' => 'Order verified. Satin wrap and quality inspection underway at central hub.',
-            'estimated_delivery' => 'Within 24-48 Hours across ' . htmlspecialchars($fullCityLocation),
+            'estimated_delivery' => 'Estimated Arrival: Within 24 – 72 Hours',
             'items' => $cartItems,
             'subtotal' => $subtotal,
             'shipping' => $shippingFee,

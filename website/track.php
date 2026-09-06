@@ -162,22 +162,26 @@ if (!empty($searchOrderId)) {
                                 </span>
                             </div>
                         </div>
-                        <?php if (!empty($foundOrder['estimated_delivery'])): ?>
-                            <div style="text-align:right;">
-                                <span style="font-size:11.5px; color:var(--text-muted);">Estimated Arrival:</span>
-                                <div style="font-weight:700; color:var(--text-primary); font-size:13.5px;"><?php echo htmlspecialchars($foundOrder['estimated_delivery']); ?></div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <?php if (!empty($foundOrder['driver_name'])): ?>
-                        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">
-                            <strong>Assigned Courier Specialist:</strong> <?php echo htmlspecialchars($foundOrder['driver_name']); ?> 
-                            <?php if (!empty($foundOrder['driver_phone'])): ?>
-                                &bull; <a href="tel:<?php echo htmlspecialchars($foundOrder['driver_phone']); ?>" style="color:var(--accent-gold); font-weight:600;"><?php echo htmlspecialchars($foundOrder['driver_phone']); ?></a>
-                            <?php endif; ?>
+                        <?php 
+                        $rawArrival = !empty($foundOrder['estimated_delivery']) ? trim($foundOrder['estimated_delivery']) : 'Within 24 – 72 Hours';
+                        if (
+                            $rawArrival === 'Within 24 – 72 Hours' || 
+                            stripos($rawArrival, 'Estimated Arrival') !== false ||
+                            stripos($rawArrival, 'doorstep') !== false || 
+                            stripos($rawArrival, 'Business Days') !== false || 
+                            stripos($rawArrival, '24-72') !== false ||
+                            stripos($rawArrival, '24 – 72') !== false
+                        ) {
+                            $dispArrival = ($lang === 'ku') ? 'د ناڤبەرا ٢٤ – ٧٢ دەمژمێران دا' : (($lang === 'ar') ? 'خلال ٢٤ – ٧٢ ساعة' : 'Within 24 – 72 Hours');
+                        } else {
+                            $dispArrival = $rawArrival;
+                        }
+                        ?>
+                        <div style="text-align:right;">
+                            <span style="font-size:11.5px; color:var(--text-muted);"><?php echo $lang === 'ku' ? 'گەهاندنا چاڤەڕێکری:' : ($lang === 'ar' ? 'الوصول المتوقع:' : 'Estimated Arrival:'); ?></span>
+                            <div style="font-weight:700; color:var(--text-primary); font-size:13.5px;"><?php echo htmlspecialchars($dispArrival); ?></div>
                         </div>
-                    <?php endif; ?>
+                    </div>
 
                     <?php if (!empty($foundOrder['dispatch_notes'])): ?>
                         <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; font-size:12.5px; color:var(--text-secondary); border-left:3px solid var(--accent-gold);">

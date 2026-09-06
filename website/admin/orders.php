@@ -39,9 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = trim($_POST['order_status'] ?? 'Shipped');
         $courier = trim($_POST['courier'] ?? 'AURA Express Fleet');
         $tracking = trim($_POST['tracking_code'] ?? '');
-        $driverName = trim($_POST['driver_name'] ?? '');
-        $driverPhone = trim($_POST['driver_phone'] ?? '');
         $estDelivery = trim($_POST['estimated_delivery'] ?? '');
+        if (empty($estDelivery)) {
+            $estDelivery = 'Estimated Arrival: Within 24 – 72 Hours';
+        }
         $dispatchNotes = trim($_POST['dispatch_notes'] ?? '');
 
         if (!empty($oid)) {
@@ -49,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'order_status' => $status,
                 'courier' => $courier,
                 'tracking_code' => $tracking,
-                'driver_name' => $driverName,
-                'driver_phone' => $driverPhone,
+                'driver_name' => '',
+                'driver_phone' => '',
                 'estimated_delivery' => $estDelivery,
                 'dispatch_notes' => $dispatchNotes
             ]);
@@ -143,7 +144,7 @@ require_once __DIR__ . '/../header.php';
                 <div class="m-info">
                     <span class="m-label"><?php echo adm_t('admin_status_shipped', 'Shipped / Dispatched'); ?></span>
                     <strong class="m-value text-primary"><?php echo $shippedCount; ?></strong>
-                    <span class="iqd-price-pill"><?php echo adm_t('admin_orders_driver_assigned', 'Courier Driver Assigned'); ?></span>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_orders_in_transit', 'In Transit (24–72h)'); ?></span>
                 </div>
             </div>
             <div class="admin-metric-card">
@@ -222,9 +223,7 @@ require_once __DIR__ . '/../header.php';
                                 <td>
                                     <div class="courier-info-chip">
                                         <span class="courier-name"><?php echo htmlspecialchars(!empty($ord['courier']) ? $ord['courier'] : adm_t('admin_unassigned', 'Unassigned')); ?></span>
-                                        <?php if (!empty($ord['driver_name'])): ?>
-                                            <span class="courier-driver">👤 <?php echo htmlspecialchars($ord['driver_name']); ?> (<?php echo htmlspecialchars($ord['driver_phone'] ?? ''); ?>)</span>
-                                        <?php endif; ?>
+                                        <small class="text-muted" style="font-size:11.5px; display:block;"><?php echo htmlspecialchars(!empty($ord['estimated_delivery']) ? $ord['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours'); ?></small>
                                         <?php if (!empty($ord['tracking_code'])): ?>
                                             <code style="font-size:11px;"><?php echo htmlspecialchars($ord['tracking_code']); ?></code>
                                         <?php endif; ?>
@@ -312,20 +311,10 @@ require_once __DIR__ . '/../header.php';
                 </div>
             </div>
 
-            <div class="form-row-2 mb-16">
-                <div class="form-group">
-                    <label><?php echo adm_t('admin_field_driver_name', 'Courier Driver Name'); ?></label>
-                    <input type="text" name="driver_name" id="dispDriverName" class="form-control" placeholder="Captain Karwan / Ali">
-                </div>
-                <div class="form-group">
-                    <label><?php echo adm_t('admin_field_driver_phone', 'Driver Phone'); ?></label>
-                    <input type="text" name="driver_phone" id="dispDriverPhone" class="form-control" placeholder="0750 999 8888">
-                </div>
-            </div>
-
             <div class="form-group mb-16">
-                <label><?php echo adm_t('admin_field_est_delivery', 'Estimated Delivery Date / Timeframe'); ?></label>
-                <input type="text" name="estimated_delivery" id="dispEstDelivery" class="form-control" placeholder="Today before 6:00 PM • Tomorrow 24h">
+                <label><?php echo adm_t('admin_field_est_delivery', 'Estimated Delivery Timeframe'); ?></label>
+                <input type="text" name="estimated_delivery" id="dispEstDelivery" class="form-control" value="Estimated Arrival: Within 24 – 72 Hours" placeholder="Estimated Arrival: Within 24 – 72 Hours">
+                <small class="text-muted" style="font-size:11.5px; margin-top:4px; display:block;">Standard delivery window: Within 24 – 72 Hours across Iraq & Kurdistan.</small>
             </div>
 
             <div class="form-group mb-20">
@@ -375,10 +364,8 @@ function openDispatchModal(order) {
     document.getElementById('dispatchModalOrderSub').innerText = 'Updating shipment details for Order #' + (order.order_id || '') + ' (' + (order.customer_name || '') + ')';
     document.getElementById('dispStatus').value = order.order_status || 'Shipped';
     document.getElementById('dispCourier').value = order.courier || 'AURA Express Fleet';
-    document.getElementById('dispDriverName').value = order.driver_name || '';
-    document.getElementById('dispDriverPhone').value = order.driver_phone || '';
     document.getElementById('dispTrackingCode').value = order.tracking_code || ('AURA-EXP-' + (order.order_id || '').replace('ORD-', ''));
-    document.getElementById('dispEstDelivery').value = order.estimated_delivery || '';
+    document.getElementById('dispEstDelivery').value = order.estimated_delivery || 'Estimated Arrival: Within 24 – 72 Hours';
     document.getElementById('dispNotes').value = order.dispatch_notes || '';
     document.getElementById('dispatchModalOverlay').classList.add('open');
 }
