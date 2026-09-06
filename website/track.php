@@ -8,32 +8,6 @@ $foundOrder = null;
 $searched = false;
 $settings = get_store_settings();
 $rate = $settings['exchange_rate_usd_to_iqd'] ?? 1320;
-$issueSubmitted = false;
-$issueTicketId = '';
-
-// Handle Package Issue Claim Submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_package_issue'])) {
-    $claimOrderId = trim($_POST['claim_order_id'] ?? '');
-    $claimCategory = trim($_POST['claim_category'] ?? 'Damaged Package');
-    $claimName = trim($_POST['claim_name'] ?? '');
-    $claimPhone = trim($_POST['claim_phone'] ?? '');
-    $claimDetails = trim($_POST['claim_details'] ?? '');
-
-    if (!empty($claimOrderId) && !empty($claimDetails)) {
-        $issueTicketId = 'CLAIM-' . rand(10000, 99999);
-        $newClaim = [
-            'id' => $issueTicketId,
-            'name' => htmlspecialchars($claimName),
-            'email' => htmlspecialchars($_POST['claim_email'] ?? ''),
-            'phone' => htmlspecialchars($claimPhone),
-            'subject' => '🚨 DELIVERED PACKAGE CLAIM (' . htmlspecialchars($claimOrderId) . '): ' . htmlspecialchars($claimCategory),
-            'message' => htmlspecialchars($claimDetails),
-            'status' => 'Pending Inspection'
-        ];
-        create_inquiry($newClaim);
-        $issueSubmitted = true;
-    }
-}
 
 if (!empty($searchOrderId)) {
     $searched = true;
@@ -257,118 +231,31 @@ if (!empty($searchOrderId)) {
                 <?php 
                 $isDelivered = (stripos($status, 'delivered') !== false);
                 if ($isDelivered): 
-                    $orderNum = htmlspecialchars($foundOrder['order_id']);
-                    $contactPhone = $settings['contact_phone'] ?? '+964 750 123 4567';
-                    $contactEmail = $settings['contact_email'] ?? 'concierge@aurastore.iq';
-                    $contactWa = preg_replace('/[^0-9]/', '', $settings['contact_whatsapp'] ?? '9647501234567');
-                    $waMsg = rawurlencode("Hello AURA Support, I am contacting you regarding my delivered package (Order ID: {$foundOrder['order_id']}).");
                 ?>
-                    <!-- DELIVERED ONLY: Direct Support, Contact Info & Package Resolution Desk -->
-                    <div class="package-issue-claim-card mt-24" style="background:var(--bg-subtle); border:1.5px solid #22c55e; border-radius:14px; padding:26px; box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1);">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:18px;">
+                    <!-- DELIVERED CONFIRMATION -->
+                    <div class="mt-24" style="background:rgba(34,197,94,0.08); border:1.5px solid #22c55e; border-radius:14px; padding:24px;">
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <span style="font-size:32px;">🎁</span>
                             <div>
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <span style="font-size:24px;">🎁</span>
-                                    <h3 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:0;">
-                                        <?php echo t('contact_delivered_only_title', $lang); ?>
-                                    </h3>
-                                </div>
-                                <p style="font-size:13px; color:var(--text-secondary); margin:6px 0 0;">
-                                    <?php echo t('contact_delivered_only_desc', $lang); ?>
+                                <h3 style="font-size:17px; font-weight:800; color:var(--text-primary); margin:0 0 4px;">
+                                    <?php echo $lang === 'ku' ? 'پاکێج ب سەرکەفتیانە هاتە گەهاندن' : ($lang === 'ar' ? 'تم تسليم الشحنة بنجاح' : 'Package Delivered Successfully'); ?>
+                                </h3>
+                                <p style="font-size:13px; color:var(--text-secondary); margin:0; line-height:1.5;">
+                                    <?php echo $lang === 'ku' ? 'داخازیا تە گەهشتە ناڤنیشانێ تە. سوپاس بۆ هلبژارتنا تە بۆ AURA Luxury Studio.' : ($lang === 'ar' ? 'تم تسليم طردك إلى العنوان المحدد. شكراً لاختيارك AURA Luxury Studio.' : 'Your luxury order has been completed and safely delivered to your address. Thank you for shopping with AURA.'); ?>
                                 </p>
                             </div>
-                            <span class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; font-weight:800; padding:6px 14px; font-size:12.5px; border-radius:20px;">
-                                ✓ Delivered &bull; Channels Unlocked
-                            </span>
-                        </div>
-
-                        <!-- Direct Concierge Contact Channels Pills -->
-                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:22px;">
-                            <!-- Phone Pill -->
-                            <a href="tel:<?php echo htmlspecialchars($contactPhone); ?>" style="display:flex; align-items:center; gap:12px; padding:14px 18px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; text-decoration:none; color:var(--text-primary); transition:all 0.2s ease;">
-                                <span style="font-size:22px;">📞</span>
-                                <div>
-                                    <span style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Direct Phone</span>
-                                    <strong style="font-size:14px; color:var(--accent-gold);"><?php echo htmlspecialchars($contactPhone); ?></strong>
-                                </div>
-                            </a>
-
-                            <!-- WhatsApp Pill -->
-                            <a href="https://wa.me/<?php echo $contactWa; ?>?text=<?php echo $waMsg; ?>" target="_blank" style="display:flex; align-items:center; gap:12px; padding:14px 18px; background:rgba(34,197,94,0.08); border:1px solid #22c55e; border-radius:10px; text-decoration:none; color:var(--text-primary); transition:all 0.2s ease;">
-                                <span style="font-size:22px;">💬</span>
-                                <div>
-                                    <span style="display:block; font-size:11px; text-transform:uppercase; color:#22c55e; font-weight:700;">Direct WhatsApp</span>
-                                    <strong style="font-size:14px; color:#22c55e;">+<?php echo $contactWa; ?></strong>
-                                </div>
-                            </a>
-
-                            <!-- Email Pill -->
-                            <a href="mailto:<?php echo htmlspecialchars($contactEmail); ?>?subject=<?php echo rawurlencode("Delivered Order Inquiry: " . $foundOrder['order_id']); ?>" style="display:flex; align-items:center; gap:12px; padding:14px 18px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; text-decoration:none; color:var(--text-primary); transition:all 0.2s ease;">
-                                <span style="font-size:22px;">✉️</span>
-                                <div>
-                                    <span style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Concierge Email</span>
-                                    <strong style="font-size:13.5px; color:var(--text-primary);"><?php echo htmlspecialchars($contactEmail); ?></strong>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Interactive Package Issue & Claims Form Trigger -->
-                        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:18px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                                <div>
-                                    <strong style="font-size:14.5px; color:var(--text-primary); display:block;">📦 <?php echo t('report_package_issue', $lang); ?></strong>
-                                    <span style="font-size:12.5px; color:var(--text-secondary);"><?php echo t('report_package_issue_desc', $lang); ?></span>
-                                </div>
-                                <button type="button" class="btn btn-outline btn-sm" onclick="const f=document.getElementById('packageIssueForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none';" style="color:var(--accent-gold); border-color:var(--accent-gold); font-weight:700;">
-                                    ⚠️ <?php echo $lang === 'ku' ? 'تۆمارکرنا کێشەیێ' : ($lang === 'ar' ? 'فتح بلاغ مشكلة' : 'Open Claim Form'); ?>
-                                </button>
-                            </div>
-
-                            <form action="track.php?order_id=<?php echo urlencode($foundOrder['order_id']); ?>" method="POST" id="packageIssueForm" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
-                                <input type="hidden" name="submit_package_issue" value="1">
-                                <input type="hidden" name="claim_order_id" value="<?php echo htmlspecialchars($foundOrder['order_id']); ?>">
-                                <input type="hidden" name="claim_name" value="<?php echo htmlspecialchars($foundOrder['customer_name']); ?>">
-                                <input type="hidden" name="claim_phone" value="<?php echo htmlspecialchars($foundOrder['phone']); ?>">
-                                <input type="hidden" name="claim_email" value="<?php echo htmlspecialchars($foundOrder['email'] ?? ''); ?>">
-
-                                <div class="form-group" style="margin-bottom:12px;">
-                                    <label style="font-size:12.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px; display:block;"><?php echo t('issue_category', $lang); ?> <span class="text-danger">*</span></label>
-                                    <select name="claim_category" required class="form-control" style="font-size:13.5px;">
-                                        <option value="<?php echo t('issue_cat_damaged', $lang); ?>">📦 <?php echo t('issue_cat_damaged', $lang); ?></option>
-                                        <option value="<?php echo t('issue_cat_wrong_item', $lang); ?>">🔄 <?php echo t('issue_cat_wrong_item', $lang); ?></option>
-                                        <option value="<?php echo t('issue_cat_defective', $lang); ?>">⚙️ <?php echo t('issue_cat_defective', $lang); ?></option>
-                                        <option value="<?php echo t('issue_cat_missing', $lang); ?>">🔍 <?php echo t('issue_cat_missing', $lang); ?></option>
-                                        <option value="<?php echo t('issue_cat_courier', $lang); ?>">🚚 <?php echo t('issue_cat_courier', $lang); ?></option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group" style="margin-bottom:14px;">
-                                    <label style="font-size:12.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px; display:block;"><?php echo t('issue_details', $lang); ?> <span class="text-danger">*</span></label>
-                                    <textarea name="claim_details" rows="3" required class="form-control" placeholder="<?php echo $lang === 'ku' ? 'تکایە هویرکاریێن ئاریشەیا رویدای د پاکێجێ دا بنڤیسە...' : ($lang === 'ar' ? 'يرجى كتابة تفاصيل المشكلة التي واجهتها في الطرد المستلم...' : 'Please describe any defect, damage, sizing error, or missing piece...'); ?>" style="font-size:13px;"></textarea>
-                                </div>
-
-                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                                    <span class="text-muted" style="font-size:11.5px;">
-                                        🔒 <?php echo $lang === 'ku' ? 'داخازی دێ هێتە شاندن بۆ بەشێ زەمانەتێ' : ($lang === 'ar' ? 'سيتم إحالة الطلب مباشرة لقسم الضمان والاستبدال' : 'Direct routing to our Quality & Warranty inspector'); ?>
-                                    </span>
-                                    <button type="submit" class="btn btn-primary btn-luxury btn-sm">
-                                        🚀 <?php echo t('issue_submit', $lang); ?>
-                                    </button>
-                                </div>
-                            </form>
                         </div>
                     </div>
-
                 <?php else: ?>
-                    <!-- IN TRANSIT / AUTOMATED FULFILLMENT NOTICE (No contact details before delivery) -->
+                    <!-- IN TRANSIT / AUTOMATED LOGISTICS NOTICE -->
                     <div class="mt-24" style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:12px; padding:22px; display:flex; align-items:flex-start; gap:16px;">
                         <span style="font-size:28px;">⚡</span>
                         <div>
                             <h4 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0 0 6px;">
-                                <?php echo t('contact_transit_notice_title', $lang); ?>
+                                <?php echo $lang === 'ku' ? 'چاڤدێریکرنا گەهاندنێ یا بلەز یا چالاکە' : ($lang === 'ar' ? 'نظام التتبع المباشر للتوصيل السريع' : 'Active Express Logistics Radar'); ?>
                             </h4>
                             <p style="font-size:13px; color:var(--text-secondary); margin:0; line-height:1.5;">
-                                <?php echo t('contact_transit_notice_desc', $lang); ?>
+                                <?php echo $lang === 'ku' ? 'پاکێتا تە د رێکا گەهاندنێ دایە. رەوشا شاندنێ و جهان ب شێوەیەکێ ئێکسەر ل ڤێرە بهێنە نیشاندان.' : ($lang === 'ar' ? 'شحنتك قيد الإرسال والتوزيع المباشر. يمكنك متابعة حالة الطرد وموقعه اللوجستي فورياً هنا.' : 'Your luxury order is being fulfilled and dispatched via direct express courier.'); ?>
                             </p>
                         </div>
                     </div>

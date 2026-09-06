@@ -895,87 +895,26 @@ function save_store_settings($settings) {
 }
 
 // ==============================================================================
-// 4. INQUIRIES & CLAIMS (MySQL Database Operations)
+// 4. INQUIRIES & CLAIMS (Permanently Removed)
 // ==============================================================================
 function get_all_inquiries() {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return [];
-
-    try {
-        $stmt = $pdo->query("SELECT * FROM inquiries ORDER BY id DESC");
-        $rows = $stmt->fetchAll();
-        $inquiries = [];
-        foreach ($rows as $r) {
-            $inquiries[] = [
-                'id' => $r['inquiry_code'],
-                'name' => $r['name'],
-                'email' => $r['email'],
-                'phone' => $r['phone'],
-                'subject' => $r['subject'],
-                'message' => $r['message'],
-                'status' => $r['status'],
-                'date' => $r['created_at'],
-                'created_at' => $r['created_at']
-            ];
-        }
-        return $inquiries;
-    } catch (Exception $e) {
-        return [];
-    }
+    return [];
 }
 
 function create_inquiry($inquiry_data) {
-    $pdo = get_mysql_pdo();
-    if (empty($inquiry_data['id'])) {
-        $inquiry_data['id'] = 'INQ-' . rand(100, 999);
-    }
-    $inquiry_data['created_at'] = date('Y-m-d H:i:s');
-    $inquiry_data['status'] = $inquiry_data['status'] ?? 'New';
-    
-    if (!$pdo) return $inquiry_data;
+    return [];
+}
 
-    try {
-        $stmt = $pdo->prepare("
-            INSERT INTO inquiries (inquiry_code, name, email, phone, subject, message, status)
-            VALUES (:code, :name, :email, :phone, :subject, :message, :status)
-        ");
-        $stmt->execute([
-            ':code' => $inquiry_data['id'],
-            ':name' => $inquiry_data['name'] ?? '',
-            ':email' => $inquiry_data['email'] ?? '',
-            ':phone' => $inquiry_data['phone'] ?? '',
-            ':subject' => $inquiry_data['subject'] ?? '',
-            ':message' => $inquiry_data['message'] ?? '',
-            ':status' => $inquiry_data['status'] ?? 'New'
-        ]);
-        return $inquiry_data;
-    } catch (Exception $e) {
-        return $inquiry_data;
-    }
+function save_inquiry($inquiry_data) {
+    return [];
 }
 
 function update_inquiry_status($id, $status) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
-
-    try {
-        $stmt = $pdo->prepare("UPDATE inquiries SET status = :status WHERE inquiry_code = :code");
-        return $stmt->execute([':status' => $status, ':code' => $id]);
-    } catch (Exception $e) {
-        return false;
-    }
+    return false;
 }
 
 function delete_inquiry($id) {
-    $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
-
-    try {
-        $stmt = $pdo->prepare("DELETE FROM inquiries WHERE inquiry_code = :code");
-        return $stmt->execute([':code' => $id]);
-    } catch (Exception $e) {
-        return false;
-    }
+    return false;
 }
 
 // ==============================================================================

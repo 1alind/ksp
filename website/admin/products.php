@@ -328,7 +328,6 @@ usort($productsList, function($a, $b) {
     return (int)($b['id'] ?? 0) - (int)($a['id'] ?? 0);
 });
 $ordersList = get_all_orders();
-$inquiriesList = get_all_inquiries();
 
 $totalStock = 0;
 $featuredCount = 0;

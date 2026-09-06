@@ -12,7 +12,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. DROP ALL EXISTING TABLES
 -- ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS `reviews`;
-DROP TABLE IF EXISTS `inquiries`;
 DROP TABLE IF EXISTS `orders`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `settings`;
@@ -106,24 +105,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 5. CREATE `inquiries` TABLE
--- ------------------------------------------------------------------------------
-CREATE TABLE `inquiries` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `inquiry_code` VARCHAR(50) NOT NULL UNIQUE,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) DEFAULT NULL,
-  `phone` VARCHAR(100) DEFAULT NULL,
-  `subject` VARCHAR(255) NOT NULL,
-  `message` TEXT NOT NULL,
-  `status` VARCHAR(50) NOT NULL DEFAULT 'New',
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_inquiry_code` (`inquiry_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ------------------------------------------------------------------------------
--- 6. CREATE `settings` TABLE
+-- 5. CREATE `settings` TABLE
 -- ------------------------------------------------------------------------------
 CREATE TABLE `settings` (
   `key_name` VARCHAR(100) NOT NULL,
@@ -774,16 +756,7 @@ VALUES
 -- ------------------------------------------------------------------------------
 
 -- ------------------------------------------------------------------------------
--- 11. SEED INQUIRIES & PACKAGE TRACKING CLAIMS
--- ------------------------------------------------------------------------------
-INSERT INTO `inquiries` (`id`, `inquiry_code`, `name`, `email`, `phone`, `subject`, `message`, `status`)
-VALUES
-(1, 'INQ-901', 'Barzan Mustafa', 'barzan.m@gmail.com', '+964 750 221 8899', 'Custom Swiss Watch Sizing Inquiry', 'Hello AURA team, I am interested in the Onyx Skeleton Automatic Watch. Can you adjust the stainless steel link bracelet before shipping to Duhok?', 'New'),
-(2, 'INQ-902', 'Zaid Al-Bayati', 'zaid.bayati@baghdad.iq', '+964 780 445 1200', 'ZainCash Payment & Express Delivery to Mansour, Baghdad', 'Peace be upon you. Can I pay via ZainCash wallet and receive same-day or 24hr express delivery in Mansour, Baghdad?', 'Replied'),
-(3, 'INQ-903', 'Shivan Berwari', 'shivan.berwari@gmail.com', '+964 750 442 8811', 'Delivery Time Request for ORD-98425', 'Please ensure the courier calls me 30 minutes before arriving at Dream City gate.', 'In Progress');
-
--- ------------------------------------------------------------------------------
--- 12. SEED CUSTOMER REVIEWS
+-- 11. SEED CUSTOMER REVIEWS
 -- ------------------------------------------------------------------------------
 INSERT INTO `reviews` (`id`, `product_id`, `user_name`, `rating`, `comment`, `date`)
 VALUES

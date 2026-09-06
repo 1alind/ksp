@@ -75,7 +75,6 @@ $pageTitle = 'Payment Gateways & Currency Suite | AURA Luxury Admin';
 $adminActive = 'payments';
 $ordersList = get_all_orders();
 $productsList = get_all_products();
-$inquiriesList = get_all_inquiries();
 
 $fib = $settingsDb['gateways']['fib'] ?? [];
 $zain = $settingsDb['gateways']['zaincash'] ?? [];

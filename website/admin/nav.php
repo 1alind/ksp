@@ -18,9 +18,6 @@ $langParam = '?lang=' . urlencode($adminLang);
         <a href="/admin/payments.php<?php echo $langParam; ?>" class="admin-tab-btn <?php echo $currentNavPage === 'payments' ? 'active' : ''; ?>" style="text-decoration:none;">
             💳 <?php echo adm_t('admin_nav_payments', 'Payment Gateways'); ?>
         </a>
-        <a href="/admin/inquiries.php<?php echo $langParam; ?>" class="admin-tab-btn <?php echo $currentNavPage === 'inquiries' ? 'active' : ''; ?>" style="text-decoration:none;">
-            💬 <?php echo adm_t('admin_nav_inquiries', 'Inquiries'); ?> (<?php echo count($inquiriesList ?? []); ?>)
-        </a>
         <a href="/admin/branding.php<?php echo $langParam; ?>" class="admin-tab-btn <?php echo $currentNavPage === 'branding' ? 'active' : ''; ?>" style="text-decoration:none;">
             🎨 <?php echo adm_t('admin_nav_branding', 'Brand & Settings'); ?>
         </a>

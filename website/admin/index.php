@@ -8,8 +8,6 @@ $ordersDb = json_decode(file_get_contents(__DIR__ . '/../database/orders.json'),
 $ordersList = $ordersDb['orders'] ?? [];
 $productsDb = json_decode(file_get_contents(__DIR__ . '/../database/products.json'), true);
 $productsList = $productsDb['products'] ?? [];
-$inquiriesDb = json_decode(file_get_contents(__DIR__ . '/../database/inquiries.json'), true);
-$inquiriesList = $inquiriesDb['inquiries'] ?? [];
 $settingsDb = json_decode(file_get_contents(__DIR__ . '/../database/settings.json'), true);
 
 $pendingCount = 0;
@@ -69,11 +67,11 @@ require_once __DIR__ . '/../header.php';
             </div>
 
             <div class="admin-metric-card">
-                <span class="m-icon">💬</span>
+                <span class="m-icon">💳</span>
                 <div class="m-info">
-                    <span class="m-label"><?php echo adm_t('admin_nav_inquiries', 'Concierge Desk'); ?></span>
-                    <strong class="m-value"><?php echo count($inquiriesList); ?> <?php echo adm_t('admin_nav_inquiries', 'Inquiries'); ?></strong>
-                    <span class="iqd-price-pill"><?php echo adm_t('admin_inquiries_assistance_needed', 'Active Client Inquiries'); ?></span>
+                    <span class="m-label"><?php echo adm_t('admin_nav_payments', 'Payment Gateways'); ?></span>
+                    <strong class="m-value" style="color:#22c55e;">FIB &bull; FastPay</strong>
+                    <span class="iqd-price-pill"><?php echo adm_t('admin_payments_title', 'ZainCash & COD Active'); ?></span>
                 </div>
             </div>
         </div>
@@ -132,22 +130,7 @@ require_once __DIR__ . '/../header.php';
                     </div>
                 </a>
 
-                <!-- Card 4: Inquiries -->
-                <a href="/admin/inquiries.php" style="text-decoration:none; color:inherit; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, border-color 0.2s;">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span style="font-size:28px;">💬</span>
-                            <span class="badge-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa; font-weight:800;"><?php echo count($inquiriesList); ?> <?php echo adm_t('admin_nav_inquiries', 'Active'); ?></span>
-                        </div>
-                        <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_inquiries_title', 'VIP Inquiries & Concierge Desk'); ?></h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_inquiries_desc', 'Concierge message inbox, direct WhatsApp responses, and post-delivery issue resolution.'); ?></p>
-                    </div>
-                    <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
-                    </div>
-                </a>
-
-                <!-- Card 6: Branding & Settings -->
+                <!-- Card 4: Branding & Settings -->
                 <a href="/admin/branding.php" style="text-decoration:none; color:inherit; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, border-color 0.2s;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">

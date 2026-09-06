@@ -89,7 +89,6 @@ $pageTitle = 'Orders & Logistics Radar | AURA Luxury Admin';
 $adminActive = 'orders';
 $ordersList = get_all_orders();
 $productsList = get_all_products();
-$inquiriesList = get_all_inquiries();
 
 $pendingCount = 0;
 $shippedCount = 0;

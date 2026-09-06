@@ -246,21 +246,8 @@ function auto_init_database($forceSeed = false) {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
 
-        // 3. Create inquiries table
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS `inquiries` (
-              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-              `inquiry_code` VARCHAR(64) NOT NULL,
-              `name` VARCHAR(255) NOT NULL,
-              `email` VARCHAR(255) DEFAULT NULL,
-              `phone` VARCHAR(64) NOT NULL,
-              `subject` VARCHAR(255) DEFAULT NULL,
-              `message` TEXT NOT NULL,
-              `status` VARCHAR(50) NOT NULL DEFAULT 'Open',
-              `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+        // 3. Drop inquiries table if exists (Inquiries and Contact features removed)
+        $pdo->exec("DROP TABLE IF EXISTS `inquiries`;");
 
         // 4. Create users table
         $pdo->exec("

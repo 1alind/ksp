@@ -521,48 +521,7 @@ CREATE TABLE `users` (
 -- ------------------------------------------------------------------------------
 
 -- ------------------------------------------------------------------------------
--- 4. Table structure for table `inquiries`
--- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `inquiries`;
-CREATE TABLE `inquiries` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `inquiry_code` VARCHAR(64) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) DEFAULT NULL,
-  `phone` VARCHAR(64) NOT NULL,
-  `subject` VARCHAR(255) DEFAULT NULL,
-  `message` TEXT NOT NULL,
-  `status` VARCHAR(50) NOT NULL DEFAULT "Open",
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ------------------------------------------------------------------------------
--- 4.1 Dumping data for table `inquiries`
--- ------------------------------------------------------------------------------
-INSERT INTO `inquiries` (`inquiry_code`, `name`, `email`, `phone`, `subject`, `message`, `status`)
-VALUES
-(
-  'INQ-901',
-  'Barzan Mustafa',
-  'barzan.m@gmail.com',
-  '+964 750 221 8899',
-  'Custom Swiss Watch Sizing Inquiry',
-  'Hello AURA team, I am interested in the Onyx Skeleton Automatic Watch. Can you adjust the stainless steel link bracelet before shipping to Duhok?',
-  'New'
-),
-(
-  'INQ-902',
-  'Zaid Al-Bayati',
-  'zaid.bayati@baghdad.iq',
-  '+964 780 445 1200',
-  'ZainCash Payment & Express Delivery to Mansour, Baghdad',
-  'Peace be upon you. Can I pay via ZainCash wallet and receive same-day or 24hr express delivery in Mansour, Baghdad?',
-  'Replied'
-);
-
--- ------------------------------------------------------------------------------
--- 5. Table structure for table `settings`
+-- 4. Table structure for table `settings`
 -- ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
