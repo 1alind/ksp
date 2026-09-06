@@ -1,0 +1,15 @@
+{
+    "packages": {
+        "EXP-9921": {
+            "package_id": "EXP-9921",
+            "order_id": "ORD-10001",
+            "courier": "Kurdistan Express Logistics",
+            "status": "Shipped",
+            "driver_name": "Karwan Ali",
+            "driver_phone": "0750 441 2233",
+            "checkpoint": "Scanned at Erbil Logistics Hub — Dispatched on highway toward Duhok distribution branch",
+            "estimated_delivery": "Estimated Arrival: Within 24 – 72 Hours",
+            "last_updated": "2026-09-06 13:00:00"
+        }
+    }
+}

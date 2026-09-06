@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../database/delivery_sync.php';
 
 // Handle JSON / AJAX requests (e.g. package confirmation or status update)
 $rawInput = file_get_contents('php://input');
@@ -31,6 +32,15 @@ if (!empty($rawInput)) {
                     $updateData['dispatch_notes'] = $notes;
                 }
                 $updated = update_order_full($oid, $updateData);
+
+                // Register with Delivery Company System
+                set_company_package_record($pkgId, [
+                    'order_id' => $oid,
+                    'courier' => $courier,
+                    'status' => $isEdit ? 'Ready to Ship' : 'Ready to Ship',
+                    'checkpoint' => 'Merchant prepared package and sealed in box'
+                ]);
+
                 echo json_encode([
                     'success' => (bool)$updated,
                     'order_id' => $oid,
@@ -64,15 +74,28 @@ if (isset($_GET['action'])) {
         echo json_encode(['success' => (bool)$updated, 'order_id' => $oid, 'order_status' => $status]);
         exit;
     }
+    if ($_GET['action'] === 'sync_company_now') {
+        $syncRes = sync_all_orders_from_company_api('Admin Manual Sync');
+        header('Location: orders.php?synced=1');
+        exit;
+    }
 }
 
 $flashMsg = null;
 $flashType = 'success';
+if (isset($_GET['synced'])) {
+    $flashMsg = "⚡ Delivery Company API synchronized successfully! All active order statuses updated in database.";
+}
 
 // Handle POST submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 0. MANUAL SYNC TRIGGER
+    if (isset($_POST['sync_company_now'])) {
+        $syncRes = sync_all_orders_from_company_api('Admin Manual Sync');
+        $flashMsg = "⚡ Delivery Company API synchronized successfully! " . count($syncRes['updated_orders'] ?? []) . " order(s) updated directly in database.";
+    }
     // 1. CONFIRM PACKAGE PREPARATION & LINK DELIVERY COMPANY PACKAGE ID
-    if (isset($_POST['confirm_package_prepared'])) {
+    elseif (isset($_POST['confirm_package_prepared'])) {
         $oid = trim($_POST['order_id'] ?? '');
         $pkgId = trim($_POST['tracking_code'] ?? '');
         $courier = trim($_POST['courier'] ?? 'Kurdistan Express');
@@ -93,6 +116,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             update_order_full($oid, $updateData);
+
+            // Register in Delivery Company package registry
+            set_company_package_record($pkgId, [
+                'order_id' => $oid,
+                'courier' => $courier,
+                'status' => 'Ready to Ship',
+                'checkpoint' => 'Merchant prepared package and applied tracking label'
+            ]);
+
             if ($isEdit) {
                 $flashMsg = "✓ Order #{$oid} Package ID updated to [{$pkgId}] ({$courier}).";
             } else {
@@ -170,9 +202,15 @@ require_once __DIR__ . '/../header.php';
                     </p>
                 </div>
             </div>
-            <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <form action="orders.php" method="POST" style="display:inline-block; margin:0;">
+                    <input type="hidden" name="sync_company_now" value="1">
+                    <button type="submit" class="btn btn-primary btn-sm" style="font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        ⚡ Sync Company API Now
+                    </button>
+                </form>
                 <button type="button" class="btn btn-outline btn-sm" onclick="openWebhookSimulatorModal()" style="font-size:12px; font-weight:700; border-color:var(--accent-gold); color:var(--accent-gold); display:inline-flex; align-items:center; gap:6px;">
-                    ⚡ Delivery Company API & Webhook Simulator
+                    📡 API & Webhook Simulator
                 </button>
             </div>
         </div>

@@ -2,6 +2,13 @@
 $activePage = 'track';
 $pageTitle = 'Order Tracking';
 require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/database/delivery_sync.php';
+
+// Lazy 1-Hour Database Synchronization Rule:
+// 1. When a user visits the track order page, the system checks the last time statuses were updated in the database.
+// 2. If the last update was MORE than 60 minutes ago, it automatically queries the company API and updates all orders in the database.
+// 3. If the last update was LESS than 60 minutes ago, it does NOT query the API and directly serves from the database.
+$syncResult = check_and_sync_delivery_company_hourly();
 
 $searchOrderId = trim($_GET['order_id'] ?? '');
 $foundOrder = null;
@@ -13,10 +20,8 @@ if (!empty($searchOrderId)) {
     $searched = true;
     $orders = get_all_orders();
     foreach ($orders as $ord) {
-        if (strcasecmp($ord['order_id'], $searchOrderId) === 0 || 
-            strcasecmp($ord['email'] ?? '', $searchOrderId) === 0 || 
-            strcasecmp($ord['phone'] ?? '', $searchOrderId) === 0 ||
-            strcasecmp($ord['tracking_code'] ?? '', $searchOrderId) === 0) {
+        // STRICT RULE: Customer can ONLY search for their order using the order_id:
+        if (strcasecmp(trim($ord['order_id']), $searchOrderId) === 0) {
             $foundOrder = $ord;
             break;
         }
@@ -47,6 +52,20 @@ if (!empty($searchOrderId)) {
                     <button type="submit" class="btn btn-primary btn-luxury btn-lg"><?php echo t('track_button', $lang); ?></button>
                 </div>
             </form>
+
+            <!-- Hourly Sync Status Telemetry -->
+            <div class="hourly-sync-radar" style="margin-top:14px; text-align:center; font-size:12px;">
+                <?php if (!empty($syncResult['did_sync'])): ?>
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(34,197,94,0.12); color:#22c55e; border:1px solid rgba(34,197,94,0.3); padding:5px 14px; border-radius:20px; font-weight:600;">
+                        ⚡ <strong>Hourly Courier Sync:</strong> Database updated from company API just now (<?php echo date('H:i'); ?>).
+                    </span>
+                <?php else: ?>
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-surface-elevated); color:var(--text-muted); border:1px solid var(--border-color); padding:5px 14px; border-radius:20px; font-weight:500;">
+                        🕒 <strong>Database Sync State:</strong> Orders synced <?php echo $syncResult['minutes_since_last_sync'] ?? 0; ?>m ago • Next automatic API check in <?php echo $syncResult['minutes_until_next_sync'] ?? 60; ?>m
+                    </span>
+                <?php endif; ?>
+            </div>
+
             <div class="sample-ids-hint" style="margin-top:14px;">
                 <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
                     <a href="track.php?order_id=ORD-10002" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
@@ -54,18 +73,6 @@ if (!empty($searchOrderId)) {
                     </a>
                     <a href="track.php?order_id=ORD-10001" class="badge-tag" style="background:rgba(99,102,241,0.15); color:#6366f1; border:1px solid rgba(99,102,241,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
                         📦 Ready to Ship: ORD-10001
-                    </a>
-                    <a href="track.php?order_id=EXP-9921" class="badge-tag" style="background:rgba(217,119,6,0.15); color:var(--accent-gold); border:1px solid rgba(217,119,6,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🔍 Package ID Search: EXP-9921
-                    </a>
-                    <a href="track.php?order_id=ORD-61028" class="badge-tag" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🚚 Shipped: ORD-61028
-                    </a>
-                    <a href="track.php?order_id=ORD-84920" class="badge-tag" style="background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🛵 Out for Delivery: ORD-84920
-                    </a>
-                    <a href="track.php?order_id=ORD-73195" class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        ✅ Delivered: ORD-73195
                     </a>
                 </div>
             </div>
@@ -285,7 +292,7 @@ if (!empty($searchOrderId)) {
             <div class="no-order-found-card">
                 <div class="empty-icon">⚠️</div>
                 <h3>No order found matching "<?php echo htmlspecialchars($searchOrderId); ?>"</h3>
-                <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>) or phone number.</p>
+                <p>Please double check your Order ID (format: <code>ORD-XXXXX</code>). Orders can only be tracked using your official Order ID; company package IDs are linked internally in the database.</p>
             </div>
         <?php endif; ?>
 
