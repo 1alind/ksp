@@ -89,6 +89,10 @@ if (isset($_GET['synced'])) {
 
 // Handle POST submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || 
+              (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) ||
+              isset($_POST['is_ajax']);
+
     // 0. MANUAL SYNC TRIGGER
     if (isset($_POST['sync_company_now'])) {
         $syncRes = sync_all_orders_from_company_api('Admin Manual Sync');
@@ -125,12 +129,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'checkpoint' => 'Merchant prepared package and applied tracking label'
             ]);
 
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'order_id' => $oid,
+                    'tracking_code' => $pkgId,
+                    'courier' => $courier,
+                    'message' => $isEdit ? "Package ID updated" : "Package confirmed and status set to Ready to Ship"
+                ]);
+                exit;
+            }
+
             if ($isEdit) {
                 $flashMsg = "✓ Order #{$oid} Package ID updated to [{$pkgId}] ({$courier}).";
             } else {
                 $flashMsg = "✓ Order #{$oid} package confirmed prepared! Status automatically set to \"Ready to Ship\" and linked with Delivery Company Package ID: {$pkgId} ({$courier}).";
             }
         } elseif (empty($pkgId)) {
+            if ($isAjax) {
+                header('Content-Type: application/json', true, 400);
+                echo json_encode(['success' => false, 'error' => 'Please enter the Company Package ID']);
+                exit;
+            }
             $flashMsg = "⚠️ Please enter the delivery company Package ID / Tracking code.";
             $flashType = 'error';
         }
@@ -577,17 +598,66 @@ function closePackageConfirmModal() {
     document.getElementById('packageConfirmModalOverlay').classList.remove('open');
 }
 
-function handlePackageFormSubmit(e) {
-    const trackingInput = document.getElementById('pkgConfirmTrackingId');
-    if (!trackingInput.value.trim()) {
+async function handlePackageFormSubmit(e) {
+    if (e && e.preventDefault) {
         e.preventDefault();
+    }
+    
+    const trackingInput = document.getElementById('pkgConfirmTrackingId');
+    const pkgId = (trackingInput ? trackingInput.value : '').trim();
+    if (!pkgId) {
         alert('Please enter the delivery company Package ID / Tracking code.');
-        trackingInput.focus();
+        if (trackingInput) trackingInput.focus();
         return false;
     }
+
+    const orderId = document.getElementById('pkgConfirmOrderId').value;
+    const isEdit = document.getElementById('pkgConfirmIsEdit').value;
+    const courierInput = document.getElementById('pkgConfirmCourier');
+    const courier = courierInput ? courierInput.value.trim() : '';
+
     const btn = document.getElementById('pkgConfirmSubmitBtn');
-    if (btn) btn.innerText = 'Saving Package...';
-    return true;
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Saving Package...';
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('confirm_package_prepared', '1');
+        formData.append('order_id', orderId);
+        formData.append('tracking_code', pkgId);
+        formData.append('courier', courier || 'Kurdistan Express');
+        formData.append('is_edit_mode', isEdit);
+        formData.append('is_ajax', '1');
+
+        const response = await fetch('/admin/orders.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (response.ok && (data.success || data.order_id)) {
+            // Reload page on success via JavaScript reload function
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to update package ID. Please try again.');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = isEdit === '1' ? 'Save' : 'Confirm';
+            }
+        }
+    } catch (err) {
+        console.error('Package confirmation error:', err);
+        // Fallback: reload page
+        window.location.reload();
+    }
+
+    return false;
 }
 
 // Webhook Simulator Modal
