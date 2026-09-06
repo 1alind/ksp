@@ -197,11 +197,6 @@ require_once __DIR__ . '/../header.php';
                         <?php foreach ($ordersList as $ord): 
                             $ordTot = $ord['total'] ?? 0;
                             $itemsCount = count($ord['items'] ?? []);
-                            $waPhone = preg_replace('/[^0-9]/', '', $ord['phone'] ?? '');
-                            if (strpos($waPhone, '07') === 0) {
-                                $waPhone = '964' . substr($waPhone, 1);
-                            }
-                            $waMsg = rawurlencode("Hello " . $ord['customer_name'] . ", greetings from AURA Luxury Store. Your order #" . $ord['order_id'] . " status is currently: " . ($ord['order_status'] ?? 'Processing') . ". Track live: https://aurastore.iq/track.php?order_id=" . $ord['order_id']);
                         ?>
                             <tr data-status="<?php echo htmlspecialchars($ord['order_status'] ?? 'Pending'); ?>" data-search="<?php echo strtolower($ord['order_id'] . ' ' . $ord['customer_name'] . ' ' . $ord['phone'] . ' ' . $ord['city']); ?>">
                                 <td>
@@ -249,11 +244,6 @@ require_once __DIR__ . '/../header.php';
                                         <button type="button" class="btn btn-outline btn-xs" onclick="printOrderInvoice(<?php echo htmlspecialchars(json_encode($ord)); ?>)" title="<?php echo adm_t('admin_orders_tax_invoice', 'Print Luxury Invoice'); ?>">
                                             📄 <?php echo adm_t('admin_orders_btn_invoice', 'Invoice'); ?>
                                         </button>
-                                        <?php if (!empty($waPhone)): ?>
-                                            <a href="https://wa.me/<?php echo $waPhone; ?>?text=<?php echo $waMsg; ?>" target="_blank" class="btn btn-outline btn-xs" style="color:#22c55e;" title="WhatsApp">
-                                                💬 WA
-                                            </a>
-                                        <?php endif; ?>
                                         <a href="/track.php?order_id=<?php echo urlencode($ord['order_id']); ?>" class="btn btn-ghost btn-xs" title="Track Live">👁️</a>
                                         <form action="/admin/orders.php" method="POST" onsubmit="return confirm('<?php echo adm_t('admin_orders_delete_confirm', 'Delete order permanently?'); ?>')" style="display:inline;">
                                             <input type="hidden" name="delete_order_id" value="<?php echo htmlspecialchars($ord['order_id']); ?>">

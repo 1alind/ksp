@@ -93,7 +93,7 @@ require_once __DIR__ . '/../header.php';
                             <span class="badge-tag" style="background:var(--accent-gold-bg); color:var(--accent-gold); font-weight:800;"><?php echo count($ordersList); ?> <?php echo adm_t('admin_nav_orders', 'Orders'); ?></span>
                         </div>
                         <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; color:var(--text-primary);"><?php echo adm_t('admin_orders_title', 'Orders & Logistics Radar'); ?></h4>
-                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_orders_desc', 'Live dispatch radar, Kurdistan courier updates, WhatsApp status triggers, and invoice prints.'); ?></p>
+                        <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.5;"><?php echo adm_t('admin_workspace_orders_desc', 'Live dispatch radar, courier updates, automated fulfillment, and invoice prints.'); ?></p>
                     </div>
                     <div style="margin-top:16px; color:var(--accent-gold); font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
                         <?php echo adm_t('admin_btn_open_workspace', 'Open Workspace'); ?> →
