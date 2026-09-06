@@ -49,11 +49,14 @@ if (!empty($searchOrderId)) {
             </form>
             <div class="sample-ids-hint" style="margin-top:14px;">
                 <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
-                    <a href="track.php?order_id=ORD-10942" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        ⏳ Pending: ORD-10942
+                    <a href="track.php?order_id=ORD-10002" class="badge-tag" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        ⏳ Waiting: ORD-10002
                     </a>
-                    <a href="track.php?order_id=ORD-25814" class="badge-tag" style="background:rgba(59,130,246,0.15); color:#3b82f6; border:1px solid rgba(59,130,246,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        📦 Processing: ORD-25814
+                    <a href="track.php?order_id=ORD-10001" class="badge-tag" style="background:rgba(99,102,241,0.15); color:#6366f1; border:1px solid rgba(99,102,241,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        📦 Ready to Ship: ORD-10001
+                    </a>
+                    <a href="track.php?order_id=EXP-9921" class="badge-tag" style="background:rgba(217,119,6,0.15); color:var(--accent-gold); border:1px solid rgba(217,119,6,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
+                        🔍 Package ID Search: EXP-9921
                     </a>
                     <a href="track.php?order_id=ORD-61028" class="badge-tag" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
                         🚚 Shipped: ORD-61028
@@ -64,17 +67,23 @@ if (!empty($searchOrderId)) {
                     <a href="track.php?order_id=ORD-73195" class="badge-tag" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
                         ✅ Delivered: ORD-73195
                     </a>
-                    <a href="track.php?order_id=ORD-40291" class="badge-tag" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.4); text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;">
-                        🛑 Cancelled: ORD-40291
-                    </a>
                 </div>
             </div>
         </div>
 
         <?php if ($searched && $foundOrder): 
-            $status = $foundOrder['order_status'] ?? 'Processing';
-            $stepMap = ['Pending' => 1, 'Processing' => 2, 'Shipped' => 3, 'Out for Delivery' => 4, 'Delivered' => 5];
-            $currentStep = $stepMap[$status] ?? 2;
+            $status = $foundOrder['order_status'] ?? 'Waiting';
+            $stepMap = [
+                'Waiting' => 1,
+                'Pending' => 1,
+                'Ready to Ship' => 2,
+                'rdy to ship' => 2,
+                'Processing' => 2,
+                'Shipped' => 3,
+                'Out for Delivery' => 4,
+                'Delivered' => 5
+            ];
+            $currentStep = $stepMap[$status] ?? 1;
             $ordTot = $foundOrder['total'] ?? 0;
             $ordIqd = $foundOrder['total_iqd'] ?? ($ordTot * $rate);
             $waPhone = preg_replace('/[^0-9]/', '', $foundOrder['phone'] ?? '');
@@ -101,7 +110,7 @@ if (!empty($searchOrderId)) {
                     <div class="step-item <?php echo $currentStep >= 1 ? 'completed' : ''; ?> <?php echo $currentStep === 1 ? 'current' : ''; ?>">
                         <div class="step-circle">1</div>
                         <div class="step-info">
-                            <strong><?php echo t('status_pending', $lang); ?></strong>
+                            <strong><?php echo t('status_waiting', $lang); ?></strong>
                             <small>Order Confirmed</small>
                         </div>
                     </div>
@@ -111,8 +120,8 @@ if (!empty($searchOrderId)) {
                     <div class="step-item <?php echo $currentStep >= 2 ? 'completed' : ''; ?> <?php echo $currentStep === 2 ? 'current' : ''; ?>">
                         <div class="step-circle">2</div>
                         <div class="step-info">
-                            <strong><?php echo t('status_processing', $lang); ?></strong>
-                            <small>Satin Packaging</small>
+                            <strong><?php echo t('status_ready_to_ship', $lang); ?></strong>
+                            <small>Package Prepared</small>
                         </div>
                     </div>
 
@@ -122,7 +131,7 @@ if (!empty($searchOrderId)) {
                         <div class="step-circle">3</div>
                         <div class="step-info">
                             <strong><?php echo t('status_shipped', $lang); ?></strong>
-                            <small>Hub Dispatch</small>
+                            <small>Courier Pickup (API)</small>
                         </div>
                     </div>
 
@@ -131,8 +140,8 @@ if (!empty($searchOrderId)) {
                     <div class="step-item <?php echo $currentStep >= 4 ? 'completed' : ''; ?> <?php echo $currentStep === 4 ? 'current' : ''; ?>">
                         <div class="step-circle">4</div>
                         <div class="step-info">
-                            <strong><?php echo t('status_out_for_delivery', $lang); ?></strong>
-                            <small>Driver En Route</small>
+                            <strong><?php echo t('status_out_delivery', $lang); ?></strong>
+                            <small>Driver on Route</small>
                         </div>
                     </div>
 
@@ -155,11 +164,16 @@ if (!empty($searchOrderId)) {
                             <span style="font-size:24px;">🚚</span>
                             <div>
                                 <h4 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0;">
-                                    <?php echo htmlspecialchars($foundOrder['courier'] ?? 'AURA Express Logistics'); ?>
+                                    <?php echo htmlspecialchars($foundOrder['courier'] ?? 'Assigned Delivery Courier'); ?>
                                 </h4>
-                                <span style="font-size:12px; color:var(--accent-gold); font-weight:700;">
-                                    Tracking / Manifest: <code><?php echo htmlspecialchars($foundOrder['tracking_code'] ?? $foundOrder['order_id']); ?></code>
-                                </span>
+                                <div style="font-size:12px; color:var(--accent-gold); font-weight:700; margin-top:3px;">
+                                    Delivery Company Package ID: 
+                                    <?php if (!empty($foundOrder['tracking_code'])): ?>
+                                        <code style="font-size:12px;"><?php echo htmlspecialchars($foundOrder['tracking_code']); ?></code>
+                                    <?php else: ?>
+                                        <span class="text-muted" style="font-size:11.5px; font-style:italic;">Awaiting Package Preparation</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                         <?php 

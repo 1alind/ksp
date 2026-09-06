@@ -576,45 +576,59 @@ function adjust_product_stock($id, $delta) {
 // ==============================================================================
 function get_all_orders() {
     $pdo = get_mysql_pdo();
-    if (!$pdo) return [];
+    $orders = [];
 
-    try {
-        $stmt = $pdo->query("SELECT * FROM orders ORDER BY id DESC");
-        $rows = $stmt->fetchAll();
-        $orders = [];
-        foreach ($rows as $r) {
-            $orders[] = [
-                'id' => (int)$r['id'],
-                'order_id' => $r['order_id'],
-                'customer_name' => $r['customer_name'],
-                'phone' => $r['customer_phone'],
-                'email' => $r['customer_email'],
-                'city' => $r['governorate'],
-                'district' => $r['district'],
-                'address' => $r['customer_address'],
-                'subtotal' => (float)$r['subtotal'],
-                'shipping' => (float)$r['shipping_fee'],
-                'discount' => (float)$r['discount_amount'],
-                'total' => (float)$r['total_amount'],
-                'total_iqd' => (float)$r['total_amount'],
-                'payment_method' => $r['payment_method'],
-                'payment_status' => $r['payment_status'],
-                'order_status' => $r['order_status'],
-                'courier' => $r['courier'],
-                'driver_name' => $r['driver_name'],
-                'driver_phone' => $r['driver_phone'],
-                'tracking_code' => $r['tracking_code'],
-                'dispatch_notes' => $r['dispatch_notes'],
-                'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
-                'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
-                'created_at' => $r['created_at'],
-                'date' => $r['created_at']
-            ];
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM orders ORDER BY id DESC");
+            $rows = $stmt->fetchAll();
+            foreach ($rows as $r) {
+                $orders[] = [
+                    'id' => (int)$r['id'],
+                    'order_id' => $r['order_id'],
+                    'customer_name' => $r['customer_name'],
+                    'phone' => $r['customer_phone'],
+                    'email' => $r['customer_email'],
+                    'city' => $r['governorate'],
+                    'district' => $r['district'],
+                    'address' => $r['customer_address'],
+                    'subtotal' => (float)$r['subtotal'],
+                    'shipping' => (float)$r['shipping_fee'],
+                    'discount' => (float)$r['discount_amount'],
+                    'total' => (float)$r['total_amount'],
+                    'total_iqd' => (float)$r['total_amount'],
+                    'payment_method' => $r['payment_method'],
+                    'payment_status' => $r['payment_status'],
+                    'order_status' => $r['order_status'],
+                    'courier' => $r['courier'],
+                    'driver_name' => $r['driver_name'],
+                    'driver_phone' => $r['driver_phone'],
+                    'tracking_code' => $r['tracking_code'],
+                    'dispatch_notes' => $r['dispatch_notes'],
+                    'estimated_delivery' => !empty($r['estimated_delivery']) ? $r['estimated_delivery'] : 'Estimated Arrival: Within 24 – 72 Hours',
+                    'items' => is_string($r['items_json']) ? json_decode($r['items_json'], true) : ($r['items_json'] ?? []),
+                    'created_at' => $r['created_at'],
+                    'date' => $r['created_at']
+                ];
+            }
+            if (!empty($orders)) {
+                return $orders;
+            }
+        } catch (Exception $e) {
+            // Fallback to JSON below
         }
-        return $orders;
-    } catch (Exception $e) {
-        return [];
     }
+
+    // JSON file fallback
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $data = json_decode(file_get_contents($jsonFile), true);
+        if (!empty($data['orders']) && is_array($data['orders'])) {
+            return $data['orders'];
+        }
+    }
+
+    return [];
 }
 
 // Alias for get_all_orders
@@ -665,13 +679,24 @@ function get_order_by_id($order_id) {
 }
 
 function create_order($order_data) {
-    $pdo = get_mysql_pdo();
     if (empty($order_data['order_id'])) {
         $order_data['order_id'] = 'ORD-' . rand(10000, 99999);
     }
     $order_data['created_at'] = date('Y-m-d H:i:s');
-    $order_data['order_status'] = $order_data['order_status'] ?? 'Pending';
-    
+    $order_data['order_status'] = $order_data['order_status'] ?? 'Waiting';
+
+    // Also persist to orders.json
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(file_get_contents($jsonFile), true);
+        if (!isset($jsonData['orders']) || !is_array($jsonData['orders'])) {
+            $jsonData['orders'] = [];
+        }
+        array_unshift($jsonData['orders'], $order_data);
+        @file_put_contents($jsonFile, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    $pdo = get_mysql_pdo();
     if (!$pdo) return $order_data;
 
     try {
@@ -695,7 +720,7 @@ function create_order($order_data) {
             ':total_amount' => $order_data['total_amount'] ?? ($order_data['total'] ?? 0),
             ':payment_method' => $order_data['payment_method'] ?? 'COD',
             ':payment_status' => $order_data['payment_status'] ?? 'Pending',
-            ':order_status' => $order_data['order_status'] ?? 'Received',
+            ':order_status' => $order_data['order_status'] ?? 'Waiting',
             ':courier' => $order_data['courier'] ?? '',
             ':driver_name' => $order_data['driver_name'] ?? '',
             ':driver_phone' => $order_data['driver_phone'] ?? '',
@@ -711,8 +736,24 @@ function create_order($order_data) {
 }
 
 function update_order_status($order_id, $status) {
+    // Dual sync to orders.json
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(file_get_contents($jsonFile), true);
+        if (isset($jsonData['orders']) && is_array($jsonData['orders'])) {
+            foreach ($jsonData['orders'] as &$ord) {
+                if (($ord['order_id'] ?? '') === $order_id) {
+                    $ord['order_status'] = $status;
+                    break;
+                }
+            }
+            unset($ord);
+            @file_put_contents($jsonFile, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+    }
+
     $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
+    if (!$pdo) return true;
 
     try {
         $stmt = $pdo->prepare("UPDATE orders SET order_status = :status WHERE order_id = :oid");
@@ -723,8 +764,26 @@ function update_order_status($order_id, $status) {
 }
 
 function update_order_full($order_id, $fields) {
+    // Dual sync to orders.json
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(file_get_contents($jsonFile), true);
+        if (isset($jsonData['orders']) && is_array($jsonData['orders'])) {
+            foreach ($jsonData['orders'] as &$ord) {
+                if (($ord['order_id'] ?? '') === $order_id) {
+                    foreach ($fields as $k => $v) {
+                        $ord[$k] = $v;
+                    }
+                    break;
+                }
+            }
+            unset($ord);
+            @file_put_contents($jsonFile, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+    }
+
     $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
+    if (!$pdo) return true;
 
     try {
         $setClauses = [];
@@ -750,7 +809,7 @@ function update_order_full($order_id, $fields) {
             }
         }
 
-        if (empty($setClauses)) return false;
+        if (empty($setClauses)) return true;
 
         $sql = "UPDATE orders SET " . implode(", ", $setClauses) . " WHERE order_id = :oid";
         $stmt = $pdo->prepare($sql);
@@ -761,8 +820,20 @@ function update_order_full($order_id, $fields) {
 }
 
 function delete_order($order_id) {
+    // Dual sync to orders.json
+    $jsonFile = __DIR__ . '/orders.json';
+    if (file_exists($jsonFile)) {
+        $jsonData = json_decode(file_get_contents($jsonFile), true);
+        if (isset($jsonData['orders']) && is_array($jsonData['orders'])) {
+            $jsonData['orders'] = array_values(array_filter($jsonData['orders'], function ($o) use ($order_id) {
+                return ($o['order_id'] ?? '') !== $order_id;
+            }));
+            @file_put_contents($jsonFile, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+    }
+
     $pdo = get_mysql_pdo();
-    if (!$pdo) return false;
+    if (!$pdo) return true;
 
     try {
         $stmt = $pdo->prepare("DELETE FROM orders WHERE order_id = :oid");

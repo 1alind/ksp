@@ -81,6 +81,62 @@
             }
         },
 
+        // 1b. Confirm Package Preparation & Link Package ID (sets to Ready to Ship)
+        confirmPackagePreparation: async function (orderId, packageId, courier = 'Kurdistan Express Logistics', notes = '') {
+            try {
+                const targetUrl = window.location.pathname.includes('/admin/') ? 'orders.php' : '/admin/orders.php';
+                const res = await fetch(targetUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'confirm_package',
+                        order_id: orderId,
+                        tracking_code: packageId,
+                        courier: courier,
+                        dispatch_notes: notes
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showAdminToast(`✓ Order #${orderId} confirmed prepared! Package ID: ${packageId}`, 'success');
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Failed to confirm package');
+                }
+            } catch (err) {
+                console.error('Error confirming package:', err);
+                showAdminToast(`⚠️ Error: ${err.message}`, 'error');
+                throw err;
+            }
+        },
+
+        // 1c. Sync Delivery Webhook API Status (Shipped, Out for Delivery, Delivered)
+        syncDeliveryWebhook: async function (packageId, status, courier = 'Kurdistan Express Delivery', notes = '') {
+            try {
+                const res = await fetch('/api/delivery_webhook.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        package_id: packageId,
+                        status: status,
+                        courier: courier,
+                        notes: notes
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showAdminToast(`⚡ Delivery API: #${data.order_id || packageId} is now "${data.new_status}"`, 'success');
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Delivery API sync failed');
+                }
+            } catch (err) {
+                console.error('Delivery webhook error:', err);
+                showAdminToast(`⚠️ Webhook error: ${err.message}`, 'error');
+                throw err;
+            }
+        },
+
         // 2. Real-Time Product Stock Stepper (+ / -)
         adjustStock: async function (productId, delta, btnEl) {
             const countEl = document.getElementById('stockBadge_' + productId) || document.getElementById('stockCount_' + productId);

@@ -1,6 +1,42 @@
 {
     "orders": [
         {
+            "id": 2,
+            "order_id": "ORD-10002",
+            "customer_name": "Soma Botan",
+            "customer_phone": "0750 445 8899",
+            "customer_email": "soma.botan@gmail.com",
+            "governorate": "Erbil",
+            "district": "Ankawa",
+            "customer_address": "Street 12, Near St. Joseph Cathedral",
+            "subtotal": 185000,
+            "shipping_fee": 5000,
+            "discount_amount": 0,
+            "total_amount": 190000,
+            "total": 190000,
+            "currency": "IQD",
+            "payment_method": "Cash on Delivery (COD)",
+            "payment_status": "Pending (Pay on Delivery)",
+            "order_status": "Waiting",
+            "courier": "",
+            "driver_name": "",
+            "driver_phone": "",
+            "tracking_code": "",
+            "dispatch_notes": "Order placed. Awaiting fulfillment & package preparation.",
+            "estimated_delivery": "Estimated Arrival: Within 24 – 72 Hours",
+            "items": [
+                {
+                    "id": 2,
+                    "title": "Silk Gold Embroidery Kaftan",
+                    "price": 185000,
+                    "quantity": 1,
+                    "size": "M",
+                    "color": "Emerald Gold"
+                }
+            ],
+            "created_at": "2026-09-06T11:15:00.000Z"
+        },
+        {
             "id": 1,
             "order_id": "ORD-10001",
             "customer_name": "Ahmad Al-Kurdi",
@@ -17,12 +53,12 @@
             "currency": "IQD",
             "payment_method": "First Iraqi Bank (FIB)",
             "payment_status": "Paid",
-            "order_status": "Shipped",
-            "courier": "Express Courier",
+            "order_status": "Ready to Ship",
+            "courier": "Kurdistan Express Logistics",
             "driver_name": "",
             "driver_phone": "",
-            "tracking_code": "TRK-DHK-9921",
-            "dispatch_notes": "Call customer 15 mins before arrival. Fragile luxury glass packaging.",
+            "tracking_code": "EXP-9921",
+            "dispatch_notes": "Luxury velvet packaging prepared. Fragile seal applied.",
             "estimated_delivery": "Estimated Arrival: Within 24 – 72 Hours",
             "items": [
                 {
@@ -34,7 +70,7 @@
                     "color": "Midnight Blue"
                 }
             ],
-            "created_at": "2026-09-01T10:30:00.000Z"
+            "created_at": "2026-09-05T10:30:00.000Z"
         }
     ]
 }
